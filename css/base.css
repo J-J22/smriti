@@ -1,0 +1,76 @@
+/* Smriti — design tokens + reset. Shared by both worlds. */
+
+:root {
+  /* Warm, non-clinical palette. High contrast against paper. */
+  --paper:      #FBF6EC;
+  --paper-2:    #F2E9D8;
+  --ink:        #1E1A16;
+  --ink-soft:   #4A4038;
+  --line:       #D8C9AE;
+
+  --go:         #1B7A3D;   /* Begin / affirm */
+  --go-dark:    #135C2D;
+  --warm:       #B4531A;   /* gentle redirect, never "error red" */
+  --highlight:  #F5C542;
+
+  /* Type scale — patient side is deliberately enormous.
+     Static first so an old browser without clamp() still gets big text; the
+     fluid values override where clamp() is understood. */
+  --t-huge:   44px;
+  --t-prompt: 32px;
+  --t-label:  24px;
+  --t-body:   17px;
+  --gap:  20px;
+  --pad:  24px;
+  --round: 22px;
+
+  --tap-min: 96px;         /* never smaller, anywhere on patient side */
+}
+
+@supports (font-size: clamp(1rem, 2vw, 3rem)) {
+  :root {
+    --t-huge:   clamp(2.6rem, 9vw, 4.5rem);
+    --t-prompt: clamp(1.9rem, 5.6vw, 3.1rem);
+    --t-label:  clamp(1.4rem, 4vw, 2.1rem);
+    --t-body:   clamp(1.05rem, 2.6vw, 1.25rem);
+    --gap:  clamp(12px, 3vw, 28px);
+    --pad:  clamp(16px, 4vw, 34px);
+  }
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;              /* patient side never scrolls */
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Noto Sans", "Segoe UI", Roboto, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+body {
+  /* Kill every gesture we don't want: pinch, double-tap zoom, swipe nav. */
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
+}
+
+img { display: block; max-width: 100%; -webkit-user-drag: none; }
+
+button {
+  font: inherit;
+  color: inherit;
+  margin: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
