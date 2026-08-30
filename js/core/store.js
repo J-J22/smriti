@@ -322,6 +322,21 @@ export function getSettings() {
   return clone(requireCache().settings);
 }
 
+// Setting the baseline is the caregiver saying "start here" — so it also
+// resets each exercise's current level, keeping the history intact.
+export function applyBaselineDifficulty(level) {
+  const settings = setSettings({ baselineDifficulty: level });
+  const exercises = requireCache().engagement.exercises;
+  for (const id of Object.keys(exercises)) {
+    exercises[id].difficulty = settings.baselineDifficulty;
+    exercises[id].correctStreak = 0;
+    exercises[id].wrongStreak = 0;
+    exercises[id].lastChange = null;
+  }
+  persist('engagement');
+  return settings;
+}
+
 export function setSettings(patch) {
   const settings = requireCache().settings;
   Object.assign(settings, patch);

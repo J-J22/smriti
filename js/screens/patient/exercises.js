@@ -6,6 +6,7 @@ import { el } from '../../core/dom.js';
 import { homeIcon } from '../shared.js';
 import { speak, stopSpeaking } from '../../core/voice.js';
 import {
+  getMemories,
   getDifficulty,
   recordRound,
   recordSession,
@@ -151,15 +152,56 @@ export function renderExercises(container, params, navigate, content) {
   /* ---------- exercise 1: reminiscence recall ---------- */
 
   const reminiscence = c.reminiscence;
-  const reminiscenceItems = shuffle(reminiscence.items).slice(0, reminiscence.roundsPerSession);
+
+  // The pool is the content pack plus any photos the caregiver has added:
+  // two or more named photos become "Which one is <name>?" rounds.
+  function buildReminiscencePool() {
+    const items = reminiscence.items.map((item) => ({
+      id: item.id,
+      scene: item.scene,
+      question: item.question,
+      questionSpeech: item.questionSpeech || item.question,
+      answer: item.answer,
+      distractors: item.distractors,
+      catalogue: objects,
+      imageOnly: false,
+    }));
+
+    const photos = getMemories().filter((memory) => memory.name && memory.image);
+    if (photos.length >= 2) {
+      const catalogue = {};
+      for (const photo of photos) {
+        catalogue[photo.id] = { label: photo.name, image: photo.image };
+      }
+      for (const photo of photos) {
+        items.push({
+          id: 'photo-' + photo.id,
+          scene: null,
+          question: reminiscence.photoQuestion.replace('{name}', photo.name),
+          questionSpeech: (reminiscence.photoQuestionSpeech || reminiscence.photoQuestion)
+            .replace('{name}', photo.name),
+          answer: photo.id,
+          distractors: photos.filter((other) => other.id !== photo.id)
+            .map((other) => other.id),
+          catalogue: catalogue,
+          // Printing the names under the photos would give the answer away.
+          imageOnly: true,
+        });
+      }
+    }
+    return shuffle(items).slice(0, reminiscence.roundsPerSession);
+  }
+
+  const reminiscenceItems = buildReminiscencePool();
 
   function buildReminiscenceOptions(item, count) {
+    const catalogue = item.catalogue;
     const distractors = shuffle(item.distractors)
-      .filter((id) => objects[id])
+      .filter((id) => catalogue[id])
       .slice(0, Math.max(0, count - 1));
     return shuffle([item.answer].concat(distractors))
-      .filter((id) => objects[id])
-      .map(objectView);
+      .filter((id) => catalogue[id])
+      .map((id) => ({ id: id, label: catalogue[id].label, image: catalogue[id].image }));
   }
 
   function paintReminiscence() {
@@ -200,14 +242,17 @@ export function renderExercises(container, params, navigate, content) {
         onclick: () => choose(option.id),
       }, [
         el('img', { src: option.image, alt: '' }),
-        el('span', { class: 'option-label' }, option.label),
+        item.imageOnly ? null : el('span', { class: 'option-label' }, option.label),
       ]);
+      if (item.imageOnly) button.classList.add('is-image-only');
       button.dataset.optionId = option.id;
       buttons.push(button);
     }
 
     container.appendChild(screen([
-      el('div', { class: 'exercise-scene' }, [el('img', { src: item.scene, alt: '' })]),
+      item.scene
+        ? el('div', { class: 'exercise-scene' }, [el('img', { src: item.scene, alt: '' })])
+        : null,
       el('p', { class: 'exercise-question' }, item.question),
       el('div', { class: 'options' }, buttons),
       feedback,

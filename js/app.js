@@ -1,5 +1,5 @@
 import { loadContent } from './core/content.js';
-import { initStore } from './core/store.js';
+import { initStore, getSettings } from './core/store.js';
 import { register, init } from './core/router.js';
 import { renderEntry } from './screens/entry.js';
 import { renderPatientHome } from './screens/patient/home.js';
@@ -17,8 +17,10 @@ function withContent(renderFn, content) {
 }
 
 async function bootstrap() {
-  // The store hydrates once here so every screen can read it synchronously.
-  const [content] = await Promise.all([loadContent(), initStore()]);
+  // The store hydrates first: it holds the language the content pack is
+  // chosen by, and every screen reads it synchronously after this point.
+  await initStore();
+  const content = await loadContent(getSettings().language);
 
   register('entry', withContent(renderEntry, content));
   register('patient-home', withContent(renderPatientHome, content));
