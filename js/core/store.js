@@ -16,7 +16,7 @@ const OBJECT_STORE = 'kv';
 const LS_PREFIX = 'smriti:';
 
 export const COLLECTIONS = ['reminders', 'memories', 'engagement', 'settings', 'activity'];
-export const EXERCISE_IDS = ['exercise-1', 'exercise-2', 'exercise-3'];
+export const EXERCISE_IDS = ['exercise-1', 'exercise-2', 'exercise-3', 'exercise-4', 'exercise-5'];
 const MAX_ROUNDS_KEPT = 60;
 const MAX_SESSIONS_KEPT = 30;
 

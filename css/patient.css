@@ -501,3 +501,135 @@
   border: 3px solid var(--line);
   box-shadow: var(--shadow-sm);
 }
+
+/* ---------------------------------------------------------------
+   Exercise 4 — daily routine recall
+   --------------------------------------------------------------- */
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.9rem;
+  width: 100%;
+  max-width: 560px;
+}
+
+.step-card {
+  position: relative;
+  flex: 1 1 30%;
+  min-width: 132px;
+  min-height: 158px;
+  padding: 0.75rem 0.5rem;
+  background: var(--surface);
+  color: var(--ink);
+  border: 3px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  animation: rise-in 320ms var(--ease) both;
+}
+
+.steps .step-card:nth-child(2) { animation-delay: 60ms; }
+.steps .step-card:nth-child(3) { animation-delay: 120ms; }
+.steps .step-card:nth-child(4) { animation-delay: 180ms; }
+.steps .step-card:nth-child(5) { animation-delay: 240ms; }
+
+.step-card img {
+  width: 100%;
+  max-width: 96px;
+  height: 72px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.step-label { font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
+
+/* The order number appears as each step is placed, so the sequence the
+   patient has built stays visible on screen. */
+.step-badge {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--good);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.step-card.is-placed {
+  border-color: var(--good);
+  background: var(--good-soft);
+  animation: pop-in 340ms var(--ease) both;
+}
+
+.step-card.is-placed .step-badge { display: flex; }
+
+.step-card.is-passed-over { border-color: var(--line); background: var(--bg-sunk); opacity: 0.55; }
+
+/* ---------------------------------------------------------------
+   Exercise 5 — pattern recognition
+   --------------------------------------------------------------- */
+
+.pattern-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  width: 100%;
+  max-width: 540px;
+  padding: 0.9rem;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.pattern-item,
+.pattern-blank {
+  width: 76px;
+  height: 76px;
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.pattern-item { background: var(--bg-sunk); }
+
+.pattern-item img,
+.pattern-blank img { width: 60px; height: 60px; object-fit: contain; }
+
+.pattern-blank {
+  border: 3px dashed var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.pattern-blank.is-filled {
+  border-style: solid;
+  border-color: var(--good);
+  background: var(--good-soft);
+  animation: pop-in 360ms var(--ease) both;
+}
+
+@media (max-height: 700px) {
+  .step-card { min-height: 132px; }
+  .step-card img { height: 58px; }
+  .pattern-item, .pattern-blank { width: 62px; height: 62px; }
+  .pattern-item img, .pattern-blank img { width: 48px; height: 48px; }
+}

@@ -118,7 +118,7 @@
       },
       "reminiscence": {
         "title": "Remembering",
-        "roundsPerSession": 3,
+        "roundsPerSession": 2,
         "optionsByLevel": [
           2,
           3,
@@ -219,11 +219,138 @@
         "title": "Find It",
         "prompt": "Tap the {object}",
         "promptSpeech": "Tap the {object}.",
-        "roundsPerSession": 3,
+        "roundsPerSession": 2,
         "optionsByLevel": [
           3,
           4,
           5
+        ],
+        "pool": [
+          "obj-cup",
+          "obj-teapot",
+          "obj-flower",
+          "obj-umbrella",
+          "obj-radio",
+          "obj-dog",
+          "obj-bicycle",
+          "obj-house"
+        ]
+      },
+      "routine": {
+        "title": "Daily Routine",
+        "question": "Let us put the {name} in order.",
+        "questionSpeech": "Let us put the {name} in order.",
+        "promptFirst": "Which one comes first?",
+        "promptNext": "And after that?",
+        "promptFirstSpeech": "Which one comes first?",
+        "promptNextSpeech": "And after that?",
+        "wrongText": "That one comes later — try another.",
+        "wrongSpeech": "That one comes later. Try another.",
+        "roundsPerSession": 1,
+        "stepsByLevel": [
+          3,
+          4,
+          5
+        ],
+        "items": [
+          {
+            "id": "morning",
+            "name": "morning",
+            "steps": [
+              {
+                "id": "wake",
+                "label": "Wake up",
+                "image": "assets/images/obj-sunrise.svg"
+              },
+              {
+                "id": "water",
+                "label": "Drink water",
+                "image": "assets/images/obj-water.svg"
+              },
+              {
+                "id": "meal",
+                "label": "Eat breakfast",
+                "image": "assets/images/obj-meal.svg"
+              },
+              {
+                "id": "medicine",
+                "label": "Take medicine",
+                "image": "assets/images/obj-medicine.svg"
+              },
+              {
+                "id": "walk",
+                "label": "Go for a walk",
+                "image": "assets/images/obj-walk.svg"
+              }
+            ]
+          },
+          {
+            "id": "evening",
+            "name": "evening",
+            "steps": [
+              {
+                "id": "walk",
+                "label": "Evening walk",
+                "image": "assets/images/obj-walk.svg"
+              },
+              {
+                "id": "meal",
+                "label": "Eat dinner",
+                "image": "assets/images/obj-meal.svg"
+              },
+              {
+                "id": "medicine",
+                "label": "Take medicine",
+                "image": "assets/images/obj-medicine.svg"
+              },
+              {
+                "id": "water",
+                "label": "Drink water",
+                "image": "assets/images/obj-water.svg"
+              },
+              {
+                "id": "sleep",
+                "label": "Go to sleep",
+                "image": "assets/images/obj-moon.svg"
+              }
+            ]
+          }
+        ]
+      },
+      "pattern": {
+        "title": "What Comes Next",
+        "prompt": "Which one comes next?",
+        "promptSpeech": "Look at the row. Which one comes next?",
+        "roundsPerSession": 2,
+        "templatesByLevel": [
+          [
+            "A",
+            "B",
+            "A",
+            "B",
+            "A"
+          ],
+          [
+            "A",
+            "A",
+            "B",
+            "A",
+            "A",
+            "B"
+          ],
+          [
+            "A",
+            "B",
+            "C",
+            "A",
+            "B",
+            "C"
+          ]
+        ],
+        "optionsByLevel": [
+          2,
+          3,
+          4
         ],
         "pool": [
           "obj-cup",
@@ -296,7 +423,9 @@
       "exerciseNames": {
         "exercise-1": "Remembering",
         "exercise-2": "Matching",
-        "exercise-3": "Find It"
+        "exercise-3": "Find It",
+        "exercise-4": "Daily Routine",
+        "exercise-5": "What Comes Next"
       },
       "levels": [
         "Gentle",

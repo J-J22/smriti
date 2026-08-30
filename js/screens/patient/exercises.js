@@ -23,7 +23,7 @@ const RETRY_MS = 1600;  // gentle pause before the patient may try again
 const PRAISE_MS = 4600;
 const AFTER_SPEECH_MS = 700; // a beat to let the screen settle
 
-const SEQUENCE = ['exercise-1', 'exercise-2', 'exercise-3'];
+const SEQUENCE = ['exercise-1', 'exercise-2', 'exercise-3', 'exercise-4', 'exercise-5'];
 
 // Guards against a timer from an abandoned session firing after the patient
 // has already left the screen.
@@ -63,7 +63,9 @@ export function renderExercises(container, params, navigate, content) {
   let completedRounds = 0;
 
   // How far through each exercise this session has got.
-  const progress = { 'exercise-1': 0, 'exercise-2': 0, 'exercise-3': 0 };
+  const progress = {
+    'exercise-1': 0, 'exercise-2': 0, 'exercise-3': 0, 'exercise-4': 0, 'exercise-5': 0,
+  };
 
   function alive() {
     return token === activeToken;
@@ -135,6 +137,8 @@ export function renderExercises(container, params, navigate, content) {
     if (stage === 'exercise-1') paintReminiscence();
     else if (stage === 'exercise-2') paintMatching();
     else if (stage === 'exercise-3') paintSpot();
+    else if (stage === 'exercise-4') paintRoutine();
+    else if (stage === 'exercise-5') paintPattern();
     else if (stage === 'praise') paintPraise();
     else paintIntro();
   }
@@ -440,6 +444,180 @@ export function renderExercises(container, params, navigate, content) {
     ]));
 
     speak(promptSpeech);
+  }
+
+  /* ---------- exercise 4: daily routine recall ---------- */
+
+  const routine = c.routine;
+  const routineItems = shuffle(routine.items);
+
+  function paintRoutine() {
+    const total = routine.roundsPerSession;
+    const item = routineItems[progress['exercise-4'] % routineItems.length];
+    const stepCount = byLevel(routine.stepsByLevel, getDifficulty('exercise-4'));
+    // Steps are authored in order, so the first N of them are a valid routine.
+    const ordered = item.steps.slice(0, stepCount);
+    const feedback = feedbackLine();
+    const prompt = el('p', { class: 'exercise-question' }, routine.promptFirst);
+    const cards = [];
+    let placed = 0;
+    let busy = false;
+    let attempts = 0;
+
+    function choose(card) {
+      if (busy || placed >= ordered.length) return;
+      const expected = ordered[placed];
+
+      if (card.dataset.stepId !== expected.id) {
+        // Out of order: say so kindly and leave everything where it is.
+        attempts += 1;
+        busy = true;
+        card.classList.add('is-passed-over');
+        sayThen({ text: routine.wrongText, speech: routine.wrongSpeech },
+          feedback, 'gentle', () => {
+            card.classList.remove('is-passed-over');
+            clearFeedback(feedback);
+            busy = false;
+          }, RETRY_MS);
+        return;
+      }
+
+      placed += 1;
+      card.disabled = true;
+      card.classList.add('is-placed');
+      const badge = card.querySelector('.step-badge');
+      if (badge) badge.textContent = String(placed);
+
+      if (placed >= ordered.length) {
+        resolveRound('exercise-4', total,
+          { correct: attempts === 0, promptId: item.id, attempts: attempts + 1 },
+          pickOne(c.feedback.correct), 'good', feedback, CORRECT_MS);
+        return;
+      }
+
+      prompt.textContent = routine.promptNext;
+      speak(routine.promptNextSpeech);
+    }
+
+    for (const stepItem of shuffle(ordered)) {
+      const card = el('button', {
+        class: 'step-card',
+        'aria-label': stepItem.label,
+        onclick: () => choose(card),
+      }, [
+        el('span', { class: 'step-badge', 'aria-hidden': 'true' }, ''),
+        el('img', { src: stepItem.image, alt: '' }),
+        el('span', { class: 'step-label' }, stepItem.label),
+      ]);
+      card.dataset.stepId = stepItem.id;
+      cards.push(card);
+    }
+
+    container.appendChild(screen([
+      el('h2', { class: 'exercise-lead' },
+        routine.question.replace('{name}', item.name)),
+      prompt,
+      el('div', { class: 'steps' }, cards),
+      feedback,
+      progressDots(total, progress['exercise-4']),
+    ]));
+
+    speak(routine.questionSpeech.replace('{name}', item.name) + ' ' +
+      routine.promptFirstSpeech);
+  }
+
+  /* ---------- exercise 5: pattern recognition ---------- */
+
+  const pattern = c.pattern;
+
+  function paintPattern() {
+    const total = pattern.roundsPerSession;
+    const level = getDifficulty('exercise-5');
+    const template = pattern.templatesByLevel[
+      Math.min(pattern.templatesByLevel.length, Math.max(1, level)) - 1];
+    const optionCount = byLevel(pattern.optionsByLevel, level);
+
+    // Map the template's slots (A, B, C) onto real pictures.
+    const slots = [];
+    for (const slot of template) if (slots.indexOf(slot) === -1) slots.push(slot);
+    const picked = shuffle(pattern.pool).filter((id) => objects[id]).slice(0, slots.length);
+    if (picked.length < slots.length) { nextStage(); return; }
+    const bySlot = {};
+    slots.forEach((slot, index) => { bySlot[slot] = picked[index]; });
+
+    const shown = template.slice(0, template.length - 1).map((slot) => bySlot[slot]);
+    const answerId = bySlot[template[template.length - 1]];
+
+    // Options: the answer plus other pictures, never a duplicate.
+    const spare = shuffle(pattern.pool)
+      .filter((id) => objects[id] && id !== answerId && picked.indexOf(id) === -1);
+    const wrong = picked.filter((id) => id !== answerId).concat(spare);
+    const options = shuffle([answerId].concat(wrong.slice(0, Math.max(0, optionCount - 1))))
+      .map(objectView);
+
+    const feedback = feedbackLine();
+    const buttons = [];
+    let resolved = false;
+    let busy = false;
+    let attempts = 0;
+
+    function choose(chosenId) {
+      if (resolved || busy) return;
+      attempts += 1;
+
+      if (chosenId === answerId) {
+        resolved = true;
+        const slot = container.querySelector('.pattern-blank');
+        if (slot) {
+          slot.classList.add('is-filled');
+          slot.innerHTML = '';
+          slot.appendChild(el('img', { src: objects[answerId].image, alt: '' }));
+        }
+        for (const button of buttons) {
+          button.disabled = true;
+          if (button.dataset.optionId === answerId) button.classList.add('is-correct');
+        }
+        resolveRound('exercise-5', total,
+          { correct: attempts === 1, promptId: template.join(''), attempts: attempts },
+          pickOne(c.feedback.correct), 'good', feedback, CORRECT_MS);
+        return;
+      }
+
+      busy = true;
+      const missed = buttons.filter((b) => b.dataset.optionId === chosenId)[0];
+      if (missed) missed.classList.add('is-passed-over');
+      sayThen(c.feedback.retry, feedback, 'gentle', () => {
+        if (missed) missed.classList.remove('is-passed-over');
+        clearFeedback(feedback);
+        busy = false;
+        speak(pattern.promptSpeech);
+      }, RETRY_MS);
+    }
+
+    for (const option of options) {
+      const button = el('button', {
+        class: 'option-btn is-image-only',
+        'aria-label': option.label,
+        onclick: () => choose(option.id),
+      }, [el('img', { src: option.image, alt: '' })]);
+      button.dataset.optionId = option.id;
+      buttons.push(button);
+    }
+
+    const row = el('div', { class: 'pattern-row' },
+      shown.map((id) => el('span', { class: 'pattern-item' },
+        [el('img', { src: objects[id].image, alt: '' })]))
+      .concat([el('span', { class: 'pattern-blank' }, '?')]));
+
+    container.appendChild(screen([
+      el('h2', { class: 'exercise-question' }, pattern.prompt),
+      row,
+      el('div', { class: 'options' }, buttons),
+      feedback,
+      progressDots(total, progress['exercise-5']),
+    ]));
+
+    speak(pattern.promptSpeech);
   }
 
   /* ---------- praise ---------- */

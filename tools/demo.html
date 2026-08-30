@@ -46,7 +46,7 @@ caregiver screens open with something real on them.</p>
 before the demo — it is the check that the whole app actually executes.</p>
 <div class="btn-row">
   <button class="tool" id="smoke">Render every screen</button>
-  <button class="tool secondary" id="drive">Play a full exercises session (~25s, speaks aloud)</button>
+  <button class="tool secondary" id="drive">Play a full exercises session (~60s, speaks aloud)</button>
 </div>
 <div id="summary">not run yet</div>
 <ol id="results"></ol>
@@ -221,16 +221,23 @@ document.getElementById('drive').onclick = async () => {
     }
 
     // Play the rest of the session correctly.
-    const deadline = Date.now() + 70000;
+    const deadline = Date.now() + 150000;
     let sawMatching = false;
     let sawSpot = false;
+    let sawRoutine = false;
+    let sawPattern = false;
     while (Date.now() < deadline && !navigatedHome) {
       await wait(400);
       if (stage.querySelector('.tiles')) sawMatching = true;
-      if (stage.querySelector('.option-btn.is-image-only')) sawSpot = true;
+      if (stage.querySelector('.steps')) sawRoutine = true;
+      if (stage.querySelector('.pattern-row')) sawPattern = true;
+      if (stage.querySelector('.option-btn.is-image-only') &&
+          !stage.querySelector('.pattern-row')) sawSpot = true;
       if (stage.querySelector('.feedback.is-good, .feedback.is-gentle')) continue;
       const tiles = Array.from(stage.querySelectorAll('.tile:not(.is-matched)'));
       if (tiles.length) { clickMatchingPair(tiles); continue; }
+      const steps = Array.from(stage.querySelectorAll('.step-card:not(.is-placed)'));
+      if (steps.length) { steps[Math.floor(Math.random() * steps.length)].click(); continue; }
       const options = Array.from(stage.querySelectorAll('.option-btn'));
       if (options.length && !options[0].disabled) {
         const id = pickCorrect(options);
@@ -241,6 +248,8 @@ document.getElementById('drive').onclick = async () => {
 
     record('exercise 2 (matching tiles) is reachable', sawMatching);
     record('exercise 3 (spot the object) is reachable', sawSpot);
+    record('exercise 4 (daily routine recall) is reachable', sawRoutine);
+    record('exercise 5 (pattern recognition) is reachable', sawPattern);
     record('the session ends and returns to Patient Home on its own', navigatedHome);
   } catch (err) {
     record('exercises session runs', false, (err && err.stack) || String(err));

@@ -43,7 +43,7 @@ function offsetTime(minutesFromNow) {
 function buildEngagement(now) {
   const exercises = {};
   const sessions = [];
-  const ids = ['exercise-1', 'exercise-2', 'exercise-3'];
+  const ids = ['exercise-1', 'exercise-2', 'exercise-3', 'exercise-4', 'exercise-5'];
   const state = {};
   for (const id of ids) {
     state[id] = { difficulty: 1, correctStreak: 0, wrongStreak: 0, lastChange: null,
@@ -59,7 +59,7 @@ function buildEngagement(now) {
 
     for (const id of ids) {
       const record = state[id];
-      const rounds = id === 'exercise-2' ? 2 : 3;
+      const rounds = id === 'exercise-4' ? 1 : 2;
       for (let i = 0; i < rounds; i++) {
         const correct = Math.random() < successRate;
         if (correct) {

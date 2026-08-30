@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smriti-shell-v4';
+const CACHE_NAME = 'smriti-shell-v5';
 
 const APP_SHELL = [
   './',
@@ -33,19 +33,42 @@ const APP_SHELL = [
   './assets/icons/nav-memories.svg',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
+  './assets/images/obj-bamboo-house.svg',
+  './assets/images/obj-basket.svg',
   './assets/images/obj-bicycle.svg',
+  './assets/images/obj-boat.svg',
   './assets/images/obj-cup.svg',
+  './assets/images/obj-dhol.svg',
   './assets/images/obj-dog.svg',
   './assets/images/obj-flower.svg',
+  './assets/images/obj-gamosa.svg',
+  './assets/images/obj-hornbill.svg',
   './assets/images/obj-house.svg',
+  './assets/images/obj-jaapi.svg',
+  './assets/images/obj-meal.svg',
+  './assets/images/obj-medicine.svg',
+  './assets/images/obj-moon.svg',
+  './assets/images/obj-orange.svg',
   './assets/images/obj-radio.svg',
+  './assets/images/obj-rice.svg',
+  './assets/images/obj-sunrise.svg',
+  './assets/images/obj-tamul.svg',
+  './assets/images/obj-tealeaf.svg',
   './assets/images/obj-teapot.svg',
   './assets/images/obj-umbrella.svg',
+  './assets/images/obj-walk.svg',
+  './assets/images/obj-water.svg',
+  './assets/images/obj-xorai.svg',
   './assets/images/scene-evening.svg',
+  './assets/images/scene-festival.svg',
   './assets/images/scene-garden.svg',
   './assets/images/scene-home.svg',
+  './assets/images/scene-paddy.svg',
   './assets/images/scene-rain.svg',
+  './assets/images/scene-river.svg',
+  './assets/images/scene-tea-garden.svg',
   './assets/images/scene-tea.svg',
+  './assets/images/scene-village.svg',
 ];
 
 self.addEventListener('install', (event) => {
