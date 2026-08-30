@@ -1,6 +1,9 @@
 {
   "app": {
-    "name": "Smriti"
+    "name": "Smriti",
+    "languages": {
+      "en": "English"
+    }
   },
   "entry": {
     "title": "Smriti",
@@ -16,17 +19,21 @@
     },
     "today": {
       "title": "Today",
-      "empty": "Nothing due right now."
+      "greetingMorning": "Good morning.",
+      "greetingAfternoon": "Good afternoon.",
+      "greetingEvening": "Good evening.",
+      "nextLabel": "Next",
+      "nothing": "Nothing else is due today.",
+      "nothingSpeech": "Nothing else is due today.",
+      "dueNow": "It is time for this now.",
+      "speechNext": "Your next reminder is {type} at {time}."
     },
     "memories": {
       "title": "My Memories",
       "next": "Next",
       "previous": "Previous",
-      "photos": [
-        "Family photo 1",
-        "Family photo 2",
-        "Family photo 3"
-      ]
+      "empty": "No photos have been added yet.",
+      "introSpeech": "Here are your photos."
     },
     "exercises": {
       "title": "Let's Exercise",
@@ -172,7 +179,9 @@
               "obj-teapot"
             ]
           }
-        ]
+        ],
+        "photoQuestion": "Which one is {name}?",
+        "photoQuestionSpeech": "Which one is {name}?"
       },
       "matching": {
         "title": "Matching",
@@ -216,6 +225,11 @@
           "obj-house"
         ]
       }
+    },
+    "reminderCard": {
+      "heading": "It is time for",
+      "done": "Done",
+      "speech": "It is time for {type}."
     }
   },
   "caregiver": {
@@ -228,7 +242,16 @@
       "switchToPatient": "Switch to Patient"
     },
     "overview": {
-      "title": "Overview"
+      "title": "Overview",
+      "lastActiveLabel": "Last active",
+      "remindersTodayLabel": "Reminders today",
+      "remindersDoneLabel": "Marked done today",
+      "nextReminderLabel": "Next reminder",
+      "photosLabel": "Photos saved",
+      "sessionsTodayLabel": "Practice sessions today",
+      "noneToday": "None set",
+      "nothingUpcoming": "Nothing left today",
+      "privacyNote": "This is not a diagnostic tool — consult a professional for concerns."
     },
     "reminders": {
       "title": "Reminders",
@@ -242,24 +265,87 @@
         "appointment": "Appointment"
       },
       "save": "Save",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "editTitle": "Edit Reminder",
+      "typeLabel": "Type",
+      "timeLabel": "Time",
+      "noteLabel": "Note (optional)",
+      "notePlaceholder": "e.g. after breakfast",
+      "delete": "Delete",
+      "confirmDelete": "Remove this reminder?",
+      "timeRequired": "Please choose a time.",
+      "doneToday": "Done today",
+      "countOne": "1 reminder",
+      "countMany": "{n} reminders"
     },
     "engagement": {
       "title": "Engagement",
-      "empty": "No activity yet."
+      "empty": "No activity yet. History appears here after the first practice session.",
+      "intro": "Activity performance only — this shows how the practice activities went, nothing more.",
+      "exerciseNames": {
+        "exercise-1": "Remembering",
+        "exercise-2": "Matching",
+        "exercise-3": "Find It"
+      },
+      "levels": [
+        "Gentle",
+        "Steady",
+        "Fuller"
+      ],
+      "levelLabel": "Current level",
+      "roundsLabel": "Rounds completed",
+      "firstTryLabel": "Answered on the first try",
+      "recentLabel": "Recent rounds",
+      "noRounds": "Not practised yet",
+      "changeUp": "Stepped up after 3 correct in a row",
+      "changeDown": "Eased back after 2 incorrect",
+      "changeRepeat": "Staying at the gentlest level for more practice",
+      "changeNone": "Holding at this level",
+      "sessionsLabel": "Practice sessions",
+      "lastSessionLabel": "Last session",
+      "howItWorksTitle": "How the level changes",
+      "howItWorks": "The level adjusts automatically on this device: 3 correct in a row moves up, 2 incorrect eases back. It responds to activity performance only.",
+      "privacyNote": "This is not a diagnostic tool — consult a professional for concerns."
     },
     "memoriesSettings": {
       "title": "Memories & Settings",
+      "photosHeading": "Photos",
+      "photosIntro": "Photos appear in My Memories, and people you name are used in the remembering activity.",
       "addPhoto": "Add Photo",
+      "choosePhoto": "Choose a photo",
+      "nameLabel": "Name",
+      "namePlaceholder": "e.g. Ama, Bipin, our house",
+      "savePhoto": "Save Photo",
+      "cancel": "Cancel",
+      "nameRequired": "Please type a name for this photo.",
+      "photoRequired": "Please choose a photo.",
+      "noPhotos": "No photos yet.",
+      "deletePhoto": "Delete",
+      "confirmDeletePhoto": "Remove this photo?",
+      "settingsHeading": "Settings",
       "language": "Language",
-      "languageValue": "English",
-      "difficulty": "Difficulty",
-      "difficultyValue": "Normal",
-      "privacyNote": "This is not a diagnostic tool — consult a professional for concerns."
+      "languageNote": "More language packs can be added without changing the app.",
+      "difficulty": "Starting level",
+      "difficultyNote": "Sets where the activities begin. The level then adjusts on its own during practice.",
+      "levels": [
+        "Gentle",
+        "Steady",
+        "Fuller"
+      ],
+      "saved": "Saved",
+      "privacyNote": "This is not a diagnostic tool — consult a professional for concerns. All information stays on this device."
     }
   },
   "common": {
     "back": "Back",
-    "home": "Home"
+    "home": "Home",
+    "when": {
+      "never": "Not used yet",
+      "justNow": "Just now",
+      "minutesAgo": "{n} minutes ago",
+      "todayAt": "Today at {time}",
+      "yesterdayAt": "Yesterday at {time}",
+      "onDate": "{date} at {time}"
+    }
   }
 }
