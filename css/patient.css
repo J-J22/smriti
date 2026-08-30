@@ -1,185 +1,65 @@
-/* Patient world. One task per screen, one class of touch target, no clutter. */
-
-#app { position: relative; height: 100%; width: 100%; }
-
-.screen {
-  position: absolute;
-  inset: 0;
-  display: none;
+.patient-screen {
+  position: relative;
+  flex: 1;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--pad);
-  padding-top: calc(var(--pad) + var(--tap-min) * 0.72);  /* room for Home */
+  gap: 2rem;
+  padding: 2rem;
   text-align: center;
-}
-.screen.is-active { display: flex; animation: fade 260ms ease-out; }
-
-@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-
-/* ---- The one persistent recovery path: Home, same corner, every screen ---- */
-.home-btn {
-  position: fixed;
-  top: max(12px, env(safe-area-inset-top));
-  left: max(12px, env(safe-area-inset-left));
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: var(--paper-2);
-  border: 3px solid var(--line);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 40;
-}
-.home-btn svg { width: 38px; height: 38px; }
-.home-btn:active { background: var(--line); }
-.home-btn[hidden] { display: none; }
-
-/* ---- Spoken prompt. Tapping it replays the audio. ---- */
-.prompt {
-  font-size: var(--t-prompt);
-  font-weight: 700;
-  line-height: 1.2;
-  max-width: 20ch;
-  margin: 0 0 var(--gap);
-  padding: 6px 10px;
-  border-radius: 14px;
-}
-.prompt:active { background: var(--paper-2); }
-
-.speaking { position: relative; }
-.speaking::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -14px;
-  width: 64px;
-  height: 5px;
-  margin-left: -32px;
-  border-radius: 3px;
-  background: var(--go);
-  animation: pulse 1.1s ease-in-out infinite;
-}
-@keyframes pulse { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
-
-/* ---- Home screen ---- */
-.greeting { font-size: var(--t-huge); font-weight: 800; margin: 0; }
-.date     { font-size: var(--t-label); color: var(--ink-soft); margin: 6px 0 auto; }
-
-.begin-btn {
-  min-width: min(78vw, 460px);
-  min-height: calc(var(--tap-min) * 1.6);
-  margin: auto 0;
-  border-radius: var(--round);
-  background: var(--go);
-  color: #fff;
-  font-size: var(--t-huge);
-  font-weight: 800;
-  box-shadow: 0 8px 0 var(--go-dark);
-}
-.begin-btn:active { transform: translateY(6px); box-shadow: 0 2px 0 var(--go-dark); }
-
-/* Caregiver door: dim, low-contrast, ≥2s long-press. Never a single tap. */
-.caregiver-door {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  width: 88px;
-  height: 88px;
-  border-radius: 50%;
-  opacity: .16;
-  color: var(--ink-soft);
-  font-size: .8rem;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  padding: 12px;
-  z-index: 40;
-}
-.caregiver-door .ring {
-  position: absolute;
-  inset: 14px;
-  border-radius: 50%;
-  border: 4px solid var(--ink-soft);
-  clip-path: inset(0 0 100% 0);
-}
-.caregiver-door.is-holding { opacity: .5; }
-.caregiver-door.is-holding .ring {
-  animation: hold 2s linear forwards;
-}
-@keyframes hold { to { clip-path: inset(0 0 0 0); } }
-
-/* ---- Games: scene + two big picture answers ---- */
-.scene {
-  width: min(72vw, 340px);
-  aspect-ratio: 4 / 3;
-  border-radius: var(--round);
-  border: 4px solid var(--line);
-  background: var(--paper-2);
-  object-fit: cover;
-  margin-bottom: var(--gap);
+  font-size: 1.6rem;
 }
 
-.options {
-  display: flex;
-  gap: var(--gap);
-  width: 100%;
-  max-width: 760px;
-  justify-content: center;
-  flex-wrap: wrap;
+.patient-home h1 {
+  font-size: 2.4rem;
 }
 
-.option {
-  flex: 1 1 200px;
-  max-width: 340px;
-  min-height: calc(var(--tap-min) * 2);
-  padding: 14px;
-  border-radius: var(--round);
-  border: 5px solid var(--line);
-  background: #fff;
+.card-grid {
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 480px;
+}
+
+.big-card,
+.big-btn {
+  width: 100%;
+  padding: 1.5rem;
+  font-size: 1.6rem;
+}
+
+.home-icon {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 56px;
+  height: 56px;
+  font-size: 1.8rem;
+  padding: 0;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  transition: transform 140ms ease, border-color 140ms ease;
-}
-.option img { width: min(34vw, 170px); aspect-ratio: 1; object-fit: contain; }
-.option .cap { font-size: var(--t-label); font-weight: 700; }
-.option:active { transform: scale(.97); }
-
-.option.is-right {
-  border-color: var(--go);
-  background: #EAF6EE;
-  animation: nod 420ms ease-out;
-}
-@keyframes nod { 50% { transform: scale(1.06); } }
-
-/* Gentle redirection: warm glow on the intended answer. Never a red X. */
-.option.is-guide {
-  border-color: var(--highlight);
-  animation: glow 900ms ease-in-out 2;
-}
-@keyframes glow {
-  0%,100% { box-shadow: 0 0 0 0 rgba(245,197,66,0); }
-  50%     { box-shadow: 0 0 0 14px rgba(245,197,66,.55); }
+  justify-content: center;
 }
 
-.options.is-locked .option { pointer-events: none; }
-
-/* ---- Intro / Praise ---- */
-.big-line {
-  font-size: var(--t-huge);
-  font-weight: 800;
-  line-height: 1.15;
-  max-width: 16ch;
+.caregiver-corner {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
 }
-.dots { display: flex; gap: 14px; margin-top: 28px; }
-.dot { width: 20px; height: 20px; border-radius: 50%; background: var(--line); }
-.dot.on { background: var(--go); }
 
-/* Landscape / short screens: put scene beside the answers. */
-@media (max-height: 560px) and (orientation: landscape) {
-  .scene { width: min(38vw, 260px); margin-bottom: 0; }
-  .screen { padding-top: var(--pad); }
+.nav-row {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  max-width: 480px;
+}
+
+.nav-row .big-btn {
+  flex: 1;
 }

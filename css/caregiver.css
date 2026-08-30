@@ -1,0 +1,85 @@
+.caregiver-screen {
+  flex: 1;
+  padding: 1.5rem 2rem;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.menu-btn,
+.switch-btn,
+.back-btn {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.switch-btn {
+  background: #555;
+}
+
+.back-btn {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  margin-top: 1.5rem;
+}
+
+.reminder-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.reminder-item {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.toggle-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.privacy-note {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+select, input {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  font-size: 1rem;
+}

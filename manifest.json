@@ -1,14 +1,11 @@
 {
   "name": "Smriti",
   "short_name": "Smriti",
-  "description": "Gentle memory and engagement activities.",
-  "start_url": "index.html",
-  "scope": "./",
+  "start_url": "./index.html",
   "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2b6777",
   "orientation": "portrait",
-  "background_color": "#FBF6EC",
-  "theme_color": "#FBF6EC",
-  "lang": "en",
   "icons": [
     { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },

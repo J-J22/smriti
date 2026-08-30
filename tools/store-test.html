@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Smriti — store self-test</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 1.5rem; max-width: 760px; }
+  h1 { font-size: 1.3rem; }
+  #summary { font-size: 1.1rem; font-weight: 600; padding: .6rem .8rem; border-radius: 8px; }
+  .ok { background: #e3f5e6; color: #14532d; }
+  .bad { background: #fde8e8; color: #7f1d1d; }
+  ol { line-height: 1.6; padding-left: 1.4rem; }
+  li.pass::marker { color: #16a34a; }
+  li.fail { color: #b91c1c; font-weight: 600; }
+  code { background: #f1f1f1; padding: 0 .25rem; border-radius: 4px; }
+  button { font: inherit; padding: .5rem 1rem; margin-right: .5rem; }
+</style>
+</head>
+<body>
+<h1>Smriti — store.js self-test</h1>
+<p>Backend: <code id="backend">…</code></p>
+<div id="summary">running…</div>
+<p>
+  <button id="rerun">Run again</button>
+  <button id="wipe">Wipe stored data</button>
+</p>
+<p><small>Reload the page after a run: the “survives a full page reload” check reads
+data written by the <em>previous</em> run, so it proves real on-disk persistence.</small></p>
+<ol id="results"></ol>
+
+<script type="module">
+import * as store from '../js/core/store.js';
+import { nextState, initialState } from '../js/core/adaptive.js';
+
+const results = document.getElementById('results');
+let failures = 0;
+
+function check(label, condition, detail = '') {
+  const li = document.createElement('li');
+  li.className = condition ? 'pass' : 'fail';
+  li.textContent = (condition ? 'PASS — ' : 'FAIL — ') + label + (detail ? ` (${detail})` : '');
+  results.appendChild(li);
+  if (!condition) failures++;
+}
+
+const RELOAD_KEY = 'smriti-selftest-marker';
+
+async function run() {
+  results.innerHTML = '';
+  failures = 0;
+
+  await store.initStore();
+  document.getElementById('backend').textContent =
+    store.usingIndexedDB() ? 'IndexedDB' : 'localStorage fallback';
+
+  // --- cross-reload persistence, checked before we touch anything ---
+  const marker = localStorage.getItem(RELOAD_KEY);
+  if (marker) {
+    const survived = store.getReminders().some((r) => r.label === marker);
+    check('data written by the previous page load survives a full page reload', survived,
+      survived ? `found reminder "${marker}"` : `no reminder labelled "${marker}"`);
+  } else {
+    check('first run — reload marker planted, reload the page to verify persistence', true);
+  }
+
+  // --- reminders ---
+  const before = store.getReminders().length;
+  const rem = store.addReminder({ type: 'medicine', time: '08:30', label: 'Morning tablet' });
+  check('addReminder returns an id', Boolean(rem.id), rem.id);
+  check('addReminder appends to the list', store.getReminders().length === before + 1);
+  check('getReminder reads it back', (store.getReminder(rem.id) || {}).time === '08:30');
+
+  store.updateReminder(rem.id, { time: '09:15' });
+  check('updateReminder writes through', store.getReminder(rem.id).time === '09:15');
+
+  const rem2 = store.addReminder({ type: 'hydration', time: '07:00', label: 'Water' });
+  check('reminders come back sorted by time', store.getReminders()[0].time === '07:00');
+
+  check('timeToMinutes parses HH:MM', store.timeToMinutes('09:15') === 555);
+  check('timeToMinutes rejects junk', store.timeToMinutes('25:99') === null);
+
+  const noon = new Date(); noon.setHours(12, 0, 0, 0);
+  const due = store.getDueReminders(noon).map((r) => r.id);
+  check('getDueReminders finds past-due reminders', due.includes(rem.id) && due.includes(rem2.id));
+
+  store.markReminderDone(rem2.id);
+  check('markReminderDone clears it from due', !store.getDueReminders(noon).some((r) => r.id === rem2.id));
+  check('markReminderDone writes the log', store.getReminderLog().some((e) => e.reminderId === rem2.id));
+
+  const early = new Date(); early.setHours(6, 0, 0, 0);
+  check('getNextReminder returns the soonest upcoming', (store.getNextReminder(early) || {}).time === '09:15');
+
+  store.deleteReminder(rem2.id);
+  check('deleteReminder removes it', store.getReminder(rem2.id) === null);
+
+  // --- memories ---
+  const memCountBefore = store.getMemories().length;
+  const mem = store.addMemory({ name: 'Ama', image: 'data:image/svg+xml,<svg/>' });
+  check('addMemory stores name + image', store.getMemories().length === memCountBefore + 1 &&
+    store.getMemories().find((m) => m.id === mem.id).name === 'Ama');
+  store.deleteMemory(mem.id);
+  check('deleteMemory removes it', !store.getMemories().some((m) => m.id === mem.id));
+
+  // --- settings ---
+  store.setSettings({ language: 'en', baselineDifficulty: 2 });
+  check('setSettings persists values', store.getSettings().baselineDifficulty === 2);
+  store.setSettings({ baselineDifficulty: 99 });
+  check('baselineDifficulty is clamped to the level range', store.getSettings().baselineDifficulty === 3);
+  store.setSettings({ baselineDifficulty: 1 });
+
+  // --- adaptive rules (pure) ---
+  let s = initialState(1);
+  s = nextState(s, true); s = nextState(s, true);
+  check('2 correct does not raise difficulty yet', s.difficulty === 1, `streak ${s.correctStreak}`);
+  s = nextState(s, true);
+  check('3 correct in a row raises difficulty', s.difficulty === 2 && s.lastChange === 'up');
+  s = nextState(s, false);
+  check('1 wrong does not lower difficulty', s.difficulty === 2);
+  s = nextState(s, false);
+  check('2 wrong lowers difficulty', s.difficulty === 1 && s.lastChange === 'down');
+  s = nextState(s, false); s = nextState(s, false);
+  check('at the easiest level 2 wrong repeats instead of going below 1',
+    s.difficulty === 1 && s.lastChange === 'repeat');
+  let top = initialState(3);
+  top = nextState(top, true); top = nextState(top, true); top = nextState(top, true);
+  check('difficulty never exceeds the max level', top.difficulty === 3);
+
+  // --- engagement wired to the rules ---
+  const startRounds = store.getEngagement('exercise-1').totalRounds;
+  const startDiff = store.getDifficulty('exercise-1');
+  store.recordRound('exercise-1', { correct: true, promptId: 'p1' });
+  store.recordRound('exercise-1', { correct: false, promptId: 'p2', attempts: 2 });
+  const eng = store.getEngagement('exercise-1');
+  check('recordRound counts rounds', eng.totalRounds === startRounds + 2, `${eng.totalRounds}`);
+  check('recordRound counts correct answers', eng.totalCorrect >= 1);
+  const lastRound = eng.rounds[eng.rounds.length - 1];
+  check('recordRound keeps a per-round history', lastRound.promptId === 'p2' && lastRound.attempts === 2);
+  check('difficulty stays within range after rounds',
+    eng.difficulty >= 1 && eng.difficulty <= 3, `was ${startDiff}, now ${eng.difficulty}`);
+  check('getAllEngagement covers all three exercises',
+    Object.keys(store.getAllEngagement()).length === 3);
+
+  store.recordSession({ completed: 3 });
+  check('recordSession appends a session', store.getSessions()[store.getSessions().length - 1].completed === 3);
+  check('activity timestamp updated', typeof store.getLastActiveAt() === 'number');
+
+  // --- persistence without a reload: drop the cache, re-read from disk ---
+  const marker2 = 'reload-' + Date.now().toString(36);
+  store.addReminder({ type: 'activity', time: '17:45', label: marker2 });
+  await store.flush();
+  await store.reloadFromDisk();
+  check('data re-reads from disk after the in-memory cache is dropped',
+    store.getReminders().some((r) => r.label === marker2));
+  check('engagement survives the same round-trip',
+    store.getEngagement('exercise-1').totalRounds === eng.totalRounds);
+  check('settings survive the same round-trip', store.getSettings().language === 'en');
+
+  // plant a marker for the next page load, then clean up this run's noise
+  localStorage.setItem(RELOAD_KEY, marker2);
+  for (const r of store.getReminders()) {
+    if (r.label !== marker2) store.deleteReminder(r.id);
+  }
+  await store.flush();
+
+  const summary = document.getElementById('summary');
+  const total = results.children.length;
+  summary.className = failures ? 'bad' : 'ok';
+  summary.textContent = failures
+    ? `${failures} of ${total} checks FAILED`
+    : `All ${total} checks passed`;
+}
+
+document.getElementById('rerun').onclick = () => run();
+document.getElementById('wipe').onclick = async () => {
+  await store.clearAll();
+  localStorage.removeItem(RELOAD_KEY);
+  location.reload();
+};
+
+run().catch((err) => {
+  const summary = document.getElementById('summary');
+  summary.className = 'bad';
+  summary.textContent = 'Threw: ' + err.message;
+  console.error(err);
+});
+</script>
+</body>
+</html>

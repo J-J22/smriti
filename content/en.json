@@ -1,111 +1,81 @@
 {
-  "lang": "en",
-  "langLabel": "English",
-  "dir": "ltr",
-  "voice": { "lang": "en-IN", "fallbackLang": "en-US", "rate": 0.85, "pitch": 1.0 },
-
-  "ui": {
-    "begin": "Begin",
-    "home": "Home",
-    "done": "Done",
-    "caregiver": "Caregiver",
-    "greetingMorning": "Good morning",
-    "greetingAfternoon": "Good afternoon",
-    "greetingEvening": "Good evening"
+  "app": { "name": "Smriti" },
+  "entry": {
+    "title": "Smriti",
+    "patientButton": "Patient",
+    "caregiverButton": "Caregiver"
   },
-
-  "speech": {
-    "home": "{greeting}. Today is {date}. Tap the big green button when you are ready.",
-    "intro": "Let us play three little games together. There is no hurry.",
-    "praise": [
-      "That was lovely. Thank you for playing with me.",
-      "Well done. It was very nice to spend this time with you.",
-      "Beautiful work today. I enjoyed that."
-    ],
-    "redirect": [
-      "Good try. This one!",
-      "Nice thinking. Here it is!",
-      "Lovely. This is the one!"
-    ],
-    "affirm": [
-      "Yes! That's it.",
-      "Wonderful. That's right.",
-      "Very good."
-    ]
-  },
-
-  "screens": {
-    "intro": { "title": "Three little games" },
-    "praise": { "title": "Thank you for playing" }
-  },
-
-  "games": {
-    "reminiscence": {
-      "id": "reminiscence",
-      "label": "Picture memories",
-      "domainLabel": "Reminiscence",
-      "items": [
-        {
-          "id": "rem-tea-1",
-          "level": 1,
-          "scene": "assets/images/scene-tea.svg",
-          "sceneAlt": "A table set for tea",
-          "prompt": "Morning tea. Which one do we pour the tea from?",
-          "options": [
-            { "image": "assets/images/obj-teapot.svg", "label": "Teapot", "correct": true },
-            { "image": "assets/images/obj-bicycle.svg", "label": "Bicycle", "correct": false }
-          ]
-        },
-        {
-          "id": "rem-rain-1",
-          "level": 1,
-          "scene": "assets/images/scene-rain.svg",
-          "sceneAlt": "Rain falling outside a window",
-          "prompt": "It is raining outside. Which one do we take with us?",
-          "options": [
-            { "image": "assets/images/obj-umbrella.svg", "label": "Umbrella", "correct": true },
-            { "image": "assets/images/obj-radio.svg", "label": "Radio", "correct": false }
-          ]
-        },
-        {
-          "id": "rem-garden-2",
-          "level": 2,
-          "scene": "assets/images/scene-garden.svg",
-          "sceneAlt": "A small garden with flowers",
-          "prompt": "In the garden. Which one grows in the ground?",
-          "options": [
-            { "image": "assets/images/obj-flower.svg", "label": "Flower", "correct": true },
-            { "image": "assets/images/obj-cup.svg", "label": "Cup", "correct": false }
-          ]
-        },
-        {
-          "id": "rem-evening-2",
-          "level": 2,
-          "scene": "assets/images/scene-evening.svg",
-          "sceneAlt": "An evening at home",
-          "prompt": "In the evening at home. Which one did we listen to?",
-          "options": [
-            { "image": "assets/images/obj-radio.svg", "label": "Radio", "correct": true },
-            { "image": "assets/images/obj-umbrella.svg", "label": "Umbrella", "correct": false }
-          ]
-        },
-        {
-          "id": "rem-home-3",
-          "level": 3,
-          "scene": "assets/images/scene-home.svg",
-          "sceneAlt": "A house with a garden path",
-          "prompt": "Coming home. Which one is our house?",
-          "options": [
-            { "image": "assets/images/obj-house.svg", "label": "House", "correct": true },
-            { "image": "assets/images/obj-dog.svg", "label": "Dog", "correct": false }
-          ]
-        }
-      ]
+  "patient": {
+    "home": {
+      "title": "Smriti",
+      "today": "Today",
+      "exercises": "Let's Exercise",
+      "memories": "My Memories"
+    },
+    "today": {
+      "title": "Today",
+      "empty": "Nothing due right now."
+    },
+    "memories": {
+      "title": "My Memories",
+      "next": "Next",
+      "previous": "Previous",
+      "photos": ["Family photo 1", "Family photo 2", "Family photo 3"]
+    },
+    "exercises": {
+      "stages": {
+        "intro": "Get ready...",
+        "exercise-1": "Exercise 1: Reminiscence Recall",
+        "exercise-2": "Exercise 2: Matching",
+        "exercise-3": "Exercise 3: Spot the Object",
+        "praise": "Great job!"
+      },
+      "next": "Next",
+      "done": "Done"
     }
   },
-
-  "reminders": {
-    "speech": "{title}. Tap the big button when you are done.",
-    "doneSpeech": "Thank you."
+  "caregiver": {
+    "dashboard": {
+      "title": "Caregiver Dashboard",
+      "overview": "Overview",
+      "reminders": "Reminders",
+      "engagement": "Engagement",
+      "memoriesSettings": "Memories & Settings",
+      "switchToPatient": "Switch to Patient"
+    },
+    "overview": {
+      "title": "Overview"
+    },
+    "reminders": {
+      "title": "Reminders",
+      "empty": "No reminders yet.",
+      "add": "Add",
+      "addTitle": "Add Reminder",
+      "types": {
+        "medicine": "Medicine",
+        "hydration": "Hydration",
+        "activity": "Activity",
+        "appointment": "Appointment"
+      },
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "engagement": {
+      "title": "Engagement",
+      "empty": "No activity yet."
+    },
+    "memoriesSettings": {
+      "title": "Memories & Settings",
+      "addPhoto": "Add Photo",
+      "language": "Language",
+      "languageValue": "English",
+      "difficulty": "Difficulty",
+      "difficultyValue": "Normal",
+      "privacyNote": "This is not a diagnostic tool — consult a professional for concerns."
+    }
+  },
+  "common": {
+    "back": "Back",
+    "home": "Home"
   }
 }

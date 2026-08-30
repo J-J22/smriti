@@ -1,67 +1,43 @@
-/* Boot. Load the content pack, wake storage, then hand control to the rails. */
-(function (S) {
-  'use strict';
+import { loadContent } from './core/content.js';
+import { initStore } from './core/store.js';
+import { register, init } from './core/router.js';
+import { renderEntry } from './screens/entry.js';
+import { renderPatientHome } from './screens/patient/home.js';
+import { renderToday } from './screens/patient/today.js';
+import { renderMemories } from './screens/patient/memories.js';
+import { renderExercises } from './screens/patient/exercises.js';
+import { renderCaregiverDashboard } from './screens/caregiver/dashboard.js';
+import { renderOverview } from './screens/caregiver/overview.js';
+import { renderReminders } from './screens/caregiver/reminders.js';
+import { renderEngagement } from './screens/caregiver/engagement.js';
+import { renderMemoriesSettings } from './screens/caregiver/memories-settings.js';
 
-  var LANG_KEY = 'language';
+function withContent(renderFn, content) {
+  return (container, params, navigate) => renderFn(container, params, navigate, content);
+}
 
-  function fatal(msg) {
-    document.getElementById('app').innerHTML =
-      '<section class="screen is-active"><p class="prompt">' + msg + '</p></section>';
-  }
+async function bootstrap() {
+  // The store hydrates once here so every screen can read it synchronously.
+  const [content] = await Promise.all([loadContent(), initStore()]);
 
-  function boot() {
-    S.store.init()
-      .then(function () { return S.store.getState(LANG_KEY, 'en'); })
-      .then(function (lang) { return S.content.load(lang); })
-      .catch(function () { return S.content.load('en'); })   // pack fallback
-      .then(function () {
-        S.voice.configure(S.content.get('voice'));
-        return S.adaptive.load();
-      })
-      .then(function () {
-        document.documentElement.lang = S.content.lang();
-        document.documentElement.dir = S.content.get('dir') || 'ltr';
-        S.machine.init(document.getElementById('app'));
-        S.machine.go('home');
-      })
-      .catch(function (err) {
-        if (window.console) console.error(err);
-        fatal('Please open this again in a moment.');
-      });
-  }
+  register('entry', withContent(renderEntry, content));
+  register('patient-home', withContent(renderPatientHome, content));
+  register('today', withContent(renderToday, content));
+  register('memories', withContent(renderMemories, content));
+  register('exercises', withContent(renderExercises, content));
+  register('caregiver-dashboard', withContent(renderCaregiverDashboard, content));
+  register('caregiver-overview', withContent(renderOverview, content));
+  register('caregiver-reminders', withContent(renderReminders, content));
+  register('caregiver-engagement', withContent(renderEngagement, content));
+  register('caregiver-memories-settings', withContent(renderMemoriesSettings, content));
 
-  /* Nothing on the patient side responds to a gesture other than a single
-     tap — no zoom, no text selection, no context menu, no pull-to-refresh. */
-  function lockGestures() {
-    document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
-    document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
-    document.addEventListener('dblclick', function (e) { e.preventDefault(); });
-    document.addEventListener('touchmove', function (e) {
-      if (e.touches && e.touches.length > 1) e.preventDefault();
-    }, { passive: false });
-  }
+  init('entry');
+}
 
-  /* Backgrounding the app should not leave a voice talking to an empty room. */
-  function handleVisibility() {
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden) S.voice.cancel();
-    });
-  }
+bootstrap();
 
-  function registerSW() {
-    if (!('serviceWorker' in navigator)) return;
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js').catch(function () { /* offline later */ });
-    });
-  }
-
-  lockGestures();
-  handleVisibility();
-  registerSW();
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
-})(window.Smriti = window.Smriti || {});
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
