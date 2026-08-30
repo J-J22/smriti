@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Smriti — demo setup &amp; smoke test</title>
+<link rel="stylesheet" href="../css/base.css" />
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 1.5rem; }
+  h1 { font-size: 1.35rem; }
+  h2 { font-size: 1.05rem; margin-top: 2rem; }
+  p.lead { color: #555; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0; }
+  button.tool { font: inherit; padding: .6rem 1rem; min-height: 44px; border-radius: 8px; }
+  button.tool.secondary { background: #fff; color: var(--accent); border: 2px solid var(--accent); }
+  button.tool.danger { background: #fff; color: #b3261e; border: 2px solid #b3261e; }
+  #summary { font-size: 1.05rem; font-weight: 600; padding: .6rem .8rem; border-radius: 8px; background: #eee; }
+  #summary.ok { background: #e3f5e6; color: #14532d; }
+  #summary.bad { background: #fde8e8; color: #7f1d1d; }
+  ol { line-height: 1.65; padding-left: 1.4rem; }
+  li.fail { color: #b91c1c; font-weight: 600; }
+  pre.err { background: #fdf0f0; color: #7f1d1d; padding: .5rem; border-radius: 6px;
+            font-size: .8rem; overflow-x: auto; white-space: pre-wrap; }
+  code { background: #f1f1f1; padding: 0 .25rem; border-radius: 4px; }
+  #stage { position: absolute; left: -10000px; width: 420px; height: 800px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Smriti — demo setup &amp; smoke test</h1>
+<p class="lead">Dev tooling. Not part of the app and not in the offline cache.</p>
+
+<h2>1. Demo data</h2>
+<p>Loads reminders, five named photos and a fortnight of practice history, so the
+caregiver screens open with something real on them.</p>
+<div class="btn-row">
+  <button class="tool" id="seed">Load demo data</button>
+  <button class="tool secondary" id="seed-due">Load demo data + a reminder due now</button>
+  <button class="tool danger" id="wipe">Wipe all data</button>
+</div>
+<p id="seed-status" class="lead"></p>
+
+<h2>2. Smoke test</h2>
+<p>Renders every screen in the app and reports anything that throws. Run this
+before the demo — it is the check that the whole app actually executes.</p>
+<div class="btn-row">
+  <button class="tool" id="smoke">Render every screen</button>
+  <button class="tool secondary" id="drive">Play a full exercises session (~25s, speaks aloud)</button>
+</div>
+<div id="summary">not run yet</div>
+<ol id="results"></ol>
+
+<p><a href="../index.html">→ Open the app</a> &nbsp;·&nbsp; <a href="store-test.html">→ store self-test</a></p>
+</div>
+<div id="stage"></div>
+
+<script type="module">
+import { initStore, importData, clearAll, getSettings } from '../js/core/store.js';
+import { loadContent } from '../js/core/content.js';
+import { stopSpeaking } from '../js/core/voice.js';
+import { buildDemoData } from './demo-seed.js';
+
+import { renderEntry } from '../js/screens/entry.js';
+import { renderPatientHome } from '../js/screens/patient/home.js';
+import { renderToday } from '../js/screens/patient/today.js';
+import { renderMemories } from '../js/screens/patient/memories.js';
+import { renderExercises } from '../js/screens/patient/exercises.js';
+import { renderCaregiverDashboard } from '../js/screens/caregiver/dashboard.js';
+import { renderOverview } from '../js/screens/caregiver/overview.js';
+import { renderReminders } from '../js/screens/caregiver/reminders.js';
+import { renderEngagement } from '../js/screens/caregiver/engagement.js';
+import { renderMemoriesSettings } from '../js/screens/caregiver/memories-settings.js';
+
+const results = document.getElementById('results');
+const summary = document.getElementById('summary');
+const stage = document.getElementById('stage');
+let failures = 0;
+let checks = 0;
+
+function reset() {
+  results.innerHTML = '';
+  failures = 0;
+  checks = 0;
+  summary.className = '';
+  summary.textContent = 'running…';
+}
+
+function record(label, ok, detail) {
+  checks++;
+  if (!ok) failures++;
+  const li = document.createElement('li');
+  li.className = ok ? 'pass' : 'fail';
+  li.textContent = (ok ? 'PASS — ' : 'FAIL — ') + label;
+  results.appendChild(li);
+  if (detail) {
+    const pre = document.createElement('pre');
+    pre.className = 'err';
+    pre.textContent = detail;
+    results.appendChild(pre);
+  }
+}
+
+function finish() {
+  summary.className = failures ? 'bad' : 'ok';
+  summary.textContent = failures
+    ? failures + ' of ' + checks + ' checks FAILED'
+    : 'All ' + checks + ' checks passed';
+}
+
+const store = await initStore();
+const content = await loadContent(getSettings().language);
+
+/* ---------- seeding ---------- */
+
+async function seed(dueNow) {
+  const data = buildDemoData({ dueNow: dueNow });
+  await importData(data);
+  document.getElementById('seed-status').textContent =
+    'Loaded ' + data.reminders.length + ' reminders, ' + data.memories.length +
+    ' photos and ' + data.engagement.sessions.length + ' practice sessions.' +
+    (dueNow ? ' One reminder is due now — Patient Home will open with the card.' : '');
+}
+
+document.getElementById('seed').onclick = () => seed(false);
+document.getElementById('seed-due').onclick = () => seed(true);
+document.getElementById('wipe').onclick = async () => {
+  await clearAll();
+  document.getElementById('seed-status').textContent = 'All data wiped.';
+};
+
+/* ---------- smoke test ---------- */
+
+const SCREENS = [
+  ['Entry', renderEntry, {}],
+  ['Patient Home', renderPatientHome, {}],
+  ['Today', renderToday, {}],
+  ['My Memories', renderMemories, {}],
+  ['My Memories (2nd photo)', renderMemories, { index: 1 }],
+  ['Exercises (intro)', renderExercises, {}],
+  ['Caregiver Dashboard', renderCaregiverDashboard, {}],
+  ['Overview', renderOverview, {}],
+  ['Reminders (list)', renderReminders, {}],
+  ['Reminders (add form)', renderReminders, { form: true }],
+  ['Engagement', renderEngagement, {}],
+  ['Memories & Settings', renderMemoriesSettings, {}],
+];
+
+document.getElementById('smoke').onclick = () => {
+  reset();
+  for (const entry of SCREENS) {
+    const name = entry[0];
+    stage.innerHTML = '';
+    try {
+      entry[1](stage, entry[2], () => {}, content);
+      const rendered = stage.querySelectorAll('*').length;
+      record(name + ' renders (' + rendered + ' elements)', rendered > 0,
+        rendered > 0 ? '' : 'rendered nothing');
+    } catch (err) {
+      record(name + ' renders', false, (err && err.stack) || String(err));
+    }
+  }
+
+  // Edit form needs a real saved reminder to open against.
+  stage.innerHTML = '';
+  try {
+    const first = store.reminders && store.reminders[0];
+    if (first) {
+      renderReminders(stage, { form: first.id }, () => {}, content);
+      const filled = stage.querySelector('input[type="time"]');
+      record('Reminders (edit form) pre-fills the saved time',
+        Boolean(filled && filled.value), filled ? '' : 'no time input found');
+    } else {
+      record('Reminders (edit form) — load demo data first to test this', true);
+    }
+  } catch (err) {
+    record('Reminders (edit form) renders', false, (err && err.stack) || String(err));
+  }
+
+  stage.innerHTML = '';
+  stopSpeaking();
+  finish();
+};
+
+/* ---------- drive a whole exercises session ---------- */
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+document.getElementById('drive').onclick = async () => {
+  reset();
+  stage.innerHTML = '';
+  let navigatedHome = false;
+  try {
+    renderExercises(stage, {}, (route) => { navigatedHome = route === 'patient-home'; }, content);
+    record('session starts on the intro', Boolean(stage.querySelector('h1')));
+
+    await wait(5200); // intro auto-advances
+    record('intro auto-advances to exercise 1 with no tap',
+      Boolean(stage.querySelector('.option-btn')));
+
+    // Deliberately answer wrong, then check nothing skips on repeated taps.
+    let buttons = Array.from(stage.querySelectorAll('.option-btn'));
+    const correctId = pickCorrect(buttons);
+    const wrong = buttons.filter((b) => b.dataset.optionId !== correctId)[0];
+    if (wrong) {
+      wrong.click();
+      const feedback = stage.querySelector('.feedback');
+      record('a wrong tap gives gentle feedback',
+        Boolean(feedback && feedback.textContent.trim()),
+        feedback ? 'said: ' + feedback.textContent : 'no feedback element');
+      record('a wrong tap reveals the correct answer',
+        Boolean(stage.querySelector('.option-btn.is-correct')));
+      record('every option locks after the first tap',
+        buttons.every((b) => b.disabled));
+      const before = stage.querySelector('.exercise-question').textContent;
+      wrong.click(); wrong.click(); wrong.click();
+      record('repeated taps during the pause do not skip the round',
+        stage.querySelector('.exercise-question').textContent === before);
+    }
+
+    // Play the rest of the session correctly.
+    const deadline = Date.now() + 70000;
+    let sawMatching = false;
+    let sawSpot = false;
+    while (Date.now() < deadline && !navigatedHome) {
+      await wait(400);
+      if (stage.querySelector('.tiles')) sawMatching = true;
+      if (stage.querySelector('.option-btn.is-image-only')) sawSpot = true;
+      if (stage.querySelector('.feedback.is-good, .feedback.is-gentle')) continue;
+      const tiles = Array.from(stage.querySelectorAll('.tile:not(.is-matched)'));
+      if (tiles.length) { clickMatchingPair(tiles); continue; }
+      const options = Array.from(stage.querySelectorAll('.option-btn'));
+      if (options.length && !options[0].disabled) {
+        const id = pickCorrect(options);
+        const target = options.filter((b) => b.dataset.optionId === id)[0];
+        if (target) target.click();
+      }
+    }
+
+    record('exercise 2 (matching tiles) is reachable', sawMatching);
+    record('exercise 3 (spot the object) is reachable', sawSpot);
+    record('the session ends and returns to Patient Home on its own', navigatedHome);
+  } catch (err) {
+    record('exercises session runs', false, (err && err.stack) || String(err));
+  }
+  stage.innerHTML = '';
+  stopSpeaking();
+  finish();
+};
+
+// The test cannot see which answer is right, so it reads it back out of the
+// DOM the same way the screen marks it: tap one, see which gets is-correct.
+function pickCorrect(buttons) {
+  const marked = buttons.filter((b) => b.classList.contains('is-correct'))[0];
+  if (marked) return marked.dataset.optionId;
+  return buttons[Math.floor(Math.random() * buttons.length)].dataset.optionId;
+}
+
+function clickMatchingPair(tiles) {
+  const byObject = {};
+  for (const tile of tiles) {
+    const id = tile.dataset.objectId;
+    byObject[id] = (byObject[id] || []).concat([tile]);
+  }
+  for (const id of Object.keys(byObject)) {
+    if (byObject[id].length >= 2) {
+      byObject[id][0].click();
+      byObject[id][1].click();
+      return;
+    }
+  }
+}
+</script>
+</body>
+</html>

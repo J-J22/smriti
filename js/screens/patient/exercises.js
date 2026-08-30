@@ -108,6 +108,13 @@ export function renderExercises(container, params, navigate, content) {
     speak(line.speech);
   }
 
+  // Clears the tone class too, not just the text — otherwise the line stays
+  // coloured after a retry wipes it.
+  function clearFeedback(element) {
+    element.textContent = '';
+    element.className = 'feedback';
+  }
+
   /* ---------- session flow ---------- */
 
   function paint() {
@@ -320,7 +327,7 @@ export function renderExercises(container, params, navigate, content) {
       say(c.feedback.retry, feedback, 'gentle');
       later(() => {
         clearSelection();
-        feedback.textContent = '';
+        clearFeedback(feedback);
         busy = false;
         speak(matching.promptSpeech || matching.prompt);
       }, RETRY_MS);
@@ -388,7 +395,7 @@ export function renderExercises(container, params, navigate, content) {
       if (missed) missed.classList.add('is-passed-over');
       later(() => {
         if (missed) missed.classList.remove('is-passed-over');
-        feedback.textContent = '';
+        clearFeedback(feedback);
         busy = false;
         speak(promptSpeech);
       }, RETRY_MS);

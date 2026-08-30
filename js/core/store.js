@@ -457,6 +457,26 @@ export async function clearAll() {
   return cache;
 }
 
+// Whole-device snapshot. Also the honest basis for a future backup/restore.
+export function exportData() {
+  const out = {};
+  for (const key of COLLECTIONS) out[key] = clone(requireCache()[key]);
+  return out;
+}
+
+// Replaces whole collections at once. Used by the demo seeder, which needs to
+// write back-dated history that the normal write path cannot produce.
+export async function importData(payload) {
+  requireCache();
+  for (const key of COLLECTIONS) {
+    if (payload[key] === undefined) continue;
+    cache[key] = hydrateCollection(key, payload[key]);
+    persist(key);
+  }
+  await flush();
+  return exportData();
+}
+
 // Debug hook: lets the self-test page drop the in-memory cache and re-hydrate
 // from disk without a page reload.
 export async function reloadFromDisk() {
