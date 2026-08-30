@@ -58,6 +58,10 @@
         "wrong": {
           "text": "Good try — this one!",
           "speech": "Good try. This one."
+        },
+        "retry": {
+          "text": "Not quite — try again.",
+          "speech": "Not quite. Try again."
         }
       },
       "objects": {
@@ -168,6 +172,48 @@
               "obj-teapot"
             ]
           }
+        ]
+      },
+      "matching": {
+        "title": "Matching",
+        "prompt": "Find the two pictures that are the same.",
+        "promptSpeech": "Find the two pictures that are the same.",
+        "roundsPerSession": 2,
+        "pairsByLevel": [
+          2,
+          3,
+          4
+        ],
+        "pool": [
+          "obj-cup",
+          "obj-teapot",
+          "obj-flower",
+          "obj-umbrella",
+          "obj-radio",
+          "obj-dog",
+          "obj-bicycle",
+          "obj-house"
+        ]
+      },
+      "spot": {
+        "title": "Find It",
+        "prompt": "Tap the {object}",
+        "promptSpeech": "Tap the {object}.",
+        "roundsPerSession": 3,
+        "optionsByLevel": [
+          3,
+          4,
+          5
+        ],
+        "pool": [
+          "obj-cup",
+          "obj-teapot",
+          "obj-flower",
+          "obj-umbrella",
+          "obj-radio",
+          "obj-dog",
+          "obj-bicycle",
+          "obj-house"
         ]
       }
     }

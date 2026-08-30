@@ -1,6 +1,6 @@
 // The exercises session: linear, voice-led, self-advancing. There is no Next
 // button and no back navigation — the only way out is the Home icon. A round
-// only advances once it has been answered, so repeated taps can never skip it.
+// only advances once it has been resolved, so repeated taps can never skip it.
 
 import { el } from '../../core/dom.js';
 import { homeIcon } from '../shared.js';
@@ -15,10 +15,10 @@ import {
 const INTRO_MS = 4600;
 const CORRECT_MS = 2200;
 const REVEAL_MS = 3600; // longer: the correct answer is being shown
+const RETRY_MS = 1500;  // gentle pause before the patient may try again
 const PRAISE_MS = 4200;
 
-// Exercises 2 and 3 join this list as they are built.
-const SEQUENCE = ['exercise-1'];
+const SEQUENCE = ['exercise-1', 'exercise-2', 'exercise-3'];
 
 // Guards against a timer from an abandoned session firing after the patient
 // has already left the screen.
@@ -39,8 +39,16 @@ function pickOne(list) {
   return list[Math.floor(Math.random() * list.length)];
 }
 
+// Reads a per-level setting, clamping to whatever the content pack provides.
+function byLevel(table, level) {
+  const values = table && table.length ? table : [2];
+  const index = Math.min(values.length, Math.max(1, level)) - 1;
+  return values[index];
+}
+
 export function renderExercises(container, params, navigate, content) {
   const c = content.patient.exercises;
+  const objects = c.objects;
   const token = ++activeToken;
   const timers = [];
   const startedAt = Date.now();
@@ -48,6 +56,9 @@ export function renderExercises(container, params, navigate, content) {
 
   let stageIndex = 0;
   let completedRounds = 0;
+
+  // How far through each exercise this session has got.
+  const progress = { 'exercise-1': 0, 'exercise-2': 0, 'exercise-3': 0 };
 
   function alive() {
     return token === activeToken;
@@ -75,11 +86,36 @@ export function renderExercises(container, params, navigate, content) {
       [homeIcon(navigate, content, leave)].concat(children));
   }
 
+  function objectView(id) {
+    const object = objects[id];
+    return { id: id, label: object.label, image: object.image };
+  }
+
+  function progressDots(total, doneCount) {
+    return el('div', { class: 'progress-dots', 'aria-hidden': 'true' },
+      Array.from({ length: total }, (_, i) =>
+        el('span', { class: i < doneCount ? 'dot is-done' : 'dot' })));
+  }
+
+  function feedbackLine() {
+    return el('p', { class: 'feedback', 'aria-live': 'polite' }, '');
+  }
+
+  function say(line, element, tone) {
+    element.textContent = line.text;
+    element.className = 'feedback is-' + tone;
+    speak(line.speech);
+  }
+
+  /* ---------- session flow ---------- */
+
   function paint() {
     clearTimers();
     container.innerHTML = '';
     const stage = stages[stageIndex];
     if (stage === 'exercise-1') paintReminiscence();
+    else if (stage === 'exercise-2') paintMatching();
+    else if (stage === 'exercise-3') paintSpot();
     else if (stage === 'praise') paintPraise();
     else paintIntro();
   }
@@ -87,6 +123,18 @@ export function renderExercises(container, params, navigate, content) {
   function nextStage() {
     stageIndex += 1;
     paint();
+  }
+
+  // Closes out a resolved round and moves on, either to the next round of the
+  // same exercise or to the next stage.
+  function finishRound(exerciseId, total, outcome, delayMs) {
+    recordRound(exerciseId, outcome);
+    completedRounds += 1;
+    later(() => {
+      progress[exerciseId] += 1;
+      if (progress[exerciseId] >= total) nextStage();
+      else paint();
+    }, delayMs);
   }
 
   /* ---------- intro ---------- */
@@ -103,47 +151,31 @@ export function renderExercises(container, params, navigate, content) {
   /* ---------- exercise 1: reminiscence recall ---------- */
 
   const reminiscence = c.reminiscence;
-  const roundItems = shuffle(reminiscence.items).slice(0, reminiscence.roundsPerSession);
-  let roundIndex = 0;
+  const reminiscenceItems = shuffle(reminiscence.items).slice(0, reminiscence.roundsPerSession);
 
-  // Option count is the difficulty lever: 2 pictures at the easiest level,
-  // more as the rules engine steps up. Read fresh each round so a change
-  // between rounds takes effect immediately.
-  function optionCountForLevel(level) {
-    const byLevel = reminiscence.optionsByLevel || [2];
-    return byLevel[Math.min(byLevel.length, Math.max(1, level)) - 1] || byLevel[0];
-  }
-
-  function buildOptions(item, count) {
-    const objects = c.objects;
+  function buildReminiscenceOptions(item, count) {
     const distractors = shuffle(item.distractors)
       .filter((id) => objects[id])
       .slice(0, Math.max(0, count - 1));
     return shuffle([item.answer].concat(distractors))
       .filter((id) => objects[id])
-      .map((id) => ({ id: id, label: objects[id].label, image: objects[id].image }));
-  }
-
-  function progressDots(total, doneCount) {
-    return el('div', { class: 'progress-dots', 'aria-hidden': 'true' },
-      Array.from({ length: total }, (_, i) =>
-        el('span', { class: i < doneCount ? 'dot is-done' : 'dot' })));
+      .map(objectView);
   }
 
   function paintReminiscence() {
-    const item = roundItems[roundIndex];
-    const level = getDifficulty('exercise-1');
-    const options = buildOptions(item, optionCountForLevel(level));
-    const feedback = el('p', { class: 'feedback', 'aria-live': 'polite' }, '');
+    const total = reminiscenceItems.length;
+    const item = reminiscenceItems[progress['exercise-1']];
+    // Option count is the difficulty lever, re-read each round so a change
+    // between rounds takes effect immediately.
+    const options = buildReminiscenceOptions(
+      item, byLevel(reminiscence.optionsByLevel, getDifficulty('exercise-1')));
+    const feedback = feedbackLine();
     const buttons = [];
     let resolved = false;
 
     function choose(chosenId) {
       // One resolved answer per round: later taps do nothing at all.
-      if (!resolved) resolve(chosenId);
-    }
-
-    function resolve(chosenId) {
+      if (resolved) return;
       resolved = true;
       const correct = chosenId === item.answer;
 
@@ -153,21 +185,12 @@ export function renderExercises(container, params, navigate, content) {
         else if (button.dataset.optionId === chosenId) button.classList.add('is-passed-over');
       }
 
-      const line = correct ? pickOne(c.feedback.correct) : c.feedback.wrong;
-      feedback.textContent = line.text;
-      feedback.classList.add(correct ? 'is-good' : 'is-gentle');
-      speak(line.speech);
+      if (correct) say(pickOne(c.feedback.correct), feedback, 'good');
+      else say(c.feedback.wrong, feedback, 'gentle');
 
-      recordRound('exercise-1', { correct: correct, promptId: item.id });
-      completedRounds += 1;
-
-      later(advanceRound, correct ? CORRECT_MS : REVEAL_MS);
-    }
-
-    function advanceRound() {
-      roundIndex += 1;
-      if (roundIndex >= roundItems.length) nextStage();
-      else paint();
+      finishRound('exercise-1', total,
+        { correct: correct, promptId: item.id, attempts: 1 },
+        correct ? CORRECT_MS : REVEAL_MS);
     }
 
     for (const option of options) {
@@ -184,16 +207,166 @@ export function renderExercises(container, params, navigate, content) {
     }
 
     container.appendChild(screen([
-      el('div', { class: 'exercise-scene' }, [
-        el('img', { src: item.scene, alt: '' }),
-      ]),
+      el('div', { class: 'exercise-scene' }, [el('img', { src: item.scene, alt: '' })]),
       el('p', { class: 'exercise-question' }, item.question),
       el('div', { class: 'options' }, buttons),
       feedback,
-      progressDots(roundItems.length, roundIndex),
+      progressDots(total, progress['exercise-1']),
     ]));
 
     speak(item.questionSpeech || item.question);
+  }
+
+  /* ---------- exercise 2: matching ---------- */
+
+  const matching = c.matching;
+
+  function paintMatching() {
+    const total = matching.roundsPerSession;
+    const pairCount = byLevel(matching.pairsByLevel, getDifficulty('exercise-2'));
+    const chosen = shuffle(matching.pool).filter((id) => objects[id]).slice(0, pairCount);
+    // Every picture appears exactly twice, face up. Finding one pair ends the round.
+    const tileIds = shuffle(chosen.concat(chosen));
+    const feedback = feedbackLine();
+    const tiles = [];
+    let firstPick = null;
+    let busy = false;      // true while a mismatch is being shown
+    let resolved = false;
+    let attempts = 0;
+
+    function clearSelection() {
+      firstPick = null;
+      for (const tile of tiles) tile.classList.remove('is-selected');
+    }
+
+    function pick(tile) {
+      if (resolved || busy) return;
+
+      if (firstPick === tile) {
+        // Tapping the same tile again simply deselects it.
+        clearSelection();
+        return;
+      }
+
+      if (!firstPick) {
+        firstPick = tile;
+        tile.classList.add('is-selected');
+        return;
+      }
+
+      attempts += 1;
+      tile.classList.add('is-selected');
+
+      if (tile.dataset.objectId === firstPick.dataset.objectId) {
+        resolved = true;
+        tile.classList.add('is-matched');
+        firstPick.classList.add('is-matched');
+        say(pickOne(c.feedback.correct), feedback, 'good');
+        // Solved first time = a clean round for the adaptive engine.
+        finishRound('exercise-2', total,
+          { correct: attempts === 1, promptId: tile.dataset.objectId, attempts: attempts },
+          CORRECT_MS);
+        return;
+      }
+
+      // No match: say so gently, reset the tiles, and let them try again.
+      // The round never gives up on its own.
+      busy = true;
+      say(c.feedback.retry, feedback, 'gentle');
+      later(() => {
+        clearSelection();
+        feedback.textContent = '';
+        busy = false;
+        speak(matching.promptSpeech || matching.prompt);
+      }, RETRY_MS);
+    }
+
+    for (const id of tileIds) {
+      const object = objects[id];
+      const tile = el('button', {
+        class: 'tile',
+        'aria-label': object.label,
+        onclick: () => pick(tile),
+      }, [el('img', { src: object.image, alt: '' })]);
+      tile.dataset.objectId = id;
+      tiles.push(tile);
+    }
+
+    container.appendChild(screen([
+      el('h2', { class: 'exercise-question' }, matching.prompt),
+      el('div', { class: 'tiles', 'data-count': String(tiles.length) }, tiles),
+      feedback,
+      progressDots(total, progress['exercise-2']),
+    ]));
+
+    speak(matching.promptSpeech || matching.prompt);
+  }
+
+  /* ---------- exercise 3: spot the object ---------- */
+
+  const spot = c.spot;
+
+  function paintSpot() {
+    const total = spot.roundsPerSession;
+    const count = byLevel(spot.optionsByLevel, getDifficulty('exercise-3'));
+    const options = shuffle(spot.pool).filter((id) => objects[id]).slice(0, count).map(objectView);
+    const target = pickOne(options);
+    const promptText = spot.prompt.replace('{object}', target.label);
+    const promptSpeech = (spot.promptSpeech || spot.prompt).replace('{object}', target.label);
+    const feedback = feedbackLine();
+    const buttons = [];
+    let resolved = false;
+    let busy = false;
+    let attempts = 0;
+
+    function choose(chosenId) {
+      if (resolved || busy) return;
+      attempts += 1;
+
+      if (chosenId === target.id) {
+        resolved = true;
+        for (const button of buttons) {
+          button.disabled = true;
+          if (button.dataset.optionId === target.id) button.classList.add('is-correct');
+        }
+        say(pickOne(c.feedback.correct), feedback, 'good');
+        finishRound('exercise-3', total,
+          { correct: attempts === 1, promptId: target.id, attempts: attempts },
+          CORRECT_MS);
+        return;
+      }
+
+      // Wrong tap: no reveal, no skip — just a nudge and another go.
+      busy = true;
+      say(c.feedback.retry, feedback, 'gentle');
+      const missed = buttons.filter((b) => b.dataset.optionId === chosenId)[0];
+      if (missed) missed.classList.add('is-passed-over');
+      later(() => {
+        if (missed) missed.classList.remove('is-passed-over');
+        feedback.textContent = '';
+        busy = false;
+        speak(promptSpeech);
+      }, RETRY_MS);
+    }
+
+    for (const option of options) {
+      const button = el('button', {
+        class: 'option-btn is-image-only',
+        'aria-label': option.label,
+        onclick: () => choose(option.id),
+      }, [el('img', { src: option.image, alt: '' })]);
+      button.dataset.optionId = option.id;
+      buttons.push(button);
+    }
+
+    container.appendChild(screen([
+      el('h2', { class: 'exercise-question' }, promptText),
+      el('div', { class: 'options' }, buttons),
+      feedback,
+      progressDots(total, progress['exercise-3']),
+    ]));
+
+    speak(promptSpeech);
   }
 
   /* ---------- praise ---------- */
