@@ -491,7 +491,15 @@
       "voiceLabel": "Voice",
       "voiceExact": "Speaking with the {name} voice.",
       "voiceFallback": "This device has no {language} voice — using {name}, which reads the same script.",
-      "voiceNone": "No voice engine found on this device. Every prompt is still shown as text."
+      "voiceNone": "No voice engine found on this device. Every prompt is still shown as text.",
+      "dataHeading": "Backup",
+      "dataIntro": "Everything stays on this device. A backup file lets you keep a copy, or move this person's information to another phone — no internet needed.",
+      "exportButton": "Save a backup file",
+      "importButton": "Restore from a backup file",
+      "importConfirm": "Restoring replaces everything currently on this device. Continue?",
+      "importDone": "Backup restored.",
+      "importFailed": "That file could not be read as a Smriti backup.",
+      "exportName": "smriti-backup"
     },
     "alerts": {
       "title": "Needs attention",

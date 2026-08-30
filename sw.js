@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smriti-shell-v7';
+const CACHE_NAME = 'smriti-shell-v8';
 
 const APP_SHELL = [
   './',
@@ -22,6 +22,7 @@ const APP_SHELL = [
   './js/screens/shared.js',
   './js/screens/entry.js',
   './js/screens/patient/home.js',
+  './js/screens/patient/reminder-card.js',
   './js/screens/patient/today.js',
   './js/screens/patient/memories.js',
   './js/screens/patient/exercises.js',

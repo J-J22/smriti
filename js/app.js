@@ -1,7 +1,8 @@
 import { loadContent } from './core/content.js';
 import { initStore, getSettings } from './core/store.js';
 import { setVoiceLanguage } from './core/voice.js';
-import { register, init } from './core/router.js';
+import { startReminderWatch } from './screens/patient/reminder-card.js';
+import { register, init, navigate } from './core/router.js';
 import { renderEntry } from './screens/entry.js';
 import { renderPatientHome } from './screens/patient/home.js';
 import { renderToday } from './screens/patient/today.js';
@@ -39,6 +40,9 @@ async function bootstrap() {
   register('caregiver-memories-settings', withContent(renderMemoriesSettings, content));
 
   init('entry');
+
+  // Reminders arrive while the app is open, not only when Home is drawn.
+  startReminderWatch(content, navigate);
 }
 
 bootstrap();

@@ -2,7 +2,8 @@ import { el } from '../../core/dom.js';
 import { homeIcon } from '../shared.js';
 import { speak, stopSpeaking } from '../../core/voice.js';
 import { formatTime } from '../../core/format.js';
-import { getDueReminders, getNextReminder, markReminderDone } from '../../core/store.js';
+import { getNextReminder } from '../../core/store.js';
+import { showDueReminder } from './reminder-card.js';
 
 const LONG_PRESS_MS = 2000;
 
@@ -65,35 +66,4 @@ export function renderPatientHome(container, params, navigate, content) {
   ]));
 
   showDueReminder(container, content, navigate);
-}
-
-// A due reminder covers the screen until it is acknowledged. One button, one
-// action: Done logs it and returns to Home.
-function showDueReminder(container, content, navigate) {
-  const c = content.patient.reminderCard;
-  const types = content.caregiver.reminders.types;
-  const due = getDueReminders();
-  if (!due.length) return;
-
-  const reminder = due[0];
-  const typeLabel = types[reminder.type] || reminder.type;
-
-  container.appendChild(el('div', { class: 'reminder-overlay' }, [
-    el('div', { class: 'reminder-card' }, [
-      el('div', { class: 'reminder-bell', 'aria-hidden': 'true' }, '🔔'),
-      el('p', { class: 'reminder-heading' }, c.heading),
-      el('p', { class: 'reminder-type-big' }, typeLabel),
-      reminder.label ? el('p', { class: 'reminder-note-big' }, reminder.label) : null,
-      el('button', {
-        class: 'big-btn',
-        onclick: () => {
-          markReminderDone(reminder.id);
-          stopSpeaking();
-          navigate('patient-home');
-        },
-      }, c.done),
-    ]),
-  ]));
-
-  speak(c.speech.replace('{type}', typeLabel));
 }

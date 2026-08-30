@@ -2,6 +2,8 @@ import { el } from '../../core/dom.js';
 import { backButton } from '../shared.js';
 import { voiceStatus } from '../../core/voice.js';
 import {
+  exportData,
+  importData,
   getMemories,
   addMemory,
   deleteMemory,
@@ -62,6 +64,9 @@ export function renderMemoriesSettings(container, params, navigate, content) {
     renderLanguageSetting(content, c),
     renderVoiceStatus(content, c),
     renderDifficultySetting(c, repaint),
+
+    el('h2', {}, c.dataHeading),
+    renderBackup(c),
 
     el('p', { class: 'privacy-note' }, c.privacyNote),
     backButton(navigate, 'caregiver-dashboard', content),
@@ -204,5 +209,70 @@ function renderDifficultySetting(c, repaint) {
       el('span', { class: 'setting-note' }, c.difficultyNote),
     ]),
     el('div', { class: 'toggle-group' }, buttons),
+  ]);
+}
+
+// Backup is the honest version of "sync for remote areas": a file the caregiver
+// controls, moved by hand, with no server and no account. Everything the store
+// holds goes in, and restoring puts it back on any device running the app.
+function renderBackup(c) {
+  const status = el('p', { class: 'form-error', 'aria-live': 'polite' }, '');
+  const fileInput = el('input', {
+    type: 'file', accept: 'application/json,.json', id: 'restore-file',
+  });
+
+  function save() {
+    const payload = JSON.stringify({
+      app: 'smriti',
+      version: 1,
+      savedAt: new Date().toISOString(),
+      data: exportData(),
+    });
+    const blob = new Blob([payload], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const stamp = new Date().toISOString().slice(0, 10);
+    const link = el('a', { href: url, download: c.exportName + '-' + stamp + '.json' });
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    // Give the download a moment to start before releasing the blob.
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onerror = () => { status.textContent = c.importFailed; };
+    reader.onload = () => {
+      let parsed = null;
+      try {
+        parsed = JSON.parse(reader.result);
+      } catch (err) {
+        parsed = null;
+      }
+      if (!parsed || parsed.app !== 'smriti' || !parsed.data) {
+        status.textContent = c.importFailed;
+        return;
+      }
+      if (!window.confirm(c.importConfirm)) return;
+      importData(parsed.data).then(() => {
+        status.textContent = c.importDone;
+        window.location.reload();
+      }).catch(() => {
+        status.textContent = c.importFailed;
+      });
+    };
+    reader.readAsText(file);
+  });
+
+  return el('div', { class: 'backup-block' }, [
+    el('p', { class: 'section-intro' }, c.dataIntro),
+    el('button', { class: 'big-btn is-secondary', onclick: save }, c.exportButton),
+    el('div', { class: 'field' }, [
+      el('label', { for: 'restore-file' }, c.importButton),
+      fileInput,
+    ]),
+    status,
   ]);
 }
