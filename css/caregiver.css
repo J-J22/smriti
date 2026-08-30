@@ -1,6 +1,6 @@
 .caregiver-screen {
   flex: 1;
-  padding: 1.5rem 2rem;
+  padding: 1.5rem 1.5rem 2.5rem;
   max-width: 720px;
   margin: 0 auto;
   width: 100%;
@@ -22,7 +22,7 @@
 }
 
 .switch-btn {
-  background: #555;
+  background: var(--ink-soft);
 }
 
 .back-btn {
@@ -50,7 +50,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--line);
 }
 
 .toggle-btn {
@@ -60,7 +60,7 @@
 
 .privacy-note {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--ink-soft);
   margin-top: 1.5rem;
 }
 
@@ -71,7 +71,7 @@
 
 .section-intro,
 .list-count {
-  color: #555;
+  color: var(--ink-soft);
   font-size: 0.9rem;
   margin: 0 0 1rem;
 }
@@ -94,30 +94,30 @@
   width: 100%;
   padding: 0.6rem;
   font-size: 1rem;
-  border: 1px solid #bbb;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
   color: var(--fg);
 }
 
 .form-error {
-  color: #b3261e;
+  color: var(--warm);
   font-size: 0.9rem;
   margin: 0 0 0.75rem;
   min-height: 1.2rem;
 }
 
 .big-btn.is-secondary {
-  background: #fff;
+  background: var(--surface);
   color: var(--accent);
   border: 2px solid var(--accent);
 }
 
 .danger-btn {
   margin-top: 1rem;
-  background: #fff;
-  color: #b3261e;
-  border: 2px solid #b3261e;
+  background: var(--surface);
+  color: var(--warm);
+  border: 2px solid var(--warm);
   padding: 0.6rem 1rem;
   font-size: 0.95rem;
 }
@@ -141,9 +141,9 @@
   align-items: center;
   gap: 1rem;
   text-align: left;
-  background: #fff;
+  background: var(--surface);
   color: var(--fg);
-  border: 1px solid #d5dbde;
+  border: 1px solid var(--line);
   border-radius: 10px;
   padding: 0.75rem 1rem;
   min-height: 56px;
@@ -163,11 +163,11 @@
 }
 
 .reminder-type { font-weight: 600; }
-.reminder-note { color: #555; font-size: 0.9rem; }
+.reminder-note { color: var(--ink-soft); font-size: 0.9rem; }
 
 .reminder-done {
   font-size: 0.8rem;
-  color: #2e7d32;
+  color: var(--good);
   font-weight: 600;
 }
 
@@ -183,7 +183,7 @@
 .stat {
   flex: 1 1 40%;
   min-width: 140px;
-  background: #f6f8f9;
+  background: var(--bg-sunk);
   border-radius: 10px;
   padding: 0.75rem;
   display: flex;
@@ -199,7 +199,7 @@
 
 .stat-label {
   font-size: 0.8rem;
-  color: #555;
+  color: var(--ink-soft);
 }
 
 .card-list {
@@ -210,7 +210,7 @@
 }
 
 .exercise-card {
-  border: 1px solid #d5dbde;
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 1rem;
 }
@@ -227,7 +227,7 @@
   margin-bottom: 0.75rem;
 }
 
-.level-label { font-size: 0.85rem; color: #555; }
+.level-label { font-size: 0.85rem; color: var(--ink-soft); }
 
 .level-pill {
   background: var(--accent);
@@ -253,17 +253,17 @@
   background: #dfe4e6;
 }
 
-.round-marks .mark.is-correct { background: #2e7d32; }
+.round-marks .mark.is-correct { background: var(--good); }
 
 .adaptive-note {
   margin: 0.75rem 0 0;
   font-size: 0.9rem;
-  color: #444;
+  color: var(--ink-soft);
   font-style: italic;
 }
 
 .info-box {
-  background: #f6f8f9;
+  background: var(--bg-sunk);
   border-left: 4px solid var(--accent);
   border-radius: 8px;
   padding: 0.75rem 1rem;
@@ -271,7 +271,7 @@
 }
 
 .info-box h3 { margin: 0 0 0.35rem; font-size: 0.95rem; }
-.info-box p { margin: 0; font-size: 0.9rem; color: #444; }
+.info-box p { margin: 0; font-size: 0.9rem; color: var(--ink-soft); }
 
 /* ---------- photos ---------- */
 
@@ -297,7 +297,7 @@
   align-items: center;
   gap: 1rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--line);
 }
 
 .photo-row img {
@@ -305,7 +305,7 @@
   height: 56px;
   object-fit: cover;
   border-radius: 8px;
-  background: #eee;
+  background: var(--line);
 }
 
 .photo-name { flex: 1; font-weight: 600; }
@@ -322,23 +322,23 @@
 .setting-text label,
 .setting-label { font-weight: 600; margin: 0; }
 
-.setting-note { font-size: 0.8rem; color: #666; }
+.setting-note { font-size: 0.8rem; color: var(--ink-soft); }
 
 .setting-row select {
   padding: 0.5rem;
   font-size: 1rem;
-  border: 1px solid #bbb;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
   color: var(--fg);
 }
 
 .toggle-group { display: flex; gap: 0.4rem; }
 
 .toggle-btn {
-  background: #fff;
+  background: var(--surface);
   color: var(--accent);
-  border: 2px solid #cfd8dc;
+  border: 2px solid var(--line);
 }
 
 .toggle-btn.is-active {
@@ -346,3 +346,19 @@
   color: #fff;
   border-color: var(--accent);
 }
+
+.menu-btn, .switch-btn {
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.switch-btn { background: var(--warm); }
+
+.exercise-card, .stat, .reminder-open, .info-box {
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+
+.reminder-open { box-shadow: var(--shadow-sm); }
+.reminder-open:active { transform: scale(0.99); }

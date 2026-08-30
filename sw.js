@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smriti-shell-v3';
+const CACHE_NAME = 'smriti-shell-v4';
 
 const APP_SHELL = [
   './',
@@ -28,6 +28,9 @@ const APP_SHELL = [
   './js/screens/caregiver/engagement.js',
   './js/screens/caregiver/memories-settings.js',
   './assets/icons/icon.svg',
+  './assets/icons/nav-today.svg',
+  './assets/icons/nav-exercise.svg',
+  './assets/icons/nav-memories.svg',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
   './assets/images/obj-bicycle.svg',

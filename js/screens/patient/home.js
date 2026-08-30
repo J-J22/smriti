@@ -1,12 +1,34 @@
 import { el } from '../../core/dom.js';
 import { homeIcon } from '../shared.js';
 import { speak, stopSpeaking } from '../../core/voice.js';
-import { getDueReminders, markReminderDone } from '../../core/store.js';
+import { formatTime } from '../../core/format.js';
+import { getDueReminders, getNextReminder, markReminderDone } from '../../core/store.js';
 
 const LONG_PRESS_MS = 2000;
 
+function greeting(c, now) {
+  const hours = now.getHours();
+  if (hours < 12) return c.greetingMorning;
+  if (hours < 17) return c.greetingAfternoon;
+  return c.greetingEvening;
+}
+
+function card(iconFile, title, subtitle, onclick) {
+  return el('button', { class: 'big-card', onclick: onclick }, [
+    el('span', { class: 'card-icon', 'aria-hidden': 'true' }, [
+      el('img', { src: 'assets/icons/' + iconFile, alt: '' }),
+    ]),
+    el('span', { class: 'card-text' }, [
+      el('span', {}, title),
+      el('span', { class: 'card-sub' }, subtitle),
+    ]),
+  ]);
+}
+
 export function renderPatientHome(container, params, navigate, content) {
   const c = content.patient.home;
+  const types = content.caregiver.reminders.types;
+  const now = new Date();
   let pressTimer = null;
 
   // A UX gate, not authentication: dim, low contrast, and a deliberate hold,
@@ -21,13 +43,23 @@ export function renderPatientHome(container, params, navigate, content) {
     onpointerleave: () => clearTimeout(pressTimer),
   });
 
+  const next = getNextReminder(now);
+  const strip = next
+    ? el('p', { class: 'home-next' }, [
+        el('span', {}, c.nextStrip
+          .replace('{type}', types[next.type] || next.type)
+          .replace('{time}', formatTime(next.time))),
+      ])
+    : el('p', { class: 'home-next' }, c.nothingNext);
+
   container.appendChild(el('div', { class: 'patient-screen patient-home' }, [
     homeIcon(navigate, content, stopSpeaking),
-    el('h1', {}, c.title),
+    el('h1', { class: 'home-greeting' }, greeting(c, now)),
+    strip,
     el('div', { class: 'card-grid' }, [
-      el('button', { class: 'big-card', onclick: () => navigate('today') }, c.today),
-      el('button', { class: 'big-card', onclick: () => navigate('exercises') }, c.exercises),
-      el('button', { class: 'big-card', onclick: () => navigate('memories') }, c.memories),
+      card('nav-today.svg', c.today, c.todaySub, () => navigate('today')),
+      card('nav-exercise.svg', c.exercises, c.exercisesSub, () => navigate('exercises')),
+      card('nav-memories.svg', c.memories, c.memoriesSub, () => navigate('memories')),
     ]),
     corner,
   ]));
@@ -46,8 +78,9 @@ function showDueReminder(container, content, navigate) {
   const reminder = due[0];
   const typeLabel = types[reminder.type] || reminder.type;
 
-  const card = el('div', { class: 'reminder-overlay' }, [
+  container.appendChild(el('div', { class: 'reminder-overlay' }, [
     el('div', { class: 'reminder-card' }, [
+      el('div', { class: 'reminder-bell', 'aria-hidden': 'true' }, '🔔'),
       el('p', { class: 'reminder-heading' }, c.heading),
       el('p', { class: 'reminder-type-big' }, typeLabel),
       reminder.label ? el('p', { class: 'reminder-note-big' }, reminder.label) : null,
@@ -60,8 +93,7 @@ function showDueReminder(container, content, navigate) {
         },
       }, c.done),
     ]),
-  ]);
+  ]));
 
-  container.appendChild(card);
   speak(c.speech.replace('{type}', typeLabel));
 }

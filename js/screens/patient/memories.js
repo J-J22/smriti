@@ -27,6 +27,8 @@ export function renderMemories(container, params, navigate, content) {
     homeIcon(navigate, content, stopSpeaking),
     el('div', { class: 'memory-photo' }, [el('img', { src: photo.image, alt: '' })]),
     el('h1', { class: 'memory-name' }, photo.name),
+    el('p', { class: 'memory-count' }, c.counter
+      .replace('{n}', String(index + 1)).replace('{total}', String(count))),
     el('div', { class: 'nav-row' }, [
       el('button', {
         class: 'big-btn',

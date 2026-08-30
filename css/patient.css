@@ -1,3 +1,8 @@
+/* ---------------------------------------------------------------
+   Patient side. One task per screen, one class of touch target,
+   nothing small, nothing that needs reading twice.
+   --------------------------------------------------------------- */
+
 .patient-screen {
   position: relative;
   flex: 1;
@@ -5,52 +10,167 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
-  padding: 2rem;
+  gap: 1.75rem;
+  padding: 5rem 1.25rem 2rem;
   text-align: center;
   font-size: 1.6rem;
 }
 
-.patient-home h1 {
-  font-size: 2.4rem;
+/* ---------- entry ---------- */
+
+.entry-screen { gap: 2.5rem; }
+
+.entry-screen h1 {
+  font-size: 3.4rem;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.entry-mark {
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, var(--accent), var(--accent-deep));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-lg);
+  animation: pop-in 520ms var(--ease) both;
+}
+
+.entry-tagline {
+  margin: -1rem 0 0;
+  font-size: 1.15rem;
+  color: var(--ink-soft);
+  max-width: 26ch;
+}
+
+/* ---------- patient home ---------- */
+
+.patient-home { justify-content: flex-start; padding-top: 4.5rem; }
+
+.home-greeting {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.home-subtitle {
+  margin: -1.25rem 0 0;
+  font-size: 1.2rem;
+  color: var(--ink-soft);
 }
 
 .card-grid {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.1rem;
   width: 100%;
   max-width: 480px;
 }
 
-.big-card,
-.big-btn {
+.big-card {
   width: 100%;
-  padding: 1.5rem;
-  font-size: 1.6rem;
+  padding: 1.35rem 1.5rem;
+  font-size: 1.7rem;
+  font-weight: 700;
+  text-align: left;
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  min-height: 104px;
 }
 
-.home-icon {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  width: 56px;
-  height: 56px;
-  font-size: 1.8rem;
-  padding: 0;
+.big-card:active {
+  transform: scale(0.98);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.big-card .card-icon {
+  width: 66px;
+  height: 66px;
+  flex: 0 0 66px;
+  border-radius: var(--r-md);
+  background: var(--accent-soft);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.big-card .card-icon img { width: 40px; height: 40px; }
+
+.big-card:nth-child(2) .card-icon { background: var(--warm-soft); }
+.big-card:nth-child(3) .card-icon { background: var(--good-soft); }
+
+.card-text { display: flex; flex-direction: column; gap: 0.15rem; }
+.card-sub { font-size: 1rem; font-weight: 500; color: var(--ink-soft); }
+
+/* A quiet strip showing what is coming, so Home is never just buttons. */
+.home-next {
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg-sunk);
+  border-radius: var(--r-md);
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 1.15rem;
+  color: var(--ink-soft);
+}
+
+.home-next strong { color: var(--ink); font-weight: 700; }
+
+.big-btn {
+  width: 100%;
+  padding: 1.25rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.home-icon {
+  position: absolute;
+  top: 1.1rem;
+  left: 1.1rem;
+  width: 60px;
+  height: 60px;
+  min-width: 60px;
+  min-height: 60px;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 1.7rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  border: 2px solid var(--line);
+  z-index: 5;
+  animation: none;
+}
+
+/* Deliberately dim and low contrast: a UX gate, not a control. */
 .caregiver-corner {
   position: absolute;
   bottom: 0.5rem;
   right: 0.5rem;
-  width: 40px;
-  height: 40px;
-  background: rgba(0, 0, 0, 0.05);
+  width: 44px;
+  height: 44px;
+  background: rgba(42, 35, 32, 0.05);
   border-radius: 50%;
+  animation: none;
 }
 
 .nav-row {
@@ -60,41 +180,47 @@
   max-width: 480px;
 }
 
-.nav-row .big-btn {
-  flex: 1;
-}
+.nav-row .big-btn { flex: 1; }
 
-/* ---------- exercises session ---------- */
+/* ---------------------------------------------------------------
+   Exercises
+   --------------------------------------------------------------- */
 
 .exercise-screen {
   justify-content: center;
-  gap: 1rem;
-  padding: 4.5rem 1rem 1.5rem;
+  gap: 1.15rem;
+  padding: 5rem 1rem 1.5rem;
 }
 
 .exercise-lead {
   font-size: 1.5rem;
   margin: 0;
   max-width: 30ch;
+  color: var(--ink-soft);
 }
 
 .exercise-scene {
   width: 100%;
   max-width: 420px;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  animation: rise-in 380ms var(--ease) both;
 }
 
 .exercise-scene img {
+  display: block;
   width: 100%;
   max-height: 24vh;
   object-fit: contain;
-  border-radius: 16px;
-  background: #fbf6ec;
+  background: #FBF6EC;
 }
 
 .exercise-question {
   margin: 0;
-  font-size: 1.5rem;
-  line-height: 1.3;
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 1.25;
   max-width: 26ch;
 }
 
@@ -110,96 +236,80 @@
 .option-btn {
   flex: 1 1 43%;
   min-width: 145px;
-  min-height: 150px;
+  min-height: 152px;
   padding: 0.75rem 0.5rem;
-  background: #ffffff;
-  color: var(--fg);
-  border: 4px solid #cfd8dc;
-  border-radius: 20px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 3px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  animation: rise-in 320ms var(--ease) both;
 }
+
+.options .option-btn:nth-child(2) { animation-delay: 60ms; }
+.options .option-btn:nth-child(3) { animation-delay: 120ms; }
+.options .option-btn:nth-child(4) { animation-delay: 180ms; }
+.options .option-btn:nth-child(5) { animation-delay: 240ms; }
+
+.option-btn:active { transform: scale(0.96); box-shadow: none; }
 
 .option-btn img {
   width: 100%;
   max-width: 120px;
-  height: 84px;
+  height: 86px;
   object-fit: contain;
   pointer-events: none;
 }
 
-.option-label {
-  font-size: 1.25rem;
-  font-weight: 600;
-}
+.option-label { font-size: 1.25rem; font-weight: 700; }
 
-.option-btn:disabled {
-  opacity: 1; /* never grey out the revealed answer */
-}
+.option-btn.is-image-only { min-height: 138px; }
+.option-btn.is-image-only img { height: 96px; max-width: 132px; }
+
+.option-btn:disabled { opacity: 1; }
 
 .option-btn.is-correct {
-  border-color: #2e7d32;
-  background: #eef7ee;
+  border-color: var(--good);
+  background: var(--good-soft);
+  animation: glow-pulse 1.1s var(--ease) 2;
 }
 
-/* The option that was tapped instead — softened, never marked as a failure. */
+/* The option tapped instead — softened, never marked as a failure. */
 .option-btn.is-passed-over {
-  border-color: #dfe4e6;
-  background: #f4f6f7;
-  opacity: 0.55;
+  border-color: var(--line);
+  background: var(--bg-sunk);
+  opacity: 0.5;
 }
 
 .feedback {
   margin: 0;
-  min-height: 2.2rem;
+  min-height: 2.4rem;
   font-size: 1.45rem;
   font-weight: 700;
+  animation: none;
 }
 
-.feedback.is-good { color: #2e7d32; }
+.feedback.is-good,
+.feedback.is-gentle { animation: pop-in 320ms var(--ease) both; }
+.feedback.is-good { color: var(--good); }
 .feedback.is-gentle { color: var(--accent); }
 
-.progress-dots {
-  display: flex;
-  gap: 0.6rem;
-}
+.progress-dots { display: flex; gap: 0.6rem; }
 
 .progress-dots .dot {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #dfe4e6;
+  background: var(--line);
+  transition: background-color var(--med) var(--ease), transform var(--med) var(--ease);
 }
 
-.progress-dots .dot.is-done {
-  background: var(--accent);
-}
-
-.praise-mark {
-  font-size: 4.5rem;
-  line-height: 1;
-  color: #e8a33d;
-}
-
-@media (max-height: 640px) {
-  .exercise-scene img { max-height: 20vh; }
-  .option-btn { min-height: 128px; }
-  .option-btn img { height: 68px; }
-}
-
-/* Spot-the-object shows pictures only — a printed label would turn the
-   exercise into a reading test. */
-.option-btn.is-image-only {
-  min-height: 130px;
-}
-
-.option-btn.is-image-only img {
-  height: 92px;
-  max-width: 130px;
-}
+.progress-dots .dot.is-done { background: var(--accent); transform: scale(1.15); }
 
 /* ---------- matching tiles ---------- */
 
@@ -211,102 +321,183 @@
   max-width: 460px;
 }
 
-.tiles[data-count="6"],
-.tiles[data-count="8"] {
-  max-width: 520px;
-}
+.tiles[data-count="6"], .tiles[data-count="8"] { max-width: 520px; }
 
 .tile {
-  background: #ffffff;
-  border: 4px solid #cfd8dc;
-  border-radius: 20px;
-  min-height: 118px;
+  background: var(--surface);
+  border: 3px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  min-height: 120px;
   padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: rise-in 300ms var(--ease) both;
 }
+
+.tiles .tile:nth-child(2) { animation-delay: 50ms; }
+.tiles .tile:nth-child(3) { animation-delay: 100ms; }
+.tiles .tile:nth-child(4) { animation-delay: 150ms; }
+.tiles .tile:nth-child(5) { animation-delay: 200ms; }
+.tiles .tile:nth-child(6) { animation-delay: 250ms; }
+.tiles .tile:nth-child(7) { animation-delay: 300ms; }
+.tiles .tile:nth-child(8) { animation-delay: 350ms; }
 
 .tile img {
   width: 100%;
   max-width: 110px;
-  height: 78px;
+  height: 80px;
   object-fit: contain;
   pointer-events: none;
 }
 
 .tile.is-selected {
   border-color: var(--accent);
-  background: #eaf1f3;
+  background: var(--accent-soft);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
 }
 
 .tile.is-matched {
-  border-color: #2e7d32;
-  background: #eef7ee;
+  border-color: var(--good);
+  background: var(--good-soft);
+  animation: pop-in 380ms var(--ease) both;
 }
 
-@media (max-height: 640px) {
-  .tile { min-height: 96px; }
-  .tile img { height: 62px; }
-  .option-btn.is-image-only img { height: 74px; }
+/* ---------- praise ---------- */
+
+.praise-mark {
+  font-size: 5rem;
+  line-height: 1;
+  color: var(--gold);
+  animation: pop-in 560ms var(--ease) both, soft-sway 2.6s var(--ease) 560ms infinite;
 }
 
-/* ---------- memories browser ---------- */
+/* ---------------------------------------------------------------
+   Memories browser
+   --------------------------------------------------------------- */
 
 .memories-screen { gap: 1.25rem; }
 
 .memory-photo {
   width: 100%;
   max-width: 460px;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  animation: rise-in 380ms var(--ease) both;
 }
 
 .memory-photo img {
+  display: block;
   width: 100%;
   max-height: 46vh;
   object-fit: contain;
-  border-radius: 18px;
-  background: #f3f0ea;
+  background: var(--bg-sunk);
 }
 
-.memory-name { font-size: 2.2rem; margin: 0; }
+.memory-name { font-size: 2.3rem; margin: 0; }
 
-/* ---------- today ---------- */
+.memory-count { margin: 0; font-size: 1rem; color: var(--ink-faint); }
+
+/* ---------------------------------------------------------------
+   Today
+   --------------------------------------------------------------- */
 
 .today-card {
-  background: #f2f7f8;
+  background: var(--surface);
   border: 3px solid var(--accent);
-  border-radius: 20px;
-  padding: 1.5rem 2rem;
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  padding: 1.75rem 2rem;
   max-width: 460px;
   width: 100%;
 }
 
-.today-label { margin: 0 0 0.5rem; font-size: 1.2rem; color: #4a5b60; }
-.today-type { margin: 0; font-size: 2rem; font-weight: 700; }
-.today-time { margin: 0.35rem 0 0; font-size: 2.4rem; font-weight: 700; color: var(--accent); }
+.today-label {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
 
-/* ---------- due reminder card ---------- */
+.today-type { margin: 0; font-size: 2.1rem; font-weight: 700; }
+.today-note { margin: 0.35rem 0 0; font-size: 1.2rem; color: var(--ink-soft); }
+.today-time { margin: 0.5rem 0 0; font-size: 2.6rem; font-weight: 700; color: var(--accent); }
+
+/* ---------------------------------------------------------------
+   Due reminder card
+   --------------------------------------------------------------- */
 
 .reminder-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(255, 255, 255, 0.97);
+  background: rgba(253, 247, 239, 0.97);
+  backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  z-index: 10;
+  z-index: 20;
+  animation: screen-in var(--med) var(--ease) both;
 }
 
 .reminder-card {
   text-align: center;
   max-width: 460px;
   width: 100%;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 1rem;
+  animation: rise-in 380ms var(--ease) both;
 }
 
-.reminder-heading { margin: 0; font-size: 1.5rem; color: #4a5b60; }
-.reminder-type-big { margin: 0; font-size: 2.6rem; font-weight: 700; }
-.reminder-note-big { margin: 0; font-size: 1.4rem; color: #4a5b60; }
+.reminder-bell {
+  font-size: 3.2rem;
+  animation: soft-sway 1.8s var(--ease) infinite;
+}
+
+.reminder-heading {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--warm);
+}
+
+.reminder-type-big { margin: 0; font-size: 2.5rem; font-weight: 700; }
+.reminder-note-big { margin: 0; font-size: 1.3rem; color: var(--ink-soft); }
+
+/* ---------------------------------------------------------------
+   Small screens
+   --------------------------------------------------------------- */
+
+@media (max-height: 700px) {
+  .patient-screen { gap: 1.1rem; padding-top: 4.5rem; }
+  .exercise-scene img { max-height: 20vh; }
+  .option-btn { min-height: 128px; }
+  .option-btn img { height: 70px; }
+  .option-btn.is-image-only img { height: 80px; }
+  .tile { min-height: 100px; }
+  .tile img { height: 66px; }
+  .big-card { min-height: 92px; padding: 1rem 1.25rem; font-size: 1.5rem; }
+  .big-card .card-icon { width: 56px; height: 56px; flex-basis: 56px; }
+  .home-greeting { font-size: 2.1rem; }
+}
+
+/* Caregiver entry is present but visually secondary. */
+.big-btn.is-quiet {
+  background: var(--surface);
+  color: var(--accent);
+  border: 3px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}

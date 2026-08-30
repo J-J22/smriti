@@ -8,14 +8,24 @@
   "entry": {
     "title": "Smriti",
     "patientButton": "Patient",
-    "caregiverButton": "Caregiver"
+    "caregiverButton": "Caregiver",
+    "tagline": "A calm daily companion",
+    "mark": "स"
   },
   "patient": {
     "home": {
       "title": "Smriti",
       "today": "Today",
       "exercises": "Let's Exercise",
-      "memories": "My Memories"
+      "memories": "My Memories",
+      "todaySub": "What is happening today",
+      "exercisesSub": "A few gentle activities",
+      "memoriesSub": "Photos of your people",
+      "greetingMorning": "Good morning",
+      "greetingAfternoon": "Good afternoon",
+      "greetingEvening": "Good evening",
+      "nextStrip": "Next: {type} at {time}",
+      "nothingNext": "Nothing else is due today"
     },
     "today": {
       "title": "Today",
@@ -33,7 +43,8 @@
       "next": "Next",
       "previous": "Previous",
       "empty": "No photos have been added yet.",
-      "introSpeech": "Here are your photos."
+      "introSpeech": "Here are your photos.",
+      "counter": "{n} of {total}"
     },
     "exercises": {
       "title": "Let's Exercise",

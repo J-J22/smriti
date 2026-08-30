@@ -13,11 +13,15 @@ import {
   touchActivity,
 } from '../../core/store.js';
 
-const INTRO_MS = 4600;
-const CORRECT_MS = 2200;
-const REVEAL_MS = 3600; // longer: the correct answer is being shown
-const RETRY_MS = 1500;  // gentle pause before the patient may try again
-const PRAISE_MS = 4200;
+// Screens advance when the narration finishes, with these as the ceiling for
+// a device that has no voice engine. Waiting a fixed four seconds after the
+// voice has already stopped is what makes an app feel sluggish.
+const INTRO_MS = 5200;
+const CORRECT_MS = 2400;
+const REVEAL_MS = 3800; // longer: the correct answer is being shown
+const RETRY_MS = 1600;  // gentle pause before the patient may try again
+const PRAISE_MS = 4600;
+const AFTER_SPEECH_MS = 700; // a beat to let the screen settle
 
 const SEQUENCE = ['exercise-1', 'exercise-2', 'exercise-3'];
 
@@ -75,6 +79,19 @@ export function renderExercises(container, params, navigate, content) {
     while (timers.length) clearTimeout(timers.pop());
   }
 
+  // Speaks, then runs fn once: as soon as the voice finishes, or at maxMs if
+  // there is no voice engine. Whichever comes first, only once.
+  function speakThen(text, fn, maxMs) {
+    let done = false;
+    const go = () => {
+      if (done || !alive()) return;
+      done = true;
+      fn();
+    };
+    speak(text, () => later(go, AFTER_SPEECH_MS));
+    later(go, maxMs);
+  }
+
   // Called before any route change out of the session.
   function leave() {
     activeToken += 1;
@@ -102,12 +119,6 @@ export function renderExercises(container, params, navigate, content) {
     return el('p', { class: 'feedback', 'aria-live': 'polite' }, '');
   }
 
-  function say(line, element, tone) {
-    element.textContent = line.text;
-    element.className = 'feedback is-' + tone;
-    speak(line.speech);
-  }
-
   // Clears the tone class too, not just the text — otherwise the line stays
   // coloured after a retry wipes it.
   function clearFeedback(element) {
@@ -133,16 +144,31 @@ export function renderExercises(container, params, navigate, content) {
     paint();
   }
 
-  // Closes out a resolved round and moves on, either to the next round of the
-  // same exercise or to the next stage.
-  function finishRound(exerciseId, total, outcome, delayMs) {
+  // Records a resolved round, speaks the feedback, and moves on as soon as the
+  // line has been heard (or at maxMs on a device with no voice).
+  function resolveRound(exerciseId, total, outcome, line, tone, element, maxMs) {
     recordRound(exerciseId, outcome);
     completedRounds += 1;
-    later(() => {
+    sayThen(line, element, tone, () => {
       progress[exerciseId] += 1;
       if (progress[exerciseId] >= total) nextStage();
       else paint();
-    }, delayMs);
+    }, maxMs);
+  }
+
+  // Says a feedback line and reports when the voice is done, so callers can
+  // move on as soon as it has been heard.
+  function sayThen(line, element, tone, fn, maxMs) {
+    element.textContent = line.text;
+    element.className = 'feedback is-' + tone;
+    let done = false;
+    const go = () => {
+      if (done || !alive()) return;
+      done = true;
+      fn();
+    };
+    speak(line.speech, () => later(go, AFTER_SPEECH_MS));
+    later(go, maxMs);
   }
 
   /* ---------- intro ---------- */
@@ -152,8 +178,7 @@ export function renderExercises(container, params, navigate, content) {
       el('h1', {}, c.intro.title),
       el('p', { class: 'exercise-lead' }, c.intro.line),
     ]));
-    speak(c.intro.speech);
-    later(nextStage, INTRO_MS);
+    speakThen(c.intro.speech, nextStage, INTRO_MS);
   }
 
   /* ---------- exercise 1: reminiscence recall ---------- */
@@ -234,11 +259,11 @@ export function renderExercises(container, params, navigate, content) {
         else if (button.dataset.optionId === chosenId) button.classList.add('is-passed-over');
       }
 
-      if (correct) say(pickOne(c.feedback.correct), feedback, 'good');
-      else say(c.feedback.wrong, feedback, 'gentle');
-
-      finishRound('exercise-1', total,
+      resolveRound('exercise-1', total,
         { correct: correct, promptId: item.id, attempts: 1 },
+        correct ? pickOne(c.feedback.correct) : c.feedback.wrong,
+        correct ? 'good' : 'gentle',
+        feedback,
         correct ? CORRECT_MS : REVEAL_MS);
     }
 
@@ -313,19 +338,17 @@ export function renderExercises(container, params, navigate, content) {
         resolved = true;
         tile.classList.add('is-matched');
         firstPick.classList.add('is-matched');
-        say(pickOne(c.feedback.correct), feedback, 'good');
         // Solved first time = a clean round for the adaptive engine.
-        finishRound('exercise-2', total,
+        resolveRound('exercise-2', total,
           { correct: attempts === 1, promptId: tile.dataset.objectId, attempts: attempts },
-          CORRECT_MS);
+          pickOne(c.feedback.correct), 'good', feedback, CORRECT_MS);
         return;
       }
 
       // No match: say so gently, reset the tiles, and let them try again.
       // The round never gives up on its own.
       busy = true;
-      say(c.feedback.retry, feedback, 'gentle');
-      later(() => {
+      sayThen(c.feedback.retry, feedback, 'gentle', () => {
         clearSelection();
         clearFeedback(feedback);
         busy = false;
@@ -381,19 +404,17 @@ export function renderExercises(container, params, navigate, content) {
           button.disabled = true;
           if (button.dataset.optionId === target.id) button.classList.add('is-correct');
         }
-        say(pickOne(c.feedback.correct), feedback, 'good');
-        finishRound('exercise-3', total,
+        resolveRound('exercise-3', total,
           { correct: attempts === 1, promptId: target.id, attempts: attempts },
-          CORRECT_MS);
+          pickOne(c.feedback.correct), 'good', feedback, CORRECT_MS);
         return;
       }
 
       // Wrong tap: no reveal, no skip — just a nudge and another go.
       busy = true;
-      say(c.feedback.retry, feedback, 'gentle');
       const missed = buttons.filter((b) => b.dataset.optionId === chosenId)[0];
       if (missed) missed.classList.add('is-passed-over');
-      later(() => {
+      sayThen(c.feedback.retry, feedback, 'gentle', () => {
         if (missed) missed.classList.remove('is-passed-over');
         clearFeedback(feedback);
         busy = false;
@@ -429,9 +450,8 @@ export function renderExercises(container, params, navigate, content) {
       el('h1', {}, c.praise.title),
       el('p', { class: 'exercise-lead' }, c.praise.line),
     ]));
-    speak(c.praise.speech);
     recordSession({ completed: completedRounds, startedAt: startedAt });
-    later(() => {
+    speakThen(c.praise.speech, () => {
       leave();
       navigate('patient-home');
     }, PRAISE_MS);

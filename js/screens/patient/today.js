@@ -31,6 +31,7 @@ export function renderToday(container, params, navigate, content) {
     body = el('div', { class: 'today-card' }, [
       el('p', { class: 'today-label' }, isDue ? c.dueNow : c.nextLabel),
       el('p', { class: 'today-type' }, typeLabel),
+      shown.label ? el('p', { class: 'today-note' }, shown.label) : null,
       el('p', { class: 'today-time' }, formatTime(shown.time)),
     ]);
     speech = isDue
