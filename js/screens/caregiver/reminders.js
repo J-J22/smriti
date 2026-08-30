@@ -24,11 +24,12 @@ export function renderReminders(container, params, navigate, content) {
 }
 
 function renderList(navigate, content, c) {
+  const clock = content.common.clock;
   const reminders = getReminders();
 
   const body = reminders.length
     ? el('ul', { class: 'reminder-list' }, reminders.map((reminder) =>
-        renderRow(navigate, c, reminder)))
+        renderRow(navigate, c, reminder, clock)))
     : el('p', { class: 'empty-state' }, c.empty);
 
   const count = reminders.length === 1
@@ -47,14 +48,14 @@ function renderList(navigate, content, c) {
   ]);
 }
 
-function renderRow(navigate, c, reminder) {
+function renderRow(navigate, c, reminder, clock) {
   const typeLabel = c.types[reminder.type] || reminder.type;
   return el('li', { class: 'reminder-row' }, [
     el('button', {
       class: 'reminder-open',
       onclick: () => navigate('caregiver-reminders', { form: reminder.id }),
     }, [
-      el('span', { class: 'reminder-time' }, formatTime(reminder.time)),
+      el('span', { class: 'reminder-time' }, formatTime(reminder.time, clock)),
       el('span', { class: 'reminder-meta' }, [
         el('span', { class: 'reminder-type' }, typeLabel),
         reminder.label ? el('span', { class: 'reminder-note' }, reminder.label) : null,

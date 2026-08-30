@@ -48,7 +48,7 @@ export function renderPatientHome(container, params, navigate, content) {
     ? el('p', { class: 'home-next' }, [
         el('span', {}, c.nextStrip
           .replace('{type}', types[next.type] || next.type)
-          .replace('{time}', formatTime(next.time))),
+          .replace('{time}', formatTime(next.time, content.common.clock))),
       ])
     : el('p', { class: 'home-next' }, c.nothingNext);
 

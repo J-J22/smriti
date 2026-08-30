@@ -1,0 +1,506 @@
+{
+  "app": {
+    "name": "স্মৃতি",
+    "languages": {
+      "en": "English",
+      "as": "অসমীয়া"
+    },
+    "speechLang": [
+      "as-IN",
+      "as",
+      "bn-IN",
+      "bn"
+    ]
+  },
+  "entry": {
+    "title": "স্মৃতি",
+    "patientButton": "ৰোগী",
+    "caregiverButton": "যত্ন লওঁতা",
+    "tagline": "এটা শান্ত দৈনন্দিন সঙ্গী",
+    "mark": "স"
+  },
+  "patient": {
+    "home": {
+      "title": "স্মৃতি",
+      "today": "আজি",
+      "exercises": "আহক, অনুশীলন কৰোঁ",
+      "memories": "মোৰ স্মৃতি",
+      "todaySub": "আজি কি আছে",
+      "exercisesSub": "কেইটামান সহজ কাম",
+      "memoriesSub": "আপোনাৰ মানুহৰ ফটো",
+      "greetingMorning": "শুভ ৰাতিপুৱা",
+      "greetingAfternoon": "শুভ দুপৰীয়া",
+      "greetingEvening": "শুভ সন্ধিয়া",
+      "nextStrip": "পিছত: {type}, {time} বজাত",
+      "nothingNext": "আজিৰ বাবে আৰু একো বাকী নাই"
+    },
+    "today": {
+      "title": "আজি",
+      "greetingMorning": "শুভ ৰাতিপুৱা",
+      "greetingAfternoon": "শুভ দুপৰীয়া",
+      "greetingEvening": "শুভ সন্ধিয়া",
+      "nextLabel": "পিছত",
+      "nothing": "আজিৰ বাবে আৰু একো বাকী নাই।",
+      "nothingSpeech": "আজিৰ বাবে আৰু একো বাকী নাই।",
+      "dueNow": "এতিয়া ইয়াৰ সময় হৈছে",
+      "speechNext": "আপোনাৰ পিছৰটো হ'ল {type}, {time} বজাত।"
+    },
+    "memories": {
+      "title": "মোৰ স্মৃতি",
+      "next": "পিছৰটো",
+      "previous": "আগৰটো",
+      "empty": "এতিয়ালৈকে কোনো ফটো যোগ কৰা হোৱা নাই।",
+      "introSpeech": "এইবোৰ আপোনাৰ ফটো।",
+      "counter": "{total}ৰ ভিতৰত {n}"
+    },
+    "exercises": {
+      "title": "আহক, অনুশীলন কৰোঁ",
+      "intro": {
+        "title": "আহক, অনুশীলন কৰোঁ",
+        "line": "আমি একেলগে কেইটামান কাম কৰিম।",
+        "speech": "আহক, আমি একেলগে কেইটামান কাম কৰোঁ। লাহে লাহে কৰক। কোনো খৰখেদা নাই।"
+      },
+      "praise": {
+        "title": "বহুত ভাল!",
+        "line": "আজি সময় দিয়াৰ বাবে ধন্যবাদ।",
+        "speech": "বহুত ভাল। আজি সময় দিয়াৰ বাবে ধন্যবাদ।"
+      },
+      "feedback": {
+        "correct": [
+          {
+            "text": "শুদ্ধ হৈছে!",
+            "speech": "শুদ্ধ হৈছে!"
+          },
+          {
+            "text": "হয় — বহুত ভাল!",
+            "speech": "হয়। বহুত ভাল।"
+          },
+          {
+            "text": "ধুনীয়া, এইটোৱেই।",
+            "speech": "ধুনীয়া। এইটোৱেই।"
+          }
+        ],
+        "wrong": {
+          "text": "ভাল চেষ্টা — এইটো!",
+          "speech": "ভাল চেষ্টা। এইটো।"
+        },
+        "retry": {
+          "text": "ঠিক নহ'ল — আকৌ চেষ্টা কৰক।",
+          "speech": "ঠিক নহ'ল। আকৌ চেষ্টা কৰক।"
+        }
+      },
+      "objects": {
+        "obj-cup": {
+          "label": "কাপ",
+          "image": "assets/images/obj-cup.svg"
+        },
+        "obj-teapot": {
+          "label": "চাহৰ পাত্ৰ",
+          "image": "assets/images/obj-teapot.svg"
+        },
+        "obj-flower": {
+          "label": "ফুল",
+          "image": "assets/images/obj-flower.svg"
+        },
+        "obj-umbrella": {
+          "label": "ছাতি",
+          "image": "assets/images/obj-umbrella.svg"
+        },
+        "obj-radio": {
+          "label": "ৰেডিঅ'",
+          "image": "assets/images/obj-radio.svg"
+        },
+        "obj-dog": {
+          "label": "কুকুৰ",
+          "image": "assets/images/obj-dog.svg"
+        },
+        "obj-bicycle": {
+          "label": "চাইকেল",
+          "image": "assets/images/obj-bicycle.svg"
+        },
+        "obj-house": {
+          "label": "ঘৰ",
+          "image": "assets/images/obj-house.svg"
+        }
+      },
+      "reminiscence": {
+        "title": "মনত পেলোৱা",
+        "roundsPerSession": 2,
+        "optionsByLevel": [
+          2,
+          3,
+          4
+        ],
+        "items": [
+          {
+            "id": "tea",
+            "scene": "assets/images/scene-tea.svg",
+            "question": "চাহ খোৱাৰ সময় হৈছে। আমি কিহত চাহ খাওঁ?",
+            "questionSpeech": "চাহ খোৱাৰ সময় হৈছে। আমি কিহত চাহ খাওঁ?",
+            "answer": "obj-cup",
+            "distractors": [
+              "obj-bicycle",
+              "obj-flower",
+              "obj-radio",
+              "obj-umbrella"
+            ]
+          },
+          {
+            "id": "garden",
+            "scene": "assets/images/scene-garden.svg",
+            "question": "এইখন বাৰী। ইয়াত কোনটো গজে?",
+            "questionSpeech": "এইখন বাৰী। ইয়াত কোনটো গজে?",
+            "answer": "obj-flower",
+            "distractors": [
+              "obj-teapot",
+              "obj-radio",
+              "obj-bicycle",
+              "obj-cup"
+            ]
+          },
+          {
+            "id": "rain",
+            "scene": "assets/images/scene-rain.svg",
+            "question": "বাহিৰত বৰষুণ দি আছে। কোনটোৱে আপোনাক ভিজিবলৈ নিদিয়ে?",
+            "questionSpeech": "বাহিৰত বৰষুণ দি আছে। কোনটোৱে আপোনাক ভিজিবলৈ নিদিয়ে?",
+            "answer": "obj-umbrella",
+            "distractors": [
+              "obj-cup",
+              "obj-dog",
+              "obj-house",
+              "obj-flower"
+            ]
+          },
+          {
+            "id": "evening",
+            "scene": "assets/images/scene-evening.svg",
+            "question": "সন্ধিয়া আমি গান শুনো। কোনটোৱে গান বজায়?",
+            "questionSpeech": "সন্ধিয়া আমি গান শুনো। কোনটোৱে গান বজায়?",
+            "answer": "obj-radio",
+            "distractors": [
+              "obj-teapot",
+              "obj-flower",
+              "obj-umbrella",
+              "obj-dog"
+            ]
+          },
+          {
+            "id": "home",
+            "scene": "assets/images/scene-home.svg",
+            "question": "আপুনি ঘৰলৈ ঘূৰি আহিছে। দুৱাৰমুখত কোনে বাট চাই থাকে?",
+            "questionSpeech": "আপুনি ঘৰলৈ ঘূৰি আহিছে। দুৱাৰমুখত কোনে বাট চাই থাকে?",
+            "answer": "obj-dog",
+            "distractors": [
+              "obj-cup",
+              "obj-bicycle",
+              "obj-flower",
+              "obj-teapot"
+            ]
+          }
+        ],
+        "photoQuestion": "কোনজন {name}?",
+        "photoQuestionSpeech": "কোনজন {name}?"
+      },
+      "matching": {
+        "title": "মিলোৱা",
+        "prompt": "একে দুখন ছবি বিচাৰি উলিয়াওক।",
+        "promptSpeech": "একে দুখন ছবি বিচাৰি উলিয়াওক।",
+        "roundsPerSession": 2,
+        "pairsByLevel": [
+          2,
+          3,
+          4
+        ],
+        "pool": [
+          "obj-cup",
+          "obj-teapot",
+          "obj-flower",
+          "obj-umbrella",
+          "obj-radio",
+          "obj-dog",
+          "obj-bicycle",
+          "obj-house"
+        ]
+      },
+      "spot": {
+        "title": "বিচাৰি উলিয়াওক",
+        "prompt": "{object}ত টিপক",
+        "promptSpeech": "{object}ত টিপক।",
+        "roundsPerSession": 2,
+        "optionsByLevel": [
+          3,
+          4,
+          5
+        ],
+        "pool": [
+          "obj-cup",
+          "obj-teapot",
+          "obj-flower",
+          "obj-umbrella",
+          "obj-radio",
+          "obj-dog",
+          "obj-bicycle",
+          "obj-house"
+        ]
+      },
+      "routine": {
+        "title": "দৈনন্দিন কাম",
+        "question": "আহক, {name}ৰ কামবোৰ ক্ৰম অনুসৰি সজাওঁ।",
+        "questionSpeech": "আহক, {name}ৰ কামবোৰ ক্ৰম অনুসৰি সজাওঁ।",
+        "promptFirst": "প্ৰথমে কোনটো আহে?",
+        "promptNext": "তাৰ পিছত?",
+        "promptFirstSpeech": "প্ৰথমে কোনটো আহে?",
+        "promptNextSpeech": "তাৰ পিছত?",
+        "wrongText": "এইটো পিছত আহে — আন এটা চাওক।",
+        "wrongSpeech": "এইটো পিছত আহে। আন এটা চাওক।",
+        "roundsPerSession": 1,
+        "stepsByLevel": [
+          3,
+          4,
+          5
+        ],
+        "items": [
+          {
+            "id": "morning",
+            "name": "ৰাতিপুৱা",
+            "steps": [
+              {
+                "id": "wake",
+                "label": "সাৰ পোৱা",
+                "image": "assets/images/obj-sunrise.svg"
+              },
+              {
+                "id": "water",
+                "label": "পানী খোৱা",
+                "image": "assets/images/obj-water.svg"
+              },
+              {
+                "id": "meal",
+                "label": "ভাত খোৱা",
+                "image": "assets/images/obj-meal.svg"
+              },
+              {
+                "id": "medicine",
+                "label": "ঔষধ খোৱা",
+                "image": "assets/images/obj-medicine.svg"
+              },
+              {
+                "id": "walk",
+                "label": "খোজ কঢ়া",
+                "image": "assets/images/obj-walk.svg"
+              }
+            ]
+          },
+          {
+            "id": "evening",
+            "name": "সন্ধিয়া",
+            "steps": [
+              {
+                "id": "walk",
+                "label": "খোজ কঢ়া",
+                "image": "assets/images/obj-walk.svg"
+              },
+              {
+                "id": "meal",
+                "label": "ভাত খোৱা",
+                "image": "assets/images/obj-meal.svg"
+              },
+              {
+                "id": "medicine",
+                "label": "ঔষধ খোৱা",
+                "image": "assets/images/obj-medicine.svg"
+              },
+              {
+                "id": "water",
+                "label": "পানী খোৱা",
+                "image": "assets/images/obj-water.svg"
+              },
+              {
+                "id": "sleep",
+                "label": "শুবলৈ যোৱা",
+                "image": "assets/images/obj-moon.svg"
+              }
+            ]
+          }
+        ]
+      },
+      "pattern": {
+        "title": "পিছত কি আহিব",
+        "prompt": "কোনটো পিছত আহিব?",
+        "promptSpeech": "শাৰীটো চাওক। কোনটো পিছত আহিব?",
+        "roundsPerSession": 2,
+        "templatesByLevel": [
+          [
+            "A",
+            "B",
+            "A",
+            "B",
+            "A"
+          ],
+          [
+            "A",
+            "A",
+            "B",
+            "A",
+            "A",
+            "B"
+          ],
+          [
+            "A",
+            "B",
+            "C",
+            "A",
+            "B",
+            "C"
+          ]
+        ],
+        "optionsByLevel": [
+          2,
+          3,
+          4
+        ],
+        "pool": [
+          "obj-cup",
+          "obj-teapot",
+          "obj-flower",
+          "obj-umbrella",
+          "obj-radio",
+          "obj-dog",
+          "obj-bicycle",
+          "obj-house"
+        ]
+      }
+    },
+    "reminderCard": {
+      "heading": "এতিয়া সময় হৈছে",
+      "done": "হ'ল",
+      "speech": "এতিয়া {type}ৰ সময় হৈছে।"
+    }
+  },
+  "caregiver": {
+    "dashboard": {
+      "title": "যত্ন লওঁতাৰ ডেশ্বব'ৰ্ড",
+      "overview": "সামগ্ৰিক চিত্ৰ",
+      "reminders": "মনত পেলোৱা",
+      "engagement": "অংশগ্ৰহণ",
+      "memoriesSettings": "স্মৃতি আৰু ছেটিংছ",
+      "switchToPatient": "ৰোগীৰ ফালে যাওক"
+    },
+    "overview": {
+      "title": "সামগ্ৰিক চিত্ৰ",
+      "lastActiveLabel": "শেষবাৰ ব্যৱহাৰ",
+      "remindersTodayLabel": "আজিৰ মনত পেলোৱা",
+      "remindersDoneLabel": "আজি সম্পূৰ্ণ হোৱা",
+      "nextReminderLabel": "পিছৰ মনত পেলোৱা",
+      "photosLabel": "ৰখা ফটো",
+      "sessionsTodayLabel": "আজিৰ অনুশীলন",
+      "noneToday": "একো ৰখা হোৱা নাই",
+      "nothingUpcoming": "আজি আৰু একো নাই",
+      "privacyNote": "এইটো ৰোগ নিৰ্ণয়ৰ সঁজুলি নহয় — চিন্তা থাকিলে বিশেষজ্ঞৰ পৰামৰ্শ লওক।"
+    },
+    "reminders": {
+      "title": "মনত পেলোৱা",
+      "empty": "এতিয়ালৈকে একো নাই।",
+      "add": "যোগ কৰক",
+      "addTitle": "নতুন যোগ কৰক",
+      "types": {
+        "medicine": "ঔষধ",
+        "hydration": "পানী খোৱা",
+        "activity": "কাম-কাজ",
+        "appointment": "ডাক্তৰৰ সময়"
+      },
+      "save": "ৰাখক",
+      "cancel": "বাতিল কৰক",
+      "editTitle": "সালসলনি কৰক",
+      "typeLabel": "ধৰণ",
+      "timeLabel": "সময়",
+      "noteLabel": "টোকা (ইচ্ছামতে)",
+      "notePlaceholder": "যেনে, ভাত খোৱাৰ পিছত",
+      "delete": "মচক",
+      "confirmDelete": "এইটো আঁতৰাব নেকি?",
+      "timeRequired": "অনুগ্ৰহ কৰি সময় বাছি লওক।",
+      "doneToday": "আজি হৈছে",
+      "countOne": "১টা মনত পেলোৱা",
+      "countMany": "{n}টা মনত পেলোৱা"
+    },
+    "engagement": {
+      "title": "অংশগ্ৰহণ",
+      "empty": "এতিয়ালৈকে একো নাই। প্ৰথম অনুশীলনৰ পিছত ইয়াত দেখা যাব।",
+      "intro": "কেৱল কাৰ্যকলাপৰ প্ৰদৰ্শন — অনুশীলনবোৰ কেনেকৈ হ'ল, তাৰ বাহিৰে আন একো নহয়।",
+      "exerciseNames": {
+        "exercise-1": "মনত পেলোৱা",
+        "exercise-2": "মিলোৱা",
+        "exercise-3": "বিচাৰি উলিওৱা",
+        "exercise-4": "দৈনন্দিন কাম",
+        "exercise-5": "পিছত কি আহিব"
+      },
+      "levels": [
+        "সহজ",
+        "মজলীয়া",
+        "কঠিন"
+      ],
+      "levelLabel": "বৰ্তমানৰ স্তৰ",
+      "roundsLabel": "সম্পূৰ্ণ হোৱা পাল",
+      "firstTryLabel": "প্ৰথম চেষ্টাতে শুদ্ধ",
+      "recentLabel": "শেহতীয়া পাল",
+      "noRounds": "এতিয়ালৈকে কৰা হোৱা নাই",
+      "changeUp": "শাৰীত ৩টা শুদ্ধ হোৱাৰ পিছত স্তৰ বাঢ়িল",
+      "changeDown": "২টা ভুল হোৱাৰ পিছত স্তৰ কমিল",
+      "changeRepeat": "অধিক অনুশীলনৰ বাবে আটাইতকৈ সহজ স্তৰতে আছে",
+      "changeNone": "এই স্তৰতে আছে",
+      "sessionsLabel": "অনুশীলনৰ সংখ্যা",
+      "lastSessionLabel": "শেষ অনুশীলন",
+      "howItWorksTitle": "স্তৰ কেনেকৈ সলনি হয়",
+      "howItWorks": "স্তৰটো এই ডিভাইচতে নিজে সলনি হয়: শাৰীত ৩টা শুদ্ধ হ'লে ওপৰলৈ, ২টা ভুল হ'লে সহজলৈ। ই কেৱল কাৰ্যকলাপৰ প্ৰদৰ্শনৰ ওপৰতে নিৰ্ভৰ কৰে।",
+      "privacyNote": "এইটো ৰোগ নিৰ্ণয়ৰ সঁজুলি নহয় — চিন্তা থাকিলে বিশেষজ্ঞৰ পৰামৰ্শ লওক।"
+    },
+    "memoriesSettings": {
+      "title": "স্মৃতি আৰু ছেটিংছ",
+      "photosHeading": "ফটো",
+      "photosIntro": "ফটোবোৰ 'মোৰ স্মৃতি'ত দেখা যায়, আৰু নাম দিয়া মানুহবোৰ মনত পেলোৱা অনুশীলনত ব্যৱহাৰ হয়।",
+      "addPhoto": "ফটো যোগ কৰক",
+      "choosePhoto": "এখন ফটো বাছক",
+      "nameLabel": "নাম",
+      "namePlaceholder": "যেনে, আইতা, বিপিন, আমাৰ ঘৰ",
+      "savePhoto": "ফটো ৰাখক",
+      "cancel": "বাতিল কৰক",
+      "nameRequired": "অনুগ্ৰহ কৰি এই ফটোৰ বাবে এটা নাম লিখক।",
+      "photoRequired": "অনুগ্ৰহ কৰি এখন ফটো বাছক।",
+      "noPhotos": "এতিয়ালৈকে কোনো ফটো নাই।",
+      "deletePhoto": "মচক",
+      "confirmDeletePhoto": "এই ফটোখন আঁতৰাব নেকি?",
+      "settingsHeading": "ছেটিংছ",
+      "language": "ভাষা",
+      "languageNote": "এপ্‌টো সলনি নকৰাকৈয়ে আৰু ভাষা যোগ কৰিব পাৰি।",
+      "difficulty": "আৰম্ভণিৰ স্তৰ",
+      "difficultyNote": "অনুশীলন ক'ৰ পৰা আৰম্ভ হ'ব সেইটো ঠিক কৰে। তাৰ পিছত স্তৰটো নিজেই সলনি হয়।",
+      "levels": [
+        "সহজ",
+        "মজলীয়া",
+        "কঠিন"
+      ],
+      "saved": "ৰখা হ'ল",
+      "privacyNote": "এইটো ৰোগ নিৰ্ণয়ৰ সঁজুলি নহয় — চিন্তা থাকিলে বিশেষজ্ঞৰ পৰামৰ্শ লওক। সকলো তথ্য এই ডিভাইচতে থাকে।",
+      "voiceLabel": "মাত",
+      "voiceExact": "{name} মাতেৰে কোৱা হৈছে।",
+      "voiceFallback": "এই ডিভাইচত {language} মাত নাই — একে লিপি পঢ়িব পৰা {name} ব্যৱহাৰ কৰা হৈছে।",
+      "voiceNone": "এই ডিভাইচত কোনো মাতৰ সুবিধা পোৱা নগ'ল। সকলো নিৰ্দেশ লিখা ৰূপত দেখা যাব।"
+    }
+  },
+  "common": {
+    "back": "ঘূৰি যাওক",
+    "home": "ঘৰ",
+    "when": {
+      "never": "এতিয়ালৈকে ব্যৱহাৰ হোৱা নাই",
+      "justNow": "এইমাত্ৰ",
+      "minutesAgo": "{n} মিনিট আগতে",
+      "todayAt": "আজি {time} বজাত",
+      "yesterdayAt": "কালি {time} বজাত",
+      "onDate": "{date}, {time} বজাত"
+    },
+    "clock": {
+      "am": "পূৰ্বাহ্ন",
+      "pm": "অপৰাহ্ন"
+    }
+  }
+}

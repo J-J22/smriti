@@ -20,7 +20,8 @@ export function renderEngagement(container, params, navigate, content) {
     el('div', { class: 'stat-row' }, [
       stat(c.sessionsLabel, String(sessions.length)),
       stat(c.lastSessionLabel, sessions.length
-        ? formatWhen(sessions[sessions.length - 1].ts, content.common.when)
+        ? formatWhen(sessions[sessions.length - 1].ts, content.common.when, null,
+            content.common.clock)
         : content.common.when.never),
     ]),
     el('div', { class: 'card-list' }, cards),

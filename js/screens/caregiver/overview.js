@@ -13,6 +13,7 @@ import {
 export function renderOverview(container, params, navigate, content) {
   const c = content.caregiver.overview;
   const when = content.common.when;
+  const clock = content.common.clock;
   const reminders = getReminders();
   const doneToday = reminders.filter((reminder) => isDoneToday(reminder)).length;
   const sessionsToday = getSessions().filter((session) => isToday(session.ts)).length;
@@ -21,14 +22,14 @@ export function renderOverview(container, params, navigate, content) {
   container.appendChild(el('div', { class: 'caregiver-screen' }, [
     el('h1', {}, c.title),
     el('div', { class: 'stat-row' }, [
-      stat(c.lastActiveLabel, formatWhen(getLastActiveAt(), when)),
+      stat(c.lastActiveLabel, formatWhen(getLastActiveAt(), when, null, clock)),
     ]),
     el('div', { class: 'stat-row' }, [
       stat(c.remindersTodayLabel, reminders.length ? String(reminders.length) : c.noneToday),
       stat(c.remindersDoneLabel, String(doneToday)),
     ]),
     el('div', { class: 'stat-row' }, [
-      stat(c.nextReminderLabel, next ? formatTime(next.time) : c.nothingUpcoming),
+      stat(c.nextReminderLabel, next ? formatTime(next.time, clock) : c.nothingUpcoming),
       stat(c.sessionsTodayLabel, String(sessionsToday)),
     ]),
     el('div', { class: 'stat-row' }, [

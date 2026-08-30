@@ -2,8 +2,15 @@
   "app": {
     "name": "Smriti",
     "languages": {
-      "en": "English"
-    }
+      "en": "English",
+      "as": "অসমীয়া"
+    },
+    "speechLang": [
+      "en-IN",
+      "en-GB",
+      "en-US",
+      "en"
+    ]
   },
   "entry": {
     "title": "Smriti",
@@ -473,7 +480,11 @@
         "Fuller"
       ],
       "saved": "Saved",
-      "privacyNote": "This is not a diagnostic tool — consult a professional for concerns. All information stays on this device."
+      "privacyNote": "This is not a diagnostic tool — consult a professional for concerns. All information stays on this device.",
+      "voiceLabel": "Voice",
+      "voiceExact": "Speaking with the {name} voice.",
+      "voiceFallback": "This device has no {language} voice — using {name}, which reads the same script.",
+      "voiceNone": "No voice engine found on this device. Every prompt is still shown as text."
     }
   },
   "common": {
@@ -486,6 +497,10 @@
       "todayAt": "Today at {time}",
       "yesterdayAt": "Yesterday at {time}",
       "onDate": "{date} at {time}"
+    },
+    "clock": {
+      "am": "AM",
+      "pm": "PM"
     }
   }
 }

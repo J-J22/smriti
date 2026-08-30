@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smriti-shell-v5';
+const CACHE_NAME = 'smriti-shell-v6';
 
 const APP_SHELL = [
   './',
@@ -8,6 +8,7 @@ const APP_SHELL = [
   './css/patient.css',
   './css/caregiver.css',
   './content/en.json',
+  './content/as.json',
   './js/app.js',
   './js/core/router.js',
   './js/core/dom.js',

@@ -32,13 +32,13 @@ export function renderToday(container, params, navigate, content) {
       el('p', { class: 'today-label' }, isDue ? c.dueNow : c.nextLabel),
       el('p', { class: 'today-type' }, typeLabel),
       shown.label ? el('p', { class: 'today-note' }, shown.label) : null,
-      el('p', { class: 'today-time' }, formatTime(shown.time)),
+      el('p', { class: 'today-time' }, formatTime(shown.time, content.common.clock)),
     ]);
     speech = isDue
       ? hello + ' ' + c.dueNow + ' ' + typeLabel + '.'
       : hello + ' ' + c.speechNext
           .replace('{type}', typeLabel)
-          .replace('{time}', formatTime(shown.time));
+          .replace('{time}', formatTime(shown.time, content.common.clock));
   } else {
     body = el('p', { class: 'exercise-lead' }, c.nothing);
     speech = hello + ' ' + c.nothingSpeech;

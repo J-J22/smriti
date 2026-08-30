@@ -362,3 +362,13 @@
 
 .reminder-open { box-shadow: var(--shadow-sm); }
 .reminder-open:active { transform: scale(0.99); }
+
+.status-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--warm);
+  flex: 0 0 14px;
+}
+
+.status-dot.is-ok { background: var(--good); }

@@ -1,5 +1,6 @@
 import { el } from '../../core/dom.js';
 import { backButton } from '../shared.js';
+import { voiceStatus } from '../../core/voice.js';
 import {
   getMemories,
   addMemory,
@@ -59,6 +60,7 @@ export function renderMemoriesSettings(container, params, navigate, content) {
 
     el('h2', {}, c.settingsHeading),
     renderLanguageSetting(content, c),
+    renderVoiceStatus(content, c),
     renderDifficultySetting(c, repaint),
 
     el('p', { class: 'privacy-note' }, c.privacyNote),
@@ -150,6 +152,36 @@ function renderLanguageSetting(content, c) {
       el('span', { class: 'setting-note' }, c.languageNote),
     ]),
     select,
+  ]);
+}
+
+// Says plainly what this device can actually speak. A regional language with
+// no installed voice is the most likely thing to be missing in the field, and
+// silently falling back would leave the caregiver guessing.
+function renderVoiceStatus(content, c) {
+  const status = voiceStatus();
+  const languages = content.app.languages || {};
+  const current = document.documentElement.lang || 'en';
+  const languageName = languages[current] || current;
+
+  let text;
+  if (!status.available) text = c.voiceNone;
+  else if (status.exact) text = c.voiceExact.replace('{name}', status.name);
+  else {
+    text = c.voiceFallback
+      .replace('{language}', languageName)
+      .replace('{name}', status.name);
+  }
+
+  return el('div', { class: 'setting-row' }, [
+    el('div', { class: 'setting-text' }, [
+      el('span', { class: 'setting-label' }, c.voiceLabel),
+      el('span', { class: 'setting-note' }, text),
+    ]),
+    el('span', {
+      class: status.available ? 'status-dot is-ok' : 'status-dot',
+      'aria-hidden': 'true',
+    }),
   ]);
 }
 

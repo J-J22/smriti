@@ -1,5 +1,6 @@
 import { loadContent } from './core/content.js';
 import { initStore, getSettings } from './core/store.js';
+import { setVoiceLanguage } from './core/voice.js';
 import { register, init } from './core/router.js';
 import { renderEntry } from './screens/entry.js';
 import { renderPatientHome } from './screens/patient/home.js';
@@ -20,7 +21,11 @@ async function bootstrap() {
   // The store hydrates first: it holds the language the content pack is
   // chosen by, and every screen reads it synchronously after this point.
   await initStore();
-  const content = await loadContent(getSettings().language);
+  const language = getSettings().language;
+  const content = await loadContent(language);
+  // Screen readers and the TTS engine both key off these.
+  document.documentElement.lang = language;
+  setVoiceLanguage(content.app.speechLang);
 
   register('entry', withContent(renderEntry, content));
   register('patient-home', withContent(renderPatientHome, content));
