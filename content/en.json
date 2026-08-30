@@ -1,5 +1,7 @@
 {
-  "app": { "name": "Smriti" },
+  "app": {
+    "name": "Smriti"
+  },
   "entry": {
     "title": "Smriti",
     "patientButton": "Patient",
@@ -20,18 +22,154 @@
       "title": "My Memories",
       "next": "Next",
       "previous": "Previous",
-      "photos": ["Family photo 1", "Family photo 2", "Family photo 3"]
+      "photos": [
+        "Family photo 1",
+        "Family photo 2",
+        "Family photo 3"
+      ]
     },
     "exercises": {
-      "stages": {
-        "intro": "Get ready...",
-        "exercise-1": "Exercise 1: Reminiscence Recall",
-        "exercise-2": "Exercise 2: Matching",
-        "exercise-3": "Exercise 3: Spot the Object",
-        "praise": "Great job!"
+      "title": "Let's Exercise",
+      "intro": {
+        "title": "Let's Exercise",
+        "line": "We will do a few activities together.",
+        "speech": "Let us do a few activities together. Take your time. There is no hurry."
       },
-      "next": "Next",
-      "done": "Done"
+      "praise": {
+        "title": "Well done!",
+        "line": "Thank you for spending this time today.",
+        "speech": "Well done. Thank you for spending this time today."
+      },
+      "feedback": {
+        "correct": [
+          {
+            "text": "That's right!",
+            "speech": "That's right!"
+          },
+          {
+            "text": "Yes — well done!",
+            "speech": "Yes. Well done."
+          },
+          {
+            "text": "Lovely, that's the one.",
+            "speech": "Lovely. That is the one."
+          }
+        ],
+        "wrong": {
+          "text": "Good try — this one!",
+          "speech": "Good try. This one."
+        }
+      },
+      "objects": {
+        "obj-cup": {
+          "label": "Cup",
+          "image": "assets/images/obj-cup.svg"
+        },
+        "obj-teapot": {
+          "label": "Teapot",
+          "image": "assets/images/obj-teapot.svg"
+        },
+        "obj-flower": {
+          "label": "Flower",
+          "image": "assets/images/obj-flower.svg"
+        },
+        "obj-umbrella": {
+          "label": "Umbrella",
+          "image": "assets/images/obj-umbrella.svg"
+        },
+        "obj-radio": {
+          "label": "Radio",
+          "image": "assets/images/obj-radio.svg"
+        },
+        "obj-dog": {
+          "label": "Dog",
+          "image": "assets/images/obj-dog.svg"
+        },
+        "obj-bicycle": {
+          "label": "Bicycle",
+          "image": "assets/images/obj-bicycle.svg"
+        },
+        "obj-house": {
+          "label": "House",
+          "image": "assets/images/obj-house.svg"
+        }
+      },
+      "reminiscence": {
+        "title": "Remembering",
+        "roundsPerSession": 3,
+        "optionsByLevel": [
+          2,
+          3,
+          4
+        ],
+        "items": [
+          {
+            "id": "tea",
+            "scene": "assets/images/scene-tea.svg",
+            "question": "It is tea time. Which one do we drink tea from?",
+            "questionSpeech": "It is tea time. Which one do we drink tea from?",
+            "answer": "obj-cup",
+            "distractors": [
+              "obj-bicycle",
+              "obj-flower",
+              "obj-radio",
+              "obj-umbrella"
+            ]
+          },
+          {
+            "id": "garden",
+            "scene": "assets/images/scene-garden.svg",
+            "question": "This is the garden. Which one grows in the garden?",
+            "questionSpeech": "This is the garden. Which one grows in the garden?",
+            "answer": "obj-flower",
+            "distractors": [
+              "obj-teapot",
+              "obj-radio",
+              "obj-bicycle",
+              "obj-cup"
+            ]
+          },
+          {
+            "id": "rain",
+            "scene": "assets/images/scene-rain.svg",
+            "question": "It is raining outside. Which one keeps you dry?",
+            "questionSpeech": "It is raining outside. Which one keeps you dry?",
+            "answer": "obj-umbrella",
+            "distractors": [
+              "obj-cup",
+              "obj-dog",
+              "obj-house",
+              "obj-flower"
+            ]
+          },
+          {
+            "id": "evening",
+            "scene": "assets/images/scene-evening.svg",
+            "question": "In the evening we listen to songs. Which one plays music?",
+            "questionSpeech": "In the evening we listen to songs. Which one plays music?",
+            "answer": "obj-radio",
+            "distractors": [
+              "obj-teapot",
+              "obj-flower",
+              "obj-umbrella",
+              "obj-dog"
+            ]
+          },
+          {
+            "id": "home",
+            "scene": "assets/images/scene-home.svg",
+            "question": "You are coming back home. Who waits at the door for you?",
+            "questionSpeech": "You are coming back home. Who waits at the door for you?",
+            "answer": "obj-dog",
+            "distractors": [
+              "obj-cup",
+              "obj-bicycle",
+              "obj-flower",
+              "obj-teapot"
+            ]
+          }
+        ]
+      }
     }
   },
   "caregiver": {

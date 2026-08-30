@@ -63,3 +63,129 @@
 .nav-row .big-btn {
   flex: 1;
 }
+
+/* ---------- exercises session ---------- */
+
+.exercise-screen {
+  justify-content: center;
+  gap: 1rem;
+  padding: 4.5rem 1rem 1.5rem;
+}
+
+.exercise-lead {
+  font-size: 1.5rem;
+  margin: 0;
+  max-width: 30ch;
+}
+
+.exercise-scene {
+  width: 100%;
+  max-width: 420px;
+}
+
+.exercise-scene img {
+  width: 100%;
+  max-height: 24vh;
+  object-fit: contain;
+  border-radius: 16px;
+  background: #fbf6ec;
+}
+
+.exercise-question {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  max-width: 26ch;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.9rem;
+  width: 100%;
+  max-width: 540px;
+}
+
+.option-btn {
+  flex: 1 1 43%;
+  min-width: 145px;
+  min-height: 150px;
+  padding: 0.75rem 0.5rem;
+  background: #ffffff;
+  color: var(--fg);
+  border: 4px solid #cfd8dc;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.option-btn img {
+  width: 100%;
+  max-width: 120px;
+  height: 84px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.option-label {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.option-btn:disabled {
+  opacity: 1; /* never grey out the revealed answer */
+}
+
+.option-btn.is-correct {
+  border-color: #2e7d32;
+  background: #eef7ee;
+}
+
+/* The option that was tapped instead — softened, never marked as a failure. */
+.option-btn.is-passed-over {
+  border-color: #dfe4e6;
+  background: #f4f6f7;
+  opacity: 0.55;
+}
+
+.feedback {
+  margin: 0;
+  min-height: 2.2rem;
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.feedback.is-good { color: #2e7d32; }
+.feedback.is-gentle { color: var(--accent); }
+
+.progress-dots {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.progress-dots .dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #dfe4e6;
+}
+
+.progress-dots .dot.is-done {
+  background: var(--accent);
+}
+
+.praise-mark {
+  font-size: 4.5rem;
+  line-height: 1;
+  color: #e8a33d;
+}
+
+@media (max-height: 640px) {
+  .exercise-scene img { max-height: 20vh; }
+  .option-btn { min-height: 128px; }
+  .option-btn img { height: 68px; }
+}

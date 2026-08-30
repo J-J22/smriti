@@ -1,10 +1,15 @@
 import { el } from '../core/dom.js';
 
-export function homeIcon(navigate, content) {
+// The one persistent escape hatch on the patient side. onLeave lets a screen
+// tear down its timers and speech before the route changes.
+export function homeIcon(navigate, content, onLeave) {
   return el('button', {
     class: 'home-icon',
     'aria-label': content.common.home,
-    onclick: () => navigate('patient-home'),
+    onclick: () => {
+      if (onLeave) onLeave();
+      navigate('patient-home');
+    },
   }, '🏠');
 }
 
