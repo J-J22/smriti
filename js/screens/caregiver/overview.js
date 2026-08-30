@@ -1,5 +1,6 @@
 import { el } from '../../core/dom.js';
 import { backButton } from '../shared.js';
+import { currentAlerts, renderAlertList } from './alerts.js';
 import { formatTime, formatWhen, isToday } from '../../core/format.js';
 import {
   getReminders,
@@ -21,6 +22,10 @@ export function renderOverview(container, params, navigate, content) {
 
   container.appendChild(el('div', { class: 'caregiver-screen' }, [
     el('h1', {}, c.title),
+
+    el('h2', {}, content.caregiver.alerts.title),
+    renderAlertList(content, currentAlerts(content)),
+
     el('div', { class: 'stat-row' }, [
       stat(c.lastActiveLabel, formatWhen(getLastActiveAt(), when, null, clock)),
     ]),

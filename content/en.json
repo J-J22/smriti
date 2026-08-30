@@ -452,7 +452,14 @@
       "lastSessionLabel": "Last session",
       "howItWorksTitle": "How the level changes",
       "howItWorks": "The level adjusts automatically on this device: 3 correct in a row moves up, 2 incorrect eases back. It responds to activity performance only.",
-      "privacyNote": "This is not a diagnostic tool — consult a professional for concerns."
+      "privacyNote": "This is not a diagnostic tool — consult a professional for concerns.",
+      "chartTitle": "Practice over the last 14 days",
+      "chartFrom": "14 days ago",
+      "chartTo": "Today",
+      "chartEmpty": "No practice recorded yet.",
+      "trendLabel": "First-try answers over time",
+      "streakLabel": "Days in a row",
+      "trendNotEnough": "A trend appears after a few more rounds."
     },
     "memoriesSettings": {
       "title": "Memories & Settings",
@@ -485,6 +492,17 @@
       "voiceExact": "Speaking with the {name} voice.",
       "voiceFallback": "This device has no {language} voice — using {name}, which reads the same script.",
       "voiceNone": "No voice engine found on this device. Every prompt is still shown as text."
+    },
+    "alerts": {
+      "title": "Needs attention",
+      "none": "Nothing needs attention right now.",
+      "noSessionsYet": "No practice sessions yet.",
+      "noActivity": "No practice for {n} days.",
+      "missedOne": "1 reminder today is past its time and not marked done.",
+      "missedMany": "{n} reminders today are past their time and not marked done.",
+      "harderLately": "{exercise} has been harder lately — fewer first-try answers.",
+      "movedUp": "{exercise} moved up a level.",
+      "badge": "{n} to check"
     }
   },
   "common": {

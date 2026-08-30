@@ -1,30 +1,57 @@
 import { el } from '../../core/dom.js';
 import { backButton } from '../shared.js';
 import { formatWhen } from '../../core/format.js';
+import { barChart, sparkline } from '../../core/chart.js';
+import {
+  sessionsPerDay,
+  accuracyTrend,
+  levelTrend,
+  practiceStreak,
+} from '../../core/analytics.js';
 import { getAllEngagement, getSessions, EXERCISE_IDS } from '../../core/store.js';
 
-const RECENT_SHOWN = 8;
+const RECENT_SHOWN = 10;
+const CHART_DAYS = 14;
+const TREND_POINTS = 8;
+const MIN_ROUNDS_FOR_TREND = 4;
 
 export function renderEngagement(container, params, navigate, content) {
   const c = content.caregiver.engagement;
   const records = getAllEngagement();
   const sessions = getSessions();
   const practised = EXERCISE_IDS.filter((id) => records[id].totalRounds > 0);
-
-  const cards = EXERCISE_IDS.map((id) => renderExerciseCard(c, id, records[id]));
+  const daily = sessionsPerDay(sessions, CHART_DAYS);
 
   container.appendChild(el('div', { class: 'caregiver-screen' }, [
     el('h1', {}, c.title),
     el('p', { class: 'section-intro' }, c.intro),
-    practised.length ? null : el('p', { class: 'empty-state' }, c.empty),
+
     el('div', { class: 'stat-row' }, [
       stat(c.sessionsLabel, String(sessions.length)),
+      stat(c.streakLabel, String(practiceStreak(sessions))),
       stat(c.lastSessionLabel, sessions.length
         ? formatWhen(sessions[sessions.length - 1].ts, content.common.when, null,
             content.common.clock)
         : content.common.when.never),
     ]),
-    el('div', { class: 'card-list' }, cards),
+
+    el('section', { class: 'chart-card' }, [
+      el('h2', {}, c.chartTitle),
+      sessions.length
+        ? barChart(daily, { label: c.chartTitle })
+        : el('p', { class: 'empty-state' }, c.chartEmpty),
+      sessions.length
+        ? el('div', { class: 'chart-axis' }, [
+            el('span', {}, c.chartFrom),
+            el('span', {}, c.chartTo),
+          ])
+        : null,
+    ]),
+
+    practised.length ? null : el('p', { class: 'empty-state' }, c.empty),
+    el('div', { class: 'card-list' },
+      EXERCISE_IDS.map((id) => renderExerciseCard(c, id, records[id]))),
+
     el('div', { class: 'info-box' }, [
       el('h3', {}, c.howItWorksTitle),
       el('p', {}, c.howItWorks),
@@ -55,6 +82,7 @@ function renderExerciseCard(c, id, record) {
     ? record.totalCorrect + ' / ' + record.totalRounds
     : '—';
   const recent = record.rounds.slice(-RECENT_SHOWN);
+  const enoughForTrend = record.rounds.length >= MIN_ROUNDS_FOR_TREND;
 
   return el('section', { class: 'exercise-card' }, [
     el('h2', {}, c.exerciseNames[id] || id),
@@ -66,14 +94,26 @@ function renderExerciseCard(c, id, record) {
       stat(c.roundsLabel, String(record.totalRounds)),
       stat(c.firstTryLabel, firstTry),
     ]),
+
+    el('div', { class: 'trend' }, [
+      el('span', { class: 'stat-label' }, c.trendLabel),
+      enoughForTrend
+        ? sparkline(accuracyTrend(record.rounds, TREND_POINTS), { label: c.trendLabel })
+        : el('span', { class: 'empty-state' },
+            record.totalRounds ? c.trendNotEnough : c.noRounds),
+      // The level line shares the card so the adaptive story reads at a glance:
+      // accuracy holding up while the level climbs is the shape to look for.
+      enoughForTrend
+        ? sparkline(levelTrend(record.rounds, TREND_POINTS),
+            { min: 1, max: 3, height: 30, label: c.levelLabel })
+        : null,
+    ]),
+
     el('div', { class: 'recent' }, [
       el('span', { class: 'stat-label' }, c.recentLabel),
       recent.length
         ? el('div', { class: 'round-marks' }, recent.map((round) =>
-            el('span', {
-              class: round.correct ? 'mark is-correct' : 'mark',
-              title: String(round.promptId || ''),
-            })))
+            el('span', { class: round.correct ? 'mark is-correct' : 'mark' })))
         : el('span', { class: 'empty-state' }, c.noRounds),
     ]),
     el('p', { class: 'adaptive-note' }, changeText(c, record)),
