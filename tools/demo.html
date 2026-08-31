@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<!-- Content image paths are project-root relative; this page is not. -->
+<base href="../" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Smriti — demo setup &amp; smoke test</title>
-<link rel="stylesheet" href="../css/base.css" />
+<link rel="stylesheet" href="css/base.css" />
 <style>
   body { font-family: system-ui, sans-serif; margin: 0; }
   .wrap { max-width: 820px; margin: 0 auto; padding: 1.5rem; }
@@ -51,26 +53,26 @@ before the demo — it is the check that the whole app actually executes.</p>
 <div id="summary">not run yet</div>
 <ol id="results"></ol>
 
-<p><a href="../index.html">→ Open the app</a> &nbsp;·&nbsp; <a href="store-test.html">→ store self-test</a></p>
+<p><a href="index.html">→ Open the app</a> &nbsp;·&nbsp; <a href="tools/store-test.html">→ store self-test</a></p>
 </div>
 <div id="stage"></div>
 
 <script type="module">
-import { initStore, importData, clearAll, getSettings } from '../js/core/store.js';
-import { loadContent } from '../js/core/content.js';
-import { stopSpeaking } from '../js/core/voice.js';
-import { buildDemoData } from '../js/core/demo-data.js';
+import { initStore, importData, clearAll, getSettings } from './js/core/store.js';
+import { loadContent } from './js/core/content.js';
+import { stopSpeaking } from './js/core/voice.js';
+import { buildDemoData } from './js/core/demo-data.js';
 
-import { renderEntry } from '../js/screens/entry.js';
-import { renderPatientHome } from '../js/screens/patient/home.js';
-import { renderToday } from '../js/screens/patient/today.js';
-import { renderMemories } from '../js/screens/patient/memories.js';
-import { renderExercises } from '../js/screens/patient/exercises.js';
-import { renderCaregiverDashboard } from '../js/screens/caregiver/dashboard.js';
-import { renderOverview } from '../js/screens/caregiver/overview.js';
-import { renderReminders } from '../js/screens/caregiver/reminders.js';
-import { renderEngagement } from '../js/screens/caregiver/engagement.js';
-import { renderMemoriesSettings } from '../js/screens/caregiver/memories-settings.js';
+import { renderEntry } from './js/screens/entry.js';
+import { renderPatientHome } from './js/screens/patient/home.js';
+import { renderToday } from './js/screens/patient/today.js';
+import { renderMemories } from './js/screens/patient/memories.js';
+import { renderExercises } from './js/screens/patient/exercises.js';
+import { renderCaregiverDashboard } from './js/screens/caregiver/dashboard.js';
+import { renderOverview } from './js/screens/caregiver/overview.js';
+import { renderReminders } from './js/screens/caregiver/reminders.js';
+import { renderEngagement } from './js/screens/caregiver/engagement.js';
+import { renderMemoriesSettings } from './js/screens/caregiver/memories-settings.js';
 
 const results = document.getElementById('results');
 const summary = document.getElementById('summary');

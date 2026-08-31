@@ -1,5 +1,10 @@
 let content = null;
 
+// Resolved against this module's own URL, not the page's. A bare
+// 'content/en.json' only works for a page sitting at the project root, which
+// broke every tools page in a subdirectory.
+const PACK_BASE = new URL('../../content/', import.meta.url);
+
 // Content packs are plain JSON. Adding a language means dropping in
 // content/<code>.json and listing it under app.languages — no code change.
 export async function loadContent(language) {
@@ -13,7 +18,7 @@ export async function loadContent(language) {
 
 async function fetchPack(code) {
   try {
-    const res = await fetch('content/' + code + '.json');
+    const res = await fetch(new URL(code + '.json', PACK_BASE).href);
     if (!res.ok) return null;
     return await res.json();
   } catch (err) {

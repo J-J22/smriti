@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<base href="../" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Smriti — store self-test</title>
 <style>
@@ -30,8 +31,8 @@ data written by the <em>previous</em> run, so it proves real on-disk persistence
 <ol id="results"></ol>
 
 <script type="module">
-import * as store from '../js/core/store.js';
-import { nextState, initialState } from '../js/core/adaptive.js';
+import * as store from './js/core/store.js';
+import { nextState, initialState } from './js/core/adaptive.js';
 
 const results = document.getElementById('results');
 let failures = 0;
