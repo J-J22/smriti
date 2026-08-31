@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smriti-shell-v10';
+const CACHE_NAME = 'smriti-shell-v11';
 
 const APP_SHELL = [
   './',
@@ -17,6 +17,7 @@ const APP_SHELL = [
   './js/core/store.js',
   './js/core/adaptive.js',
   './js/core/model.js',
+  './js/core/listen.js',
   './js/core/demo-data.js',
   './js/core/format.js',
   './js/core/analytics.js',

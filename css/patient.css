@@ -637,3 +637,50 @@
   .pattern-item, .pattern-blank { width: 62px; height: 62px; }
   .pattern-item img, .pattern-blank img { width: 48px; height: 48px; }
 }
+
+/* Speech input. Deliberately quieter than the answer buttons: it is an offer,
+   not the way through. The options stay the largest thing on the screen. */
+.mic-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0;
+}
+
+.mic-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3.4rem;
+  padding: 0.6rem 1.4rem;
+  border: 2px solid var(--line, #d6cfc4);
+  border-radius: 2rem;
+  background: var(--surface, #fff);
+  color: var(--ink, #2d2b28);
+  font: inherit;
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+
+.mic-icon { font-size: 1.5rem; line-height: 1; }
+
+.mic-btn.is-listening {
+  border-color: var(--accent, #c47a3f);
+  color: var(--accent, #c47a3f);
+  animation: mic-pulse 1.4s ease-in-out infinite;
+}
+
+.mic-hint {
+  font-size: 1rem;
+  color: var(--ink-soft, #6b6259);
+}
+
+@keyframes mic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(196, 122, 63, 0.35); }
+  50%      { box-shadow: 0 0 0 0.7rem rgba(196, 122, 63, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mic-btn.is-listening { animation: none; }
+}

@@ -65,6 +65,12 @@
         "line": "Thank you for spending this time today.",
         "speech": "Well done. Thank you for spending this time today."
       },
+      "speech": {
+        "prompt": "Say it, or tap",
+        "listening": "Listening…",
+        "start": "Say the answer",
+        "stop": "Stop listening"
+      },
       "feedback": {
         "correct": [
           {
@@ -91,6 +97,10 @@
         "levelUp": {
           "text": "You're doing well — let's try a little harder.",
           "speech": "You are doing really well. Let us try a slightly harder one."
+        },
+        "notHeard": {
+          "text": "I didn't catch that — you can tap instead.",
+          "speech": "I did not catch that. You can tap the answer instead."
         }
       },
       "objects": {
@@ -718,6 +728,11 @@
       "language": "Language",
       "languageNote": "More language packs can be added without changing the app.",
       "difficulty": "Starting level",
+      "speechInput": "Speech answers",
+      "speechInputNote": "Lets the patient say an answer in the activities instead of tapping. Tapping always works, and a spoken answer is never required. The microphone opens only when the patient presses it.",
+      "speechInputPrivacy": "Speech is recognised by the browser, which sends the recording to its own service — so this needs a connection, and it is the only part of Smriti that leaves the device. Turn it off to keep everything local.",
+      "speechOn": "On",
+      "speechOff": "Off",
       "difficultyNote": "Sets where the activities begin. The level then adjusts on its own during practice.",
       "levels": [
         "Gentle",

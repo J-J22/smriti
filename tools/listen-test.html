@@ -1,0 +1,129 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Smriti — speech matching check</title>
+<style>
+  body { font: 15px/1.55 system-ui, sans-serif; margin: 2rem auto; max-width: 52rem;
+         color: #3b3a38; background: #fdfcfa; }
+  h1 { font-size: 1.3rem; } h2 { font-size: 1rem; margin-top: 1.6rem; }
+  p.lead { color: #6b6259; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  td, th { text-align: left; padding: 0.35rem 0.6rem; border-bottom: 1px solid #eae5dc; }
+  th { color: #8a8178; font-weight: 600; }
+  tr.fail { background: #fbf0ee; }
+  .ok { color: #2f6f5e; } .no { color: #b3402f; }
+  #verdict { margin-top: 1.4rem; padding: 0.7rem 1rem; border-radius: 0.4rem;
+             font-weight: 600; background: #e8f0ec; }
+  #verdict.bad { background: #fbe3df; }
+  #live { margin-top: 2rem; padding: 1rem; border: 1px solid #e0dad0; border-radius: 0.5rem; }
+  button { font: inherit; padding: 0.5rem 1rem; border-radius: 0.4rem;
+           border: 1px solid #cfc7bb; background: #fff; cursor: pointer; }
+</style>
+
+<h1>Speech matching — check</h1>
+<p class="lead">
+  Tests <code>matchSpoken()</code> from <code>js/core/listen.js</code>. The rule it
+  has to hold: a garbled or unrelated transcript must resolve to
+  <strong>nothing</strong>. Inventing a wrong answer would train the learner on a
+  mistake the patient never made, and tell someone with memory loss they were
+  wrong when they were not — far worse than simply not hearing them.
+</p>
+
+<div id="out"></div>
+<div id="verdict">running…</div>
+
+<div id="live">
+  <h2>Live microphone</h2>
+  <p class="lead">The automated cases above use fixed transcripts. This uses your
+     actual microphone against the same options, so you can hear how it behaves.
+     Needs a connection — the browser recogniser is cloud-backed.</p>
+  <button id="mic">Say one of: gamosa · jaapi · dhol · xorai</button>
+  <p id="heard"></p>
+</div>
+
+<script type="module">
+import { matchSpoken, listenOnce, listenSupported, MIN_SCORE, MIN_MARGIN }
+  from '../js/core/listen.js';
+
+const OPTIONS = [
+  { id: 'gamosa', label: 'Gamosa' },
+  { id: 'jaapi',  label: 'Jaapi' },
+  { id: 'dhol',   label: 'Dhol' },
+  { id: 'xorai',  label: 'Xorai' },
+];
+
+// [what was heard, what it should resolve to, why this case exists]
+const CASES = [
+  [['Gamosa'],                    'gamosa', 'said exactly'],
+  [['gamosa'],                    'gamosa', 'case does not matter'],
+  [['  Jaapi. '],                 'jaapi',  'punctuation and spacing stripped'],
+  [["I think that's the gamosa"], 'gamosa', 'answered in a sentence'],
+  [['It is a dhol'],              'dhol',   'answered in a sentence'],
+  [['gamosaa'],                   'gamosa', 'one letter off'],
+  [['jappi'],                     'jaapi',  'misheard vowel'],
+  [['XORAI'],                     'xorai',  'recogniser shouting'],
+  [['the xorai I think'],         'xorai',  'hedged answer'],
+
+  [['helicopter'],                null,     'unrelated word resolves to nothing'],
+  [['um'],                        null,     'a filler resolves to nothing'],
+  [[''],                          null,     'empty transcript'],
+  [['aaaaaa'],                    null,     'noise'],
+  [['I do not know'],             null,     'not knowing is not a wrong answer'],
+  [['what was it again'],         null,     'a question is not an answer'],
+  [['ja'],                        null,     'too short to be sure between jaapi and others'],
+
+  [['Gamosa', 'Jaapi'],           null,     'two confident alternatives — too ambiguous to pick'],
+  [['gamosa', 'gamosaa'],         'gamosa', 'alternatives agreeing is still one answer'],
+];
+
+const out = document.getElementById('out');
+let failed = 0;
+
+const table = document.createElement('table');
+table.innerHTML = '<tr><th>heard</th><th>expected</th><th>got</th><th>why this case exists</th></tr>';
+for (const [heard, expected, why] of CASES) {
+  const got = matchSpoken(heard, OPTIONS);
+  const ok = got === expected;
+  if (!ok) failed += 1;
+  const row = document.createElement('tr');
+  if (!ok) row.className = 'fail';
+  row.innerHTML =
+    '<td>' + heard.map((h) => '“' + h + '”').join(' / ') + '</td>' +
+    '<td>' + (expected === null ? '<em>nothing</em>' : expected) + '</td>' +
+    '<td class="' + (ok ? 'ok' : 'no') + '">' +
+      (got === null ? '<em>nothing</em>' : got) + '</td>' +
+    '<td>' + why + '</td>';
+  table.appendChild(row);
+}
+out.appendChild(table);
+
+const verdict = document.getElementById('verdict');
+verdict.textContent = failed === 0
+  ? 'All ' + CASES.length + ' cases passed (score floor ' + MIN_SCORE +
+    ', margin ' + MIN_MARGIN + ') — nothing unclear ever resolves to an answer.'
+  : failed + ' of ' + CASES.length + ' cases failed.';
+if (failed) verdict.className = 'bad';
+
+/* ---- live microphone ---- */
+const mic = document.getElementById('mic');
+const heard = document.getElementById('heard');
+if (!listenSupported()) {
+  mic.disabled = true;
+  heard.textContent = 'This browser has no speech recognition.';
+}
+mic.addEventListener('click', () => {
+  heard.textContent = 'Listening…';
+  listenOnce({
+    lang: 'en-IN',
+    onResult: (alternatives) => {
+      const match = matchSpoken(alternatives, OPTIONS);
+      heard.textContent = 'heard: ' + alternatives.map((a) => '“' + a + '”').join(' / ') +
+        '  →  ' + (match ? 'matched ' + match : 'no confident match, nothing happens');
+    },
+    onDone: (reason) => {
+      if (heard.textContent === 'Listening…') {
+        heard.textContent = 'nothing heard (' + reason + ')';
+      }
+    },
+  });
+});
+</script>

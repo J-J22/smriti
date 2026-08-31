@@ -508,3 +508,10 @@
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
+
+/* The one note on the settings screen that describes data leaving the device. */
+.setting-note.is-caution {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--accent-ink, #8a5a2b);
+}

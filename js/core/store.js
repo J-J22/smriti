@@ -26,7 +26,8 @@ function defaults() {
     reminders: [],
     memories: [],
     engagement: { exercises: {}, sessions: [] },
-    settings: { language: 'en', baselineDifficulty: 1, sampleData: false },
+    settings: { language: 'en', baselineDifficulty: 1, sampleData: false,
+      speechInput: true },
     activity: { lastActiveAt: null, reminderLog: [] },
   };
 }
@@ -128,6 +129,10 @@ export async function initStore() {
       cache[key] = hydrateCollection(key, stored);
     }
     cache.settings.baselineDifficulty = clampLevel(cache.settings.baselineDifficulty);
+    // A device that stored its settings before a key existed must still get the
+    // default, or the feature is silently off on exactly the phones that have
+    // been used the longest.
+    if (cache.settings.speechInput === undefined) cache.settings.speechInput = true;
     return cache;
   })();
   return ready;

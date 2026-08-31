@@ -66,6 +66,7 @@ export function renderMemoriesSettings(container, params, navigate, content) {
     renderLanguageSetting(content, c),
     renderVoiceStatus(content, c),
     renderDifficultySetting(c, repaint),
+    renderSpeechSetting(c, repaint),
 
     el('h2', {}, c.dataHeading),
     renderBackup(c),
@@ -215,6 +216,31 @@ function renderDifficultySetting(c, repaint) {
       el('span', { class: 'setting-note' }, c.difficultyNote),
     ]),
     el('div', { class: 'toggle-group' }, buttons),
+  ]);
+}
+
+// Speech input is the one part of Smriti that leaves the device, so it gets a
+// switch and a plain description of what it does. Default on, because it is a
+// real help where there is signal; off is one tap for a caregiver who would
+// rather nothing left the phone.
+function renderSpeechSetting(c, repaint) {
+  const on = getSettings().speechInput !== false;
+  const choices = [[true, c.speechOn], [false, c.speechOff]].map(([value, label]) =>
+    el('button', {
+      class: value === on ? 'toggle-btn is-active' : 'toggle-btn',
+      onclick: () => {
+        setSettings({ speechInput: value });
+        repaint();
+      },
+    }, label));
+
+  return el('div', { class: 'setting-row' }, [
+    el('div', { class: 'setting-text' }, [
+      el('span', { class: 'setting-label' }, c.speechInput),
+      el('span', { class: 'setting-note' }, c.speechInputNote),
+      el('span', { class: 'setting-note is-caution' }, c.speechInputPrivacy),
+    ]),
+    el('div', { class: 'toggle-group' }, choices),
   ]);
 }
 

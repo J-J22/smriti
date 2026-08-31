@@ -159,6 +159,14 @@
 "f": "dc8745ba30be.mp3",
 "ms": 1776
 },
+"I did not catch that. You can tap the answer instead.": {
+"f": "c490bf3b79fd.mp3",
+"ms": 5832
+},
+"I didn't catch that — you can tap instead.": {
+"f": "3c6637cb0301.mp3",
+"ms": 4320
+},
 "In the evening we listen to songs. Which one plays music?": {
 "f": "482d72bc7629.mp3",
 "ms": 6024
@@ -194,6 +202,10 @@
 "Let's Exercise": {
 "f": "2a9ea4d9526d.mp3",
 "ms": 2424
+},
+"Listening…": {
+"f": "6c19a4761d7e.mp3",
+"ms": 1872
 },
 "Look at the row. Which one comes next?": {
 "f": "559e914aaf77.mp3",
@@ -279,6 +291,14 @@
 "f": "e3f3a94c4cf9.mp3",
 "ms": 1872
 },
+"Say it, or tap": {
+"f": "5346a9362de6.mp3",
+"ms": 2736
+},
+"Say the answer": {
+"f": "0c3bc3d6d877.mp3",
+"ms": 2232
+},
 "Serve the rice": {
 "f": "6efc73d603ab.mp3",
 "ms": 2304
@@ -286,6 +306,10 @@
 "Smriti": {
 "f": "6dfe417520be.mp3",
 "ms": 1872
+},
+"Stop listening": {
+"f": "e134211eedf1.mp3",
+"ms": 2256
 },
 "Take medicine": {
 "f": "39204b6517a5.mp3",

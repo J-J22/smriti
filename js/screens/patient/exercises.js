@@ -5,9 +5,11 @@
 import { el } from '../../core/dom.js';
 import { homeIcon } from '../shared.js';
 import { speak, stopSpeaking, clipDuration } from '../../core/voice.js';
+import { listenSupported, listenOnce, stopListening, matchSpoken } from '../../core/listen.js';
 import {
   getMemories,
   getDifficulty,
+  getSettings,
   recordRound,
   recordSession,
   touchActivity,
@@ -100,6 +102,8 @@ export function renderExercises(container, params, navigate, content) {
     activeToken += 1;
     clearTimers();
     stopSpeaking();
+    // The microphone must never outlive the screen that opened it.
+    stopListening();
   }
 
   function screen(children) {
@@ -192,6 +196,83 @@ export function renderExercises(container, params, navigate, content) {
     later(go, ceiling(line.speech, maxMs));
   }
 
+  // A tap-to-talk microphone. It opens only on a deliberate press, closes as
+  // soon as it has an answer, and is absent entirely where speech cannot work
+  // — a button that can never succeed is worse than no button.
+  //
+  // A transcript that matches nothing is not a wrong answer and is never
+  // recorded as one: the patient is told plainly that it was not heard, and
+  // the round waits for them exactly as before.
+  function speechInput(options, onMatch, isResolved, feedback) {
+    if (!listenSupported() || !getSettings().speechInput) return null;
+
+    const strings = c.speech;
+    const label = el('span', { class: 'mic-label' }, strings.start);
+    const button = el('button', {
+      class: 'mic-btn',
+      type: 'button',
+      'aria-label': strings.start,
+    }, [
+      el('span', { class: 'mic-icon', 'aria-hidden': 'true' }, '🎤'),
+      label,
+    ]);
+    let listening = false;
+
+    const reset = () => {
+      listening = false;
+      button.classList.remove('is-listening');
+      label.textContent = strings.start;
+      button.setAttribute('aria-label', strings.start);
+    };
+
+    button.addEventListener('click', () => {
+      if (isResolved()) return;
+      if (listening) {
+        stopListening();
+        reset();
+        return;
+      }
+      listening = true;
+      button.classList.add('is-listening');
+      label.textContent = strings.listening;
+      button.setAttribute('aria-label', strings.stop);
+      // The question is still being spoken on some devices; talking over the
+      // patient while asking them to talk is not a conversation.
+      stopSpeaking();
+
+      let matched = false;
+      listenOnce({
+        lang: content.app.speechLang && content.app.speechLang[0],
+        onResult: (heard) => {
+          if (isResolved()) return;
+          const id = matchSpoken(heard, options);
+          if (id) {
+            matched = true;
+            onMatch(id);
+          }
+        },
+        onDone: () => {
+          if (!alive()) return;
+          reset();
+          // 'not heard' is only worth saying when the patient actually spoke
+          // and nothing came of it, and never once the round has moved on.
+          if (!matched && !isResolved() && !listenSupported()) return;
+          if (!matched && !isResolved()) {
+            const line = c.feedback.notHeard;
+            feedback.textContent = line.text;
+            feedback.className = 'feedback is-gentle';
+            speak(line.speech);
+          }
+        },
+      });
+    });
+
+    return el('div', { class: 'mic-row' }, [
+      button,
+      el('span', { class: 'mic-hint' }, strings.prompt),
+    ]);
+  }
+
   function ceiling(speech, maxMs) {
     const recorded = clipDuration(speech);
     return recorded ? Math.max(maxMs, recorded + AFTER_SPEECH_MS + 400) : maxMs;
@@ -277,6 +358,7 @@ export function renderExercises(container, params, navigate, content) {
       // One resolved answer per round: later taps do nothing at all.
       if (resolved) return;
       resolved = true;
+      stopListening();
       const correct = chosenId === item.answer;
 
       for (const button of buttons) {
@@ -292,6 +374,12 @@ export function renderExercises(container, params, navigate, content) {
         feedback,
         correct ? CORRECT_MS : REVEAL_MS);
     }
+
+    // Speech input, where the device and the caregiver both allow it. It feeds
+    // choose() — the same path a tap takes — so the learner, the rules engine
+    // and the wrong-answer handling cannot tell the two apart. Nothing here is
+    // on the advance path: if it never fires, the round still works by tapping.
+    const mic = speechInput(options, (id) => choose(id), () => resolved, feedback);
 
     for (const option of options) {
       const button = el('button', {
@@ -313,6 +401,7 @@ export function renderExercises(container, params, navigate, content) {
         : null,
       el('p', { class: 'exercise-question' }, item.question),
       el('div', { class: 'options' }, buttons),
+      mic,
       feedback,
       progressDots(total, progress['exercise-1']),
     ]));
