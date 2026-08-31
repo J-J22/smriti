@@ -7,6 +7,7 @@
 // Caregiver Settings can clear it in one tap.
 
 import { RAISE_AFTER_CORRECT, MAX_LEVEL } from './adaptive.js';
+import { initialModel, learn, predict, proposeLevel } from './model.js';
 
 const DAY = 86400000;
 
@@ -53,6 +54,7 @@ function buildEngagement(now) {
   const state = {};
   for (const id of ids) {
     state[id] = { difficulty: 1, correctStreak: 0, wrongStreak: 0, lastChange: null,
+      model: initialModel(), steering: false, predicted: 0,
       rounds: [], totalRounds: 0, totalCorrect: 0 };
   }
 
@@ -68,6 +70,12 @@ function buildEngagement(now) {
       const rounds = id === 'exercise-4' ? 1 : 2;
       for (let i = 0; i < rounds; i++) {
         const correct = Math.random() < successRate;
+        const playedLevel = record.difficulty;
+        // The seeded rounds train the learner exactly as real ones would, so
+        // the Engagement screen opens on a model that has genuinely learned
+        // from this history rather than a blank one claiming otherwise.
+        const expected = predict(record.model, playedLevel, record.rounds);
+        record.model = learn(record.model, playedLevel, record.rounds, correct);
         if (correct) {
           record.correctStreak += 1;
           record.wrongStreak = 0;
@@ -92,8 +100,13 @@ function buildEngagement(now) {
           promptId: null,
           attempts: correct ? 1 : 2,
           difficulty: record.difficulty,
+          expected: Math.round(expected * 100) / 100,
           change: record.lastChange,
         });
+        const proposal = proposeLevel(record.model, record.rounds, record.difficulty);
+        record.difficulty = proposal.level;
+        record.steering = proposal.steering;
+        record.predicted = Math.round(proposal.predicted * 100) / 100;
         completed += 1;
       }
     }

@@ -68,6 +68,23 @@ export function sparkline(values, options) {
     .join(' ');
   const area = path + ' L' + width + ' ' + height + ' L0 ' + height + ' Z';
 
+  // An optional second series on the same axes, drawn as a bare line. Used to
+  // lay what the model expected over what actually happened.
+  let overlay = null;
+  if (Array.isArray(settings.overlay) && settings.overlay.length === values.length) {
+    const overlayStep = width / (settings.overlay.length - 1);
+    overlay = svgEl('path', {
+      d: settings.overlay
+        .map((value, index) => {
+          const x = index * overlayStep;
+          const y = height - 4 - ((value - min) / span) * (height - 8);
+          return (index === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1);
+        })
+        .join(' '),
+      class: 'line-overlay',
+    });
+  }
+
   return svgEl('svg', {
     viewBox: '0 0 ' + width + ' ' + height,
     class: 'chart chart-line',
@@ -77,6 +94,7 @@ export function sparkline(values, options) {
   }, [
     svgEl('path', { d: area, class: 'line-fill' }),
     svgEl('path', { d: path, class: 'line-stroke' }),
+    overlay,
     svgEl('circle', {
       cx: points[points.length - 1][0].toFixed(1),
       cy: points[points.length - 1][1].toFixed(1),

@@ -44,6 +44,23 @@ export function accuracyTrend(rounds, buckets) {
   return points;
 }
 
+// What the model expected, bucketed exactly like accuracyTrend so the two lines
+// can be read against each other. The prediction tracking the outcome is what
+// "the learner is working" actually looks like.
+export function expectedTrend(rounds, buckets) {
+  const predicted = rounds.filter((round) => typeof round.expected === 'number');
+  if (!predicted.length) return [];
+  const size = Math.max(1, Math.ceil(predicted.length / buckets));
+  const points = [];
+  for (let start = 0; start < predicted.length; start += size) {
+    const slice = predicted.slice(start, start + size);
+    let sum = 0;
+    for (const round of slice) sum += round.expected;
+    points.push(Math.round((sum / slice.length) * 100));
+  }
+  return points;
+}
+
 export function levelTrend(rounds, buckets) {
   if (!rounds.length) return [];
   const size = Math.max(1, Math.ceil(rounds.length / buckets));

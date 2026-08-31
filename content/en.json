@@ -690,7 +690,14 @@
       "chartEmpty": "No practice recorded yet.",
       "trendLabel": "First-try answers over time",
       "streakLabel": "Days in a row",
-      "trendNotEnough": "A trend appears after a few more rounds."
+      "trendNotEnough": "A trend appears after a few more rounds.",
+      "modelLabel": "On-device learning",
+      "modelExpectedLabel": "What it expected, against what happened",
+      "modelWatching": "Watching for now — it starts adjusting after {n} more rounds.",
+      "modelTrained": "Learned from {n} rounds on this device.",
+      "modelPredicted": "Expecting around {p}% correct at this level.",
+      "modelHowTitle": "How the learning works",
+      "modelHow": "Alongside the rules, this device learns from the rounds it has seen and works out how likely each level is to go well, then picks the one that should land near {p}% correct — worth doing, but rarely going wrong. It learns only from this person's own practice, only on this device, and nothing is sent anywhere. The rules above stay the boundary: it can move the level by one step at most."
     },
     "memoriesSettings": {
       "title": "Memories & Settings",

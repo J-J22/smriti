@@ -9,6 +9,7 @@
 // and persist in the background through a serialised queue.
 
 import { initialState, nextState, clampLevel } from './adaptive.js';
+import { initialModel, learn, predict, proposeLevel } from './model.js';
 
 const DB_NAME = 'smriti';
 const DB_VERSION = 1;
@@ -364,6 +365,7 @@ function exerciseRecord(exerciseId) {
   if (!engagement.exercises[exerciseId]) {
     engagement.exercises[exerciseId] = {
       ...initialState(requireCache().settings.baselineDifficulty),
+      model: initialModel(),
       rounds: [],
       totalRounds: 0,
       totalCorrect: 0,
@@ -387,15 +389,24 @@ export function getAllEngagement() {
   return out;
 }
 
-// One answered round. Applies the adaptive rules and persists the new state.
+// One answered round. The learner sees it first, then the rules engine, then
+// the learner proposes where to go next — inside the bounds the rules allow.
 export function recordRound(exerciseId, { correct, promptId = null, attempts = 1 }) {
   const record = exerciseRecord(exerciseId);
-  const advanced = nextState(record, Boolean(correct));
+  const playedLevel = clampLevel(record.difficulty);
+  const priorRounds = record.rounds;
 
-  record.difficulty = advanced.difficulty;
+  // What the model expected before it saw the answer. Kept on the round so the
+  // caregiver screen can show prediction against outcome.
+  const expected = predict(record.model, playedLevel, priorRounds);
+
+  // Train on the round as it was actually met: the level it was played at, and
+  // the history as it stood before this answer existed.
+  record.model = learn(record.model, playedLevel, priorRounds, Boolean(correct));
+
+  const advanced = nextState(record, Boolean(correct));
   record.correctStreak = advanced.correctStreak;
   record.wrongStreak = advanced.wrongStreak;
-  record.lastChange = advanced.lastChange;
   record.totalRounds += 1;
   if (correct) record.totalCorrect += 1;
   record.rounds.push({
@@ -404,11 +415,26 @@ export function recordRound(exerciseId, { correct, promptId = null, attempts = 1
     promptId,
     attempts,
     difficulty: advanced.difficulty,
+    expected: Math.round(expected * 100) / 100,
     change: advanced.lastChange,
   });
   if (record.rounds.length > MAX_ROUNDS_KEPT) {
     record.rounds = record.rounds.slice(-MAX_ROUNDS_KEPT);
   }
+
+  // The model may move one step either side of where the rules landed, and no
+  // further. The rules stay the auditable boundary on what it can do.
+  const proposal = proposeLevel(record.model, record.rounds, advanced.difficulty);
+  record.difficulty = proposal.level;
+  record.steering = proposal.steering;
+  record.predicted = Math.round(proposal.predicted * 100) / 100;
+
+  // lastChange must describe the level the patient will actually meet next,
+  // because the spoken level-up line is keyed off it. If the model holds the
+  // level where the rules wanted to move, nothing changed and nothing is said.
+  record.lastChange = proposal.level > playedLevel ? 'up'
+    : proposal.level < playedLevel ? 'down'
+    : (advanced.lastChange === 'repeat' ? 'repeat' : null);
 
   persist('engagement');
   touchActivity();

@@ -1,0 +1,135 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Smriti — learner check</title>
+<style>
+  body { font: 15px/1.55 system-ui, sans-serif; margin: 2rem auto; max-width: 46rem;
+         color: #3b3a38; background: #fdfcfa; }
+  h1 { font-size: 1.3rem; }
+  p.lead { color: #6b6259; }
+  .case { padding: 0.5rem 0.75rem; border-left: 4px solid #d9d3c9; margin: 0.4rem 0; }
+  .pass { border-color: #2f6f5e; }
+  .fail { border-color: #b3402f; background: #fbf0ee; }
+  .name { font-weight: 600; }
+  .detail { color: #6b6259; font-size: 0.9rem; }
+  #verdict { margin-top: 1.2rem; padding: 0.7rem 1rem; border-radius: 0.4rem;
+             font-weight: 600; background: #e8f0ec; }
+  #verdict.bad { background: #fbe3df; }
+</style>
+
+<h1>On-device learner — browser check</h1>
+<p class="lead">
+  Runs the real <code>js/core/model.js</code> in a browser and compares it against
+  the golden trace produced by <code>tools/model-harness.py</code>. If these agree,
+  the Python validation genuinely describes the code that ships.
+</p>
+<div id="out"></div>
+<div id="verdict">running…</div>
+
+<script type="module">
+import {
+  initialModel, learn, predict, proposeLevel, features,
+  TARGET_SUCCESS, MIN_ROUNDS_TO_STEER,
+} from '../js/core/model.js';
+import { nextState, clampLevel } from '../js/core/adaptive.js';
+
+// Produced by tools/model-harness.py — see the golden-trace section there.
+const GOLDEN_LEVELS = [2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2];
+const GOLDEN_WEIGHTS = [1.132261303344, -0.520868614151, -0.110389621033, 0.110389621033];
+const GOLDEN_PREDICT_L2 = 0.724456632569;
+const PATTERN = [true,true,false,true,true,true,false,false,true,true,
+                 true,false,true,true,true,true,false,true,true,true];
+
+const out = document.getElementById('out');
+let failed = 0;
+
+function check(name, ok, detail) {
+  if (!ok) failed += 1;
+  const box = document.createElement('div');
+  box.className = 'case ' + (ok ? 'pass' : 'fail');
+  box.innerHTML = '<span class="name">' + (ok ? '✓ ' : '✗ ') + name +
+    '</span><br><span class="detail">' + detail + '</span>';
+  out.appendChild(box);
+}
+
+const close = (a, b, tol) => Math.abs(a - b) <= (tol === undefined ? 1e-9 : tol);
+
+/* ---- the prior, before this device has seen anything ---- */
+const blank = initialModel();
+const priors = [1, 2, 3].map((l) => predict(blank, l, []));
+check('starts from a sane prior',
+  close(priors[1], TARGET_SUCCESS, 0.02) && priors[0] > priors[1] && priors[1] > priors[2],
+  'level 1/2/3 → ' + priors.map((p) => p.toFixed(3)).join(' / ') +
+  ' — middle level near the ' + Math.round(TARGET_SUCCESS * 100) + '% target, higher levels harder.');
+
+check('does not steer before it has data',
+  proposeLevel(blank, [], 3).steering === false && proposeLevel(blank, [], 3).level === 3,
+  'with 0 rounds it returns the level the rules chose, and says steering: false.');
+
+/* ---- features must never depend on the answer being predicted ---- */
+const f = features(2, [{ correct: true, attempts: 1 }, { correct: false, attempts: 3 }]);
+check('features stay in range', f.every((v) => v >= -1.01 && v <= 1.01) && f[0] === 1,
+  '[' + f.map((v) => v.toFixed(2)).join(', ') + '] — bias, level, recent accuracy, recent retries.');
+
+/* ---- the golden trace: same arithmetic as the Python harness ---- */
+let model = initialModel();
+let state = { difficulty: 2, correctStreak: 0, wrongStreak: 0 };
+const rounds = [], levels = [];
+for (const correct of PATTERN) {
+  const played = clampLevel(state.difficulty);
+  model = learn(model, played, rounds, correct);
+  const advanced = nextState(state, correct);
+  state.correctStreak = advanced.correctStreak;
+  state.wrongStreak = advanced.wrongStreak;
+  rounds.push({ correct: correct, attempts: correct ? 1 : 2 });
+  state.difficulty = proposeLevel(model, rounds, advanced.difficulty).level;
+  levels.push(state.difficulty);
+}
+
+check('level trace matches the Python harness',
+  JSON.stringify(levels) === JSON.stringify(GOLDEN_LEVELS),
+  'js: [' + levels.join(',') + ']<br>py: [' + GOLDEN_LEVELS.join(',') + ']');
+
+const weightsMatch = model.weights.every((w, i) => close(w, GOLDEN_WEIGHTS[i], 1e-9));
+check('learned weights match the Python harness', weightsMatch,
+  'js: ' + model.weights.map((w) => w.toFixed(9)).join(', ') +
+  '<br>py: ' + GOLDEN_WEIGHTS.map((w) => w.toFixed(9)).join(', '));
+
+check('prediction matches the Python harness',
+  close(predict(model, 2, rounds), GOLDEN_PREDICT_L2, 1e-9),
+  'js: ' + predict(model, 2, rounds).toFixed(9) + '  py: ' + GOLDEN_PREDICT_L2.toFixed(9));
+
+check('trained count tracks rounds seen', model.trained === PATTERN.length,
+  model.trained + ' rounds, steering after ' + MIN_ROUNDS_TO_STEER + '.');
+
+/* ---- the guardrail: never more than one level from where the rules landed ---- */
+let breached = 0;
+for (let i = 0; i < 400; i++) {
+  const history = [];
+  for (let j = 0; j < 30; j++) history.push({ correct: Math.random() < 0.5, attempts: 1 });
+  let m = initialModel();
+  for (const r of history) m = learn(m, 1 + (i % 3), history, r.correct);
+  for (const rules of [1, 2, 3]) {
+    const level = proposeLevel(m, history, rules).level;
+    if (Math.abs(level - rules) > 1 || level < 1 || level > 3) breached += 1;
+  }
+}
+check('never moves more than one level from the rules engine', breached === 0,
+  '1200 proposals against random histories, ' + breached + ' outside the rules boundary.');
+
+/* ---- survives nonsense without throwing ---- */
+let survived = true;
+try {
+  predict(null, 2, []);
+  predict({ weights: [NaN, 1, 2, 3], trained: 9 }, 2, [{ correct: true, attempts: 1 }]);
+  learn({ weights: 'broken' }, 2, [], true);
+  proposeLevel(undefined, undefined, 99);
+} catch (error) { survived = false; }
+check('falls back cleanly on corrupt stored state', survived,
+  'a damaged model in IndexedDB resets to the prior instead of breaking the screen.');
+
+const verdict = document.getElementById('verdict');
+verdict.textContent = failed === 0
+  ? 'All checks passed — the shipped JS matches the validated Python exactly.'
+  : failed + ' check(s) failed.';
+if (failed) verdict.className = 'bad';
+</script>

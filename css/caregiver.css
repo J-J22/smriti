@@ -479,3 +479,32 @@
 .sample-banner h2 { margin: 0 0 0.4rem; font-size: 1rem; color: #7A3418; }
 .sample-banner p { margin: 0 0 0.75rem; font-size: 0.9rem; color: #7A3418; }
 .sample-banner .danger-btn { margin: 0; }
+
+/* The model's expectation laid over what actually happened: same axes, but
+   clearly a second voice on the chart rather than another measurement. */
+.chart-line .line-overlay {
+  fill: none;
+  stroke: var(--ink-soft, #6b6259);
+  stroke-width: 1.6;
+  stroke-dasharray: 3 3;
+  opacity: 0.75;
+}
+
+.model-note {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--ink-soft, #6b6259);
+}
+
+.model-tag {
+  display: inline-block;
+  margin-right: 0.4rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 0.3rem;
+  background: var(--surface-sunk, #efe9df);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}

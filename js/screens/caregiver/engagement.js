@@ -5,9 +5,11 @@ import { barChart, sparkline } from '../../core/chart.js';
 import {
   sessionsPerDay,
   accuracyTrend,
+  expectedTrend,
   levelTrend,
   practiceStreak,
 } from '../../core/analytics.js';
+import { MIN_ROUNDS_TO_STEER, TARGET_SUCCESS } from '../../core/model.js';
 import { getAllEngagement, getSessions, EXERCISE_IDS } from '../../core/store.js';
 
 const RECENT_SHOWN = 10;
@@ -55,6 +57,8 @@ export function renderEngagement(container, params, navigate, content) {
     el('div', { class: 'info-box' }, [
       el('h3', {}, c.howItWorksTitle),
       el('p', {}, c.howItWorks),
+      el('h3', {}, c.modelHowTitle),
+      el('p', {}, c.modelHow.replace('{p}', String(Math.round(TARGET_SUCCESS * 100)))),
     ]),
     el('p', { class: 'privacy-note' }, c.privacyNote),
     backButton(navigate, 'caregiver-dashboard', content),
@@ -97,8 +101,14 @@ function renderExerciseCard(c, id, record) {
 
     el('div', { class: 'trend' }, [
       el('span', { class: 'stat-label' }, c.trendLabel),
+      // The dashed overlay is what the model expected before each round was
+      // answered. Tracking the solid line is the learner working; drifting
+      // away from it is the learner being wrong, and both are worth seeing.
       enoughForTrend
-        ? sparkline(accuracyTrend(record.rounds, TREND_POINTS), { label: c.trendLabel })
+        ? sparkline(accuracyTrend(record.rounds, TREND_POINTS), {
+            label: c.modelExpectedLabel,
+            overlay: expectedTrend(record.rounds, TREND_POINTS),
+          })
         : el('span', { class: 'empty-state' },
             record.totalRounds ? c.trendNotEnough : c.noRounds),
       // The level line shares the card so the adaptive story reads at a glance:
@@ -117,5 +127,23 @@ function renderExerciseCard(c, id, record) {
         : el('span', { class: 'empty-state' }, c.noRounds),
     ]),
     el('p', { class: 'adaptive-note' }, changeText(c, record)),
+    modelNote(c, record),
+  ]);
+}
+
+// What the on-device learner has actually seen, stated plainly. Before it has
+// enough rounds it says so rather than implying it is already steering.
+function modelNote(c, record) {
+  const trained = (record.model && record.model.trained) || 0;
+  if (trained < MIN_ROUNDS_TO_STEER) {
+    return el('p', { class: 'model-note' }, [
+      el('span', { class: 'model-tag' }, c.modelLabel),
+      el('span', {}, c.modelWatching.replace('{n}', String(MIN_ROUNDS_TO_STEER - trained))),
+    ]);
+  }
+  return el('p', { class: 'model-note' }, [
+    el('span', { class: 'model-tag' }, c.modelLabel),
+    el('span', {}, c.modelTrained.replace('{n}', String(trained)) + ' ' +
+      c.modelPredicted.replace('{p}', String(Math.round((record.predicted || 0) * 100)))),
   ]);
 }
