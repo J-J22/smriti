@@ -467,3 +467,15 @@
 
 .backup-block { margin-bottom: 1.25rem; }
 .backup-block .big-btn { margin-bottom: 1rem; }
+
+.sample-banner {
+  background: var(--warm-soft);
+  border-left: 4px solid var(--warm);
+  border-radius: var(--r-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.sample-banner h2 { margin: 0 0 0.4rem; font-size: 1rem; color: #7A3418; }
+.sample-banner p { margin: 0 0 0.75rem; font-size: 0.9rem; color: #7A3418; }
+.sample-banner .danger-btn { margin: 0; }

@@ -1,6 +1,10 @@
-// Demo data for the device you present on. Everything here goes through the
-// normal store collections, so the app reads it exactly as if a caregiver had
-// entered it by hand. Dev tooling only — not part of the app bundle.
+// Sample data for a device that has never been used.
+//
+// A cold install shows an empty state on every screen, which makes a working
+// app look like a shell. On first run the app seeds this so it opens with
+// something real on it. Everything goes through the normal store collections,
+// so the app reads it exactly as if a caregiver had entered it by hand, and
+// Caregiver Settings can clear it in one tap.
 
 const DAY = 86400000;
 
@@ -135,10 +139,12 @@ export function buildDemoData(options) {
   }));
 
   return {
+    sample: Boolean(settings.sample),
     reminders: reminders,
     memories: memories,
     engagement: buildEngagement(now),
-    settings: { language: 'en', baselineDifficulty: 1 },
+    settings: { language: 'en', baselineDifficulty: 1,
+      sampleData: Boolean(settings.sample) },
     activity: { lastActiveAt: now - 35 * 60000, reminderLog: [
       { reminderId: 'rem-demo-1', ts: today.getTime() + 8.2 * 3600000 },
       { reminderId: 'rem-demo-2', ts: today.getTime() + 11.1 * 3600000 },

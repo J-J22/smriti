@@ -499,7 +499,12 @@
       "importConfirm": "Restoring replaces everything currently on this device. Continue?",
       "importDone": "Backup restored.",
       "importFailed": "That file could not be read as a Smriti backup.",
-      "exportName": "smriti-backup"
+      "exportName": "smriti-backup",
+      "sampleHeading": "Sample data",
+      "sampleNote": "This device is showing example reminders, photos and history so the app can be tried straight away. Clearing it leaves a blank device ready for a real person.",
+      "sampleClear": "Clear sample data and start fresh",
+      "sampleConfirm": "Remove all example data? This cannot be undone.",
+      "sampleGone": "Sample data cleared."
     },
     "alerts": {
       "title": "Needs attention",

@@ -2,6 +2,7 @@ import { el } from '../../core/dom.js';
 import { backButton } from '../shared.js';
 import { voiceStatus } from '../../core/voice.js';
 import {
+  clearAll,
   exportData,
   importData,
   getMemories,
@@ -54,6 +55,7 @@ export function renderMemoriesSettings(container, params, navigate, content) {
 
   container.appendChild(el('div', { class: 'caregiver-screen' }, [
     el('h1', {}, c.title),
+    renderSampleBanner(c),
 
     el('h2', {}, c.photosHeading),
     el('p', { class: 'section-intro' }, c.photosIntro),
@@ -274,5 +276,22 @@ function renderBackup(c) {
       fileInput,
     ]),
     status,
+  ]);
+}
+
+// Says outright that what is on screen is example data. Leaving a demo device
+// silently full of invented history would misrepresent a real person's record.
+function renderSampleBanner(c) {
+  if (!getSettings().sampleData) return null;
+  return el('div', { class: 'sample-banner' }, [
+    el('h2', {}, c.sampleHeading),
+    el('p', {}, c.sampleNote),
+    el('button', {
+      class: 'danger-btn',
+      onclick: () => {
+        if (!window.confirm(c.sampleConfirm)) return;
+        clearAll().then(() => window.location.reload());
+      },
+    }, c.sampleClear),
   ]);
 }

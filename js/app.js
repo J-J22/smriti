@@ -1,5 +1,6 @@
 import { loadContent } from './core/content.js';
-import { initStore, getSettings } from './core/store.js';
+import { initStore, getSettings, isFirstRun, importData } from './core/store.js';
+import { buildDemoData } from './core/demo-data.js';
 import { setVoiceLanguage } from './core/voice.js';
 import { startReminderWatch } from './screens/patient/reminder-card.js';
 import { register, init, navigate } from './core/router.js';
@@ -22,6 +23,14 @@ async function bootstrap() {
   // The store hydrates first: it holds the language the content pack is
   // chosen by, and every screen reads it synchronously after this point.
   await initStore();
+
+  // A device that has never been used opens on empty states everywhere, which
+  // reads as a broken app rather than a new one. Seed it once; Caregiver
+  // Settings can clear it.
+  if (isFirstRun()) {
+    await importData(buildDemoData({ sample: true }));
+  }
+
   const language = getSettings().language;
   const content = await loadContent(language);
   // Screen readers and the TTS engine both key off these.

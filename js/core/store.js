@@ -25,7 +25,7 @@ function defaults() {
     reminders: [],
     memories: [],
     engagement: { exercises: {}, sessions: [] },
-    settings: { language: 'en', baselineDifficulty: 1 },
+    settings: { language: 'en', baselineDifficulty: 1, sampleData: false },
     activity: { lastActiveAt: null, reminderLog: [] },
   };
 }
@@ -130,6 +130,16 @@ export async function initStore() {
     return cache;
   })();
   return ready;
+}
+
+// True for a device with nothing on it — used to decide whether to seed the
+// sample data on first run.
+export function isFirstRun() {
+  const state = requireCache();
+  return state.reminders.length === 0 &&
+    state.memories.length === 0 &&
+    state.engagement.sessions.length === 0 &&
+    !state.activity.lastActiveAt;
 }
 
 export function isReady() {
@@ -440,6 +450,9 @@ export function getLastActiveAt() {
 
 export async function clearAll() {
   cache = defaults();
+  // A deliberate wipe is not a fresh install: leave a marker so the first-run
+  // sample data does not immediately reappear.
+  cache.activity.lastActiveAt = Date.now();
   for (const key of COLLECTIONS) {
     try {
       localStorage.removeItem(LS_PREFIX + key);
