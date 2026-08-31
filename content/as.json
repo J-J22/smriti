@@ -121,6 +121,54 @@
         "obj-house": {
           "label": "ঘৰ",
           "image": "assets/images/obj-house.svg"
+        },
+        "obj-jaapi": {
+          "label": "জাপি",
+          "image": "assets/images/obj-jaapi.svg"
+        },
+        "obj-gamosa": {
+          "label": "গামোছা",
+          "image": "assets/images/obj-gamosa.svg"
+        },
+        "obj-xorai": {
+          "label": "শৰাই",
+          "image": "assets/images/obj-xorai.svg"
+        },
+        "obj-dhol": {
+          "label": "ঢোল",
+          "image": "assets/images/obj-dhol.svg"
+        },
+        "obj-tamul": {
+          "label": "তামোল-পাণ",
+          "image": "assets/images/obj-tamul.svg"
+        },
+        "obj-tealeaf": {
+          "label": "চাহ পাত",
+          "image": "assets/images/obj-tealeaf.svg"
+        },
+        "obj-boat": {
+          "label": "নাও",
+          "image": "assets/images/obj-boat.svg"
+        },
+        "obj-bamboo-house": {
+          "label": "বাঁহৰ ঘৰ",
+          "image": "assets/images/obj-bamboo-house.svg"
+        },
+        "obj-hornbill": {
+          "label": "ধনেশ",
+          "image": "assets/images/obj-hornbill.svg"
+        },
+        "obj-orange": {
+          "label": "কমলা",
+          "image": "assets/images/obj-orange.svg"
+        },
+        "obj-rice": {
+          "label": "ভাত",
+          "image": "assets/images/obj-rice.svg"
+        },
+        "obj-basket": {
+          "label": "পাচি",
+          "image": "assets/images/obj-basket.svg"
         }
       },
       "reminiscence": {
@@ -196,6 +244,97 @@
               "obj-flower",
               "obj-teapot"
             ]
+          },
+          {
+            "id": "teagarden",
+            "scene": "assets/images/scene-tea-garden.svg",
+            "question": "এইখন চাহ বাগিছা। শ্ৰমিকসকলে কি তোলে?",
+            "questionSpeech": "এইখন চাহ বাগিছা। শ্ৰমিকসকলে কি তোলে?",
+            "answer": "obj-tealeaf",
+            "distractors": [
+              "obj-dhol",
+              "obj-boat",
+              "obj-radio",
+              "obj-basket"
+            ]
+          },
+          {
+            "id": "river",
+            "scene": "assets/images/scene-river.svg",
+            "question": "এইখন নদী। কিহেৰে মানুহ সিপাৰলৈ যায়?",
+            "questionSpeech": "এইখন নদী। কিহেৰে মানুহ সিপাৰলৈ যায়?",
+            "answer": "obj-boat",
+            "distractors": [
+              "obj-bicycle",
+              "obj-house",
+              "obj-teapot",
+              "obj-orange"
+            ]
+          },
+          {
+            "id": "village",
+            "scene": "assets/images/scene-village.svg",
+            "question": "এইখন গাঁও। কোনটো বাঁহেৰে সজা?",
+            "questionSpeech": "এইখন গাঁও। কোনটো বাঁহেৰে সজা?",
+            "answer": "obj-bamboo-house",
+            "distractors": [
+              "obj-cup",
+              "obj-flower",
+              "obj-dhol",
+              "obj-rice"
+            ]
+          },
+          {
+            "id": "paddy",
+            "scene": "assets/images/scene-paddy.svg",
+            "question": "এইখন ধাননি পথাৰ। ইয়াৰ পৰা কি পোৱা যায়?",
+            "questionSpeech": "এইখন ধাননি পথাৰ। ইয়াৰ পৰা কি পোৱা যায়?",
+            "answer": "obj-rice",
+            "distractors": [
+              "obj-radio",
+              "obj-umbrella",
+              "obj-boat",
+              "obj-jaapi"
+            ]
+          },
+          {
+            "id": "festival",
+            "scene": "assets/images/scene-festival.svg",
+            "question": "বিহু আহিছে। কোনটোৱে তাল বজায়?",
+            "questionSpeech": "বিহু আহিছে। কোনটোৱে তাল বজায়?",
+            "answer": "obj-dhol",
+            "distractors": [
+              "obj-cup",
+              "obj-basket",
+              "obj-orange",
+              "obj-house"
+            ]
+          },
+          {
+            "id": "welcome",
+            "scene": "assets/images/scene-home.svg",
+            "question": "ঘৰলৈ অতিথি আহিছে। আমি কিহেৰে তেওঁক আদৰোঁ?",
+            "questionSpeech": "ঘৰলৈ অতিথি আহিছে। আমি কিহেৰে তেওঁক আদৰোঁ?",
+            "answer": "obj-gamosa",
+            "distractors": [
+              "obj-bicycle",
+              "obj-radio",
+              "obj-boat",
+              "obj-orange"
+            ]
+          },
+          {
+            "id": "sun",
+            "scene": "assets/images/scene-garden.svg",
+            "question": "পথাৰত ৰ‘দ বৰ বেছি। কোনটোৱে মূৰত ছাঁ দিয়ে?",
+            "questionSpeech": "পথাৰত ৰ‘দ বৰ বেছি। কোনটোৱে মূৰত ছাঁ দিয়ে?",
+            "answer": "obj-jaapi",
+            "distractors": [
+              "obj-cup",
+              "obj-dhol",
+              "obj-rice",
+              "obj-flower"
+            ]
           }
         ],
         "photoQuestion": "কোনজন {name}?",
@@ -219,7 +358,19 @@
           "obj-radio",
           "obj-dog",
           "obj-bicycle",
-          "obj-house"
+          "obj-house",
+          "obj-jaapi",
+          "obj-gamosa",
+          "obj-xorai",
+          "obj-dhol",
+          "obj-tamul",
+          "obj-tealeaf",
+          "obj-boat",
+          "obj-bamboo-house",
+          "obj-hornbill",
+          "obj-orange",
+          "obj-rice",
+          "obj-basket"
         ]
       },
       "spot": {
@@ -240,13 +391,25 @@
           "obj-radio",
           "obj-dog",
           "obj-bicycle",
-          "obj-house"
+          "obj-house",
+          "obj-jaapi",
+          "obj-gamosa",
+          "obj-xorai",
+          "obj-dhol",
+          "obj-tamul",
+          "obj-tealeaf",
+          "obj-boat",
+          "obj-bamboo-house",
+          "obj-hornbill",
+          "obj-orange",
+          "obj-rice",
+          "obj-basket"
         ]
       },
       "routine": {
         "title": "দৈনন্দিন কাম",
-        "question": "আহক, {name}ৰ কামবোৰ ক্ৰম অনুসৰি সজাওঁ।",
-        "questionSpeech": "আহক, {name}ৰ কামবোৰ ক্ৰম অনুসৰি সজাওঁ।",
+        "question": "{name} — আহক, এইবোৰ ক্ৰম অনুসৰি সজাওঁ।",
+        "questionSpeech": "{name} — আহক, এইবোৰ ক্ৰম অনুসৰি সজাওঁ।",
         "promptFirst": "প্ৰথমে কোনটো আহে?",
         "promptNext": "তাৰ পিছত?",
         "promptFirstSpeech": "প্ৰথমে কোনটো আহে?",
@@ -321,6 +484,58 @@
                 "image": "assets/images/obj-moon.svg"
               }
             ]
+          },
+          {
+            "id": "tea",
+            "name": "চাহ বনোৱা",
+            "steps": [
+              {
+                "id": "boil",
+                "label": "পানী উতলাওক",
+                "image": "assets/images/obj-water.svg"
+              },
+              {
+                "id": "leaves",
+                "label": "চাহ পাত দিয়ক",
+                "image": "assets/images/obj-tealeaf.svg"
+              },
+              {
+                "id": "pour",
+                "label": "চাহ ঢালক",
+                "image": "assets/images/obj-teapot.svg"
+              },
+              {
+                "id": "drink",
+                "label": "চাহ খাওক",
+                "image": "assets/images/obj-cup.svg"
+              }
+            ]
+          },
+          {
+            "id": "mealtime",
+            "name": "ভাত খোৱা",
+            "steps": [
+              {
+                "id": "wash",
+                "label": "হাত ধুওক",
+                "image": "assets/images/obj-water.svg"
+              },
+              {
+                "id": "serve",
+                "label": "ভাত বাঢ়ক",
+                "image": "assets/images/obj-rice.svg"
+              },
+              {
+                "id": "eat",
+                "label": "ভাত খাওক",
+                "image": "assets/images/obj-meal.svg"
+              },
+              {
+                "id": "medicine",
+                "label": "ঔষধ খাওক",
+                "image": "assets/images/obj-medicine.svg"
+              }
+            ]
           }
         ]
       },
@@ -367,7 +582,19 @@
           "obj-radio",
           "obj-dog",
           "obj-bicycle",
-          "obj-house"
+          "obj-house",
+          "obj-jaapi",
+          "obj-gamosa",
+          "obj-xorai",
+          "obj-dhol",
+          "obj-tamul",
+          "obj-tealeaf",
+          "obj-boat",
+          "obj-bamboo-house",
+          "obj-hornbill",
+          "obj-orange",
+          "obj-rice",
+          "obj-basket"
         ]
       }
     },

@@ -121,6 +121,54 @@
         "obj-house": {
           "label": "House",
           "image": "assets/images/obj-house.svg"
+        },
+        "obj-jaapi": {
+          "label": "Jaapi",
+          "image": "assets/images/obj-jaapi.svg"
+        },
+        "obj-gamosa": {
+          "label": "Gamosa",
+          "image": "assets/images/obj-gamosa.svg"
+        },
+        "obj-xorai": {
+          "label": "Xorai",
+          "image": "assets/images/obj-xorai.svg"
+        },
+        "obj-dhol": {
+          "label": "Dhol",
+          "image": "assets/images/obj-dhol.svg"
+        },
+        "obj-tamul": {
+          "label": "Betel leaf",
+          "image": "assets/images/obj-tamul.svg"
+        },
+        "obj-tealeaf": {
+          "label": "Tea leaf",
+          "image": "assets/images/obj-tealeaf.svg"
+        },
+        "obj-boat": {
+          "label": "Boat",
+          "image": "assets/images/obj-boat.svg"
+        },
+        "obj-bamboo-house": {
+          "label": "Bamboo house",
+          "image": "assets/images/obj-bamboo-house.svg"
+        },
+        "obj-hornbill": {
+          "label": "Hornbill",
+          "image": "assets/images/obj-hornbill.svg"
+        },
+        "obj-orange": {
+          "label": "Orange",
+          "image": "assets/images/obj-orange.svg"
+        },
+        "obj-rice": {
+          "label": "Rice",
+          "image": "assets/images/obj-rice.svg"
+        },
+        "obj-basket": {
+          "label": "Basket",
+          "image": "assets/images/obj-basket.svg"
         }
       },
       "reminiscence": {
@@ -196,6 +244,97 @@
               "obj-flower",
               "obj-teapot"
             ]
+          },
+          {
+            "id": "teagarden",
+            "scene": "assets/images/scene-tea-garden.svg",
+            "question": "This is a tea garden. Which one do the workers pick?",
+            "questionSpeech": "This is a tea garden. Which one do the workers pick?",
+            "answer": "obj-tealeaf",
+            "distractors": [
+              "obj-dhol",
+              "obj-boat",
+              "obj-radio",
+              "obj-basket"
+            ]
+          },
+          {
+            "id": "river",
+            "scene": "assets/images/scene-river.svg",
+            "question": "This is the river. Which one carries people across?",
+            "questionSpeech": "This is the river. Which one carries people across?",
+            "answer": "obj-boat",
+            "distractors": [
+              "obj-bicycle",
+              "obj-house",
+              "obj-teapot",
+              "obj-orange"
+            ]
+          },
+          {
+            "id": "village",
+            "scene": "assets/images/scene-village.svg",
+            "question": "This is the village. Which one is built from bamboo?",
+            "questionSpeech": "This is the village. Which one is built from bamboo?",
+            "answer": "obj-bamboo-house",
+            "distractors": [
+              "obj-cup",
+              "obj-flower",
+              "obj-dhol",
+              "obj-rice"
+            ]
+          },
+          {
+            "id": "paddy",
+            "scene": "assets/images/scene-paddy.svg",
+            "question": "This is the paddy field. Which one comes from here?",
+            "questionSpeech": "This is the paddy field. Which one comes from here?",
+            "answer": "obj-rice",
+            "distractors": [
+              "obj-radio",
+              "obj-umbrella",
+              "obj-boat",
+              "obj-jaapi"
+            ]
+          },
+          {
+            "id": "festival",
+            "scene": "assets/images/scene-festival.svg",
+            "question": "It is Bihu. Which one keeps the beat?",
+            "questionSpeech": "It is Bihu. Which one keeps the beat?",
+            "answer": "obj-dhol",
+            "distractors": [
+              "obj-cup",
+              "obj-basket",
+              "obj-orange",
+              "obj-house"
+            ]
+          },
+          {
+            "id": "welcome",
+            "scene": "assets/images/scene-home.svg",
+            "question": "A guest has come to the house. Which one do we welcome them with?",
+            "questionSpeech": "A guest has come to the house. Which one do we welcome them with?",
+            "answer": "obj-gamosa",
+            "distractors": [
+              "obj-bicycle",
+              "obj-radio",
+              "obj-boat",
+              "obj-orange"
+            ]
+          },
+          {
+            "id": "sun",
+            "scene": "assets/images/scene-garden.svg",
+            "question": "The sun is strong in the field. Which one shades your head?",
+            "questionSpeech": "The sun is strong in the field. Which one shades your head?",
+            "answer": "obj-jaapi",
+            "distractors": [
+              "obj-cup",
+              "obj-dhol",
+              "obj-rice",
+              "obj-flower"
+            ]
           }
         ],
         "photoQuestion": "Which one is {name}?",
@@ -219,7 +358,19 @@
           "obj-radio",
           "obj-dog",
           "obj-bicycle",
-          "obj-house"
+          "obj-house",
+          "obj-jaapi",
+          "obj-gamosa",
+          "obj-xorai",
+          "obj-dhol",
+          "obj-tamul",
+          "obj-tealeaf",
+          "obj-boat",
+          "obj-bamboo-house",
+          "obj-hornbill",
+          "obj-orange",
+          "obj-rice",
+          "obj-basket"
         ]
       },
       "spot": {
@@ -240,13 +391,25 @@
           "obj-radio",
           "obj-dog",
           "obj-bicycle",
-          "obj-house"
+          "obj-house",
+          "obj-jaapi",
+          "obj-gamosa",
+          "obj-xorai",
+          "obj-dhol",
+          "obj-tamul",
+          "obj-tealeaf",
+          "obj-boat",
+          "obj-bamboo-house",
+          "obj-hornbill",
+          "obj-orange",
+          "obj-rice",
+          "obj-basket"
         ]
       },
       "routine": {
         "title": "Daily Routine",
-        "question": "Let us put the {name} in order.",
-        "questionSpeech": "Let us put the {name} in order.",
+        "question": "{name} — let us put these in order.",
+        "questionSpeech": "{name} — let us put these in order.",
         "promptFirst": "Which one comes first?",
         "promptNext": "And after that?",
         "promptFirstSpeech": "Which one comes first?",
@@ -321,6 +484,58 @@
                 "image": "assets/images/obj-moon.svg"
               }
             ]
+          },
+          {
+            "id": "tea",
+            "name": "Making tea",
+            "steps": [
+              {
+                "id": "boil",
+                "label": "Boil the water",
+                "image": "assets/images/obj-water.svg"
+              },
+              {
+                "id": "leaves",
+                "label": "Add the tea leaves",
+                "image": "assets/images/obj-tealeaf.svg"
+              },
+              {
+                "id": "pour",
+                "label": "Pour the tea",
+                "image": "assets/images/obj-teapot.svg"
+              },
+              {
+                "id": "drink",
+                "label": "Drink the tea",
+                "image": "assets/images/obj-cup.svg"
+              }
+            ]
+          },
+          {
+            "id": "mealtime",
+            "name": "Meal time",
+            "steps": [
+              {
+                "id": "wash",
+                "label": "Wash your hands",
+                "image": "assets/images/obj-water.svg"
+              },
+              {
+                "id": "serve",
+                "label": "Serve the rice",
+                "image": "assets/images/obj-rice.svg"
+              },
+              {
+                "id": "eat",
+                "label": "Eat your meal",
+                "image": "assets/images/obj-meal.svg"
+              },
+              {
+                "id": "medicine",
+                "label": "Take medicine",
+                "image": "assets/images/obj-medicine.svg"
+              }
+            ]
           }
         ]
       },
@@ -367,7 +582,19 @@
           "obj-radio",
           "obj-dog",
           "obj-bicycle",
-          "obj-house"
+          "obj-house",
+          "obj-jaapi",
+          "obj-gamosa",
+          "obj-xorai",
+          "obj-dhol",
+          "obj-tamul",
+          "obj-tealeaf",
+          "obj-boat",
+          "obj-bamboo-house",
+          "obj-hornbill",
+          "obj-orange",
+          "obj-rice",
+          "obj-basket"
         ]
       }
     },
