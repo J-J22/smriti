@@ -6,6 +6,8 @@
 // so the app reads it exactly as if a caregiver had entered it by hand, and
 // Caregiver Settings can clear it in one tap.
 
+import { RAISE_AFTER_CORRECT, MAX_LEVEL } from './adaptive.js';
+
 const DAY = 86400000;
 
 // Placeholder portraits so the demo has photos without shipping real family
@@ -96,6 +98,17 @@ function buildEngagement(now) {
       }
     }
     sessions.push({ ts: day + 400000, startedAt: day, completed: completed });
+  }
+
+  // Leave the first two activities one correct answer short of a level rise.
+  // The rules in adaptive.js are untouched — this is simply where a fortnight
+  // of steady practice plausibly leaves someone, and it means the adaptation
+  // is something you can watch happen rather than something you assert. Level
+  // is capped below MAX_LEVEL so there is somewhere for it to go.
+  for (const id of ['exercise-1', 'exercise-2']) {
+    state[id].correctStreak = RAISE_AFTER_CORRECT - 1;
+    state[id].wrongStreak = 0;
+    if (state[id].difficulty >= MAX_LEVEL) state[id].difficulty = MAX_LEVEL - 1;
   }
 
   for (const id of ids) {

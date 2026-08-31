@@ -87,6 +87,10 @@
         "retry": {
           "text": "Not quite — try again.",
           "speech": "Not quite. Try again."
+        },
+        "levelUp": {
+          "text": "You're doing well — let's try a little harder.",
+          "speech": "You are doing really well. Let us try a slightly harder one."
         }
       },
       "objects": {

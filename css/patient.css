@@ -295,9 +295,13 @@
 }
 
 .feedback.is-good,
-.feedback.is-gentle { animation: pop-in 320ms var(--ease) both; }
+.feedback.is-gentle,
+.feedback.is-levelup { animation: pop-in 320ms var(--ease) both; }
 .feedback.is-good { color: var(--good); }
 .feedback.is-gentle { color: var(--accent); }
+/* The level-up beat is encouragement, not a result: warm, and never the
+   same colour as a "correct" answer, so the two do not read as one thing. */
+.feedback.is-levelup { color: var(--accent); }
 
 .progress-dots { display: flex; gap: 0.6rem; }
 

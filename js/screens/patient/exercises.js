@@ -21,6 +21,7 @@ const CORRECT_MS = 2400;
 const REVEAL_MS = 3800; // longer: the correct answer is being shown
 const RETRY_MS = 1600;  // gentle pause before the patient may try again
 const PRAISE_MS = 4600;
+const LEVEL_UP_MS = 3000; // the adaptive engine moved up: say so before the next round
 const AFTER_SPEECH_MS = 700; // a beat to let the screen settle
 
 const SEQUENCE = ['exercise-1', 'exercise-2', 'exercise-3', 'exercise-4', 'exercise-5'];
@@ -151,12 +152,25 @@ export function renderExercises(container, params, navigate, content) {
   // Records a resolved round, speaks the feedback, and moves on as soon as the
   // line has been heard (or at maxMs on a device with no voice).
   function resolveRound(exerciseId, total, outcome, line, tone, element, maxMs) {
-    recordRound(exerciseId, outcome);
+    const record = recordRound(exerciseId, outcome);
     completedRounds += 1;
-    sayThen(line, element, tone, () => {
+
+    const advance = () => {
       progress[exerciseId] += 1;
       if (progress[exerciseId] >= total) nextStage();
       else paint();
+    };
+
+    sayThen(line, element, tone, () => {
+      // The rules engine just moved this exercise up a level. Say so warmly, so
+      // the harder round the patient is about to meet is never a silent
+      // surprise. Easing DOWN is deliberately never announced — naming it would
+      // turn an invisible adjustment into a fail state.
+      if (record.lastChange === 'up') {
+        sayThen(c.feedback.levelUp, element, 'levelup', advance, LEVEL_UP_MS);
+      } else {
+        advance();
+      }
     }, maxMs);
   }
 
