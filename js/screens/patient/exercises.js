@@ -4,7 +4,7 @@
 
 import { el } from '../../core/dom.js';
 import { homeIcon } from '../shared.js';
-import { speak, stopSpeaking } from '../../core/voice.js';
+import { speak, stopSpeaking, clipDuration } from '../../core/voice.js';
 import {
   getMemories,
   getDifficulty,
@@ -92,7 +92,7 @@ export function renderExercises(container, params, navigate, content) {
       fn();
     };
     speak(text, () => later(go, AFTER_SPEECH_MS));
-    later(go, maxMs);
+    later(go, ceiling(text, maxMs));
   }
 
   // Called before any route change out of the session.
@@ -186,7 +186,15 @@ export function renderExercises(container, params, navigate, content) {
       fn();
     };
     speak(line.speech, () => later(go, AFTER_SPEECH_MS));
-    later(go, maxMs);
+    // maxMs is the safety net for a device whose speech never reports back. A
+    // pre-recorded line has a known length, so the net has to clear it —
+    // otherwise the screen would advance over the end of its own sentence.
+    later(go, ceiling(line.speech, maxMs));
+  }
+
+  function ceiling(speech, maxMs) {
+    const recorded = clipDuration(speech);
+    return recorded ? Math.max(maxMs, recorded + AFTER_SPEECH_MS + 400) : maxMs;
   }
 
   /* ---------- intro ---------- */

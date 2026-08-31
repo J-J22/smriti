@@ -1,7 +1,7 @@
 import { loadContent } from './core/content.js';
 import { initStore, getSettings, isFirstRun, importData } from './core/store.js';
 import { buildDemoData } from './core/demo-data.js';
-import { setVoiceLanguage } from './core/voice.js';
+import { setVoiceLanguage, loadVoiceClips } from './core/voice.js';
 import { startReminderWatch } from './screens/patient/reminder-card.js';
 import { register, init, navigate } from './core/router.js';
 import { renderEntry } from './screens/entry.js';
@@ -36,6 +36,9 @@ async function bootstrap() {
   // Screen readers and the TTS engine both key off these.
   document.documentElement.lang = language;
   setVoiceLanguage(content.app.speechLang);
+  // Pre-rendered lines for this language, if the build produced them. Missing
+  // audio is not a failure: speak() falls back to the live engine per line.
+  await loadVoiceClips(language);
 
   register('entry', withContent(renderEntry, content));
   register('patient-home', withContent(renderPatientHome, content));

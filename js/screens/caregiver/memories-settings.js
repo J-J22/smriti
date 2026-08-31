@@ -172,7 +172,11 @@ function renderVoiceStatus(content, c) {
   const languageName = languages[current] || current;
 
   let text;
-  if (!status.available) text = c.voiceNone;
+  // Recorded lines carry every patient screen, so say that first: it is what
+  // the patient will actually hear, whatever engine the device does or does
+  // not have installed.
+  if (status.recorded) text = c.voiceRecorded.replace('{n}', String(status.recorded));
+  else if (!status.available) text = c.voiceNone;
   else if (status.exact) text = c.voiceExact.replace('{name}', status.name);
   else {
     text = c.voiceFallback

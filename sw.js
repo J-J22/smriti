@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smriti-shell-v9';
+const CACHE_NAME = 'smriti-shell-v10';
 
 const APP_SHELL = [
   './',
@@ -16,6 +16,7 @@ const APP_SHELL = [
   './js/core/voice.js',
   './js/core/store.js',
   './js/core/adaptive.js',
+  './js/core/model.js',
   './js/core/demo-data.js',
   './js/core/format.js',
   './js/core/analytics.js',
@@ -77,9 +78,46 @@ const APP_SHELL = [
   './assets/images/scene-village.svg',
 ];
 
+// Pre-rendered speech, listed by the build in assets/audio/<lang>/index.json.
+// Read at install time rather than hard-coded here, so re-running
+// tools/build-voice.py never leaves this file out of date.
+//
+// Only English is precached up front. The Assamese set is the same size again,
+// and a device that never switches language should not pay for it on a rural
+// connection — the fetch handler caches those clips the first time they play,
+// and until then that language simply speaks live.
+const AUDIO_INDEXES = ['./assets/audio/en/index.json'];
+
+async function precacheAudio(cache) {
+  for (const indexPath of AUDIO_INDEXES) {
+    try {
+      const response = await fetch(indexPath);
+      if (!response.ok) continue;
+      const index = await response.json();
+      await cache.put(indexPath, new Response(JSON.stringify(index), {
+        headers: { 'Content-Type': 'application/json' },
+      }));
+
+      const dir = indexPath.slice(0, indexPath.lastIndexOf('/') + 1);
+      const files = Array.from(new Set(
+        Object.keys(index).map((line) => dir + index[line].f)));
+      // One at a time with its own catch: addAll() throws away the whole batch
+      // if a single file is missing, and silence is worse than a gap.
+      for (const file of files) {
+        await cache.add(file).catch(() => {});
+      }
+    } catch (err) {
+      /* audio is an enhancement — the app speaks live without it */
+    }
+  }
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await cache.addAll(APP_SHELL);
+      await precacheAudio(cache);
+    })
   );
   self.skipWaiting();
 });
@@ -95,6 +133,18 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(event.request).then((response) => {
+        // Audio for a language that was not precached is kept the first time it
+        // plays, so switching language is a one-off cost rather than a
+        // permanent dependency on being online.
+        if (response.ok && event.request.url.indexOf('/assets/audio/') !== -1) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        }
+        return response;
+      });
+    })
   );
 });
