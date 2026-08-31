@@ -18,6 +18,19 @@ let clips = null;      // exact line -> { f: file name, ms: duration }
 let clipDir = null;
 let playing = null;    // the audio element in flight, if any
 
+// Bumped by every speak() and every stopSpeaking(). A line captures the value
+// current when it starts and checks it before acting on any callback that
+// arrives later. This is what keeps a cancelled line quiet.
+//
+// Both engines report a line we deliberately stopped as if something happened
+// to it: pausing an <audio> whose play() has not resolved yet rejects that
+// promise with AbortError, and speechSynthesis.cancel() fires onend on the
+// utterance it just killed. Without this counter the first is indistinguishable
+// from a broken file — so the line falls back to the live engine and says
+// itself again over the top of whatever started next — and the second tells
+// the caller a line finished when it never did.
+let generation = 0;
+
 // Ordered preference list from the active content pack. Assamese ships a
 // fallback chain ending in Bengali: Android rarely carries an Assamese voice,
 // and Assamese is written in the Bengali-Assamese script, so a Bengali voice
@@ -112,6 +125,7 @@ export function clipDuration(text) {
 export function speak(text, onEnd) {
   if (!text) return;
   stopSpeaking();
+  const gen = generation;
   const line = String(text).trim();
   const entry = clips ? clips[line] : null;
   const file = entry ? entry.f : null;
@@ -121,14 +135,15 @@ export function speak(text, onEnd) {
   // pacing identical whichever source ends up speaking.
   pending = setTimeout(() => {
     pending = null;
-    if (file && playClip(file, line, onEnd)) return;
-    speakLive(line, onEnd);
+    if (gen !== generation) return;
+    if (file && playClip(file, line, onEnd, gen)) return;
+    speakLive(line, onEnd, gen);
   }, 60);
 }
 
 // Plays a pre-rendered line. Returns false if the element could not even be
 // created; a playback failure later falls back to the live engine instead.
-function playClip(file, line, onEnd) {
+function playClip(file, line, onEnd, gen) {
   let audio;
   try {
     audio = new Audio(new URL(file, clipDir).href);
@@ -141,15 +156,23 @@ function playClip(file, line, onEnd) {
     if (settled) return;
     settled = true;
     if (playing === audio) playing = null;
+    // Stopped or replaced rather than finished: the caller must not be told
+    // this line played to the end, or it will advance on a sentence the
+    // patient never heard.
+    if (gen !== generation) return;
     if (onEnd) onEnd();
   };
   // A file that will not play is not worth stalling on: hand the line to the
-  // live engine rather than leaving the screen silent.
+  // live engine rather than leaving the screen silent. But the pause() in
+  // stopSpeaking() also lands here, as an aborted play() promise — that is a
+  // cancelled line, not a broken file, and re-speaking it would talk over
+  // whatever replaced it.
   const giveUp = () => {
     if (settled) return;
     settled = true;
     if (playing === audio) playing = null;
-    speakLive(line, onEnd);
+    if (gen !== generation) return;
+    speakLive(line, onEnd, gen);
   };
 
   audio.addEventListener('ended', settle);
@@ -166,9 +189,10 @@ function playClip(file, line, onEnd) {
   return true;
 }
 
-function speakLive(text, onEnd) {
+function speakLive(text, onEnd, gen) {
+  const current = () => gen === generation;
   if (!supported()) {
-    if (onEnd) onEnd();
+    if (onEnd && current()) onEnd();
     return;
   }
   try {
@@ -185,6 +209,9 @@ function speakLive(text, onEnd) {
       const settle = () => {
         if (settled) return;
         settled = true;
+        // cancel() fires onend on the utterance it kills. That is this line
+        // being stopped, not this line finishing.
+        if (!current()) return;
         onEnd();
       };
       utterance.onend = settle;
@@ -193,11 +220,14 @@ function speakLive(text, onEnd) {
     window.speechSynthesis.speak(utterance);
   } catch (err) {
     /* speech is optional — never block the screen on it */
-    if (onEnd) onEnd();
+    if (onEnd && current()) onEnd();
   }
 }
 
 export function stopSpeaking() {
+  // Retire every callback still outstanding before anything is torn down, so
+  // the abort this causes cannot be mistaken for a line ending or failing.
+  generation += 1;
   if (pending) {
     clearTimeout(pending);
     pending = null;

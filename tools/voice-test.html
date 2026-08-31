@@ -1,0 +1,188 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Smriti — voice handover check</title>
+<style>
+  body { font: 15px/1.55 system-ui, sans-serif; margin: 2rem auto; max-width: 52rem;
+         padding: 0 1rem; color: #3b3a38; background: #fdfcfa; }
+  h1 { font-size: 1.3rem; } h2 { font-size: 1rem; margin-top: 1.6rem; }
+  p.lead { color: #6b6259; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  td, th { text-align: left; padding: 0.35rem 0.6rem; border-bottom: 1px solid #eae5dc; }
+  th { color: #8a8178; font-weight: 600; }
+  tr.fail { background: #fbf0ee; }
+  .ok { color: #2f6f5e; } .no { color: #b3402f; }
+  #verdict { margin-top: 1.4rem; padding: 0.7rem 1rem; border-radius: 0.4rem;
+             font-weight: 600; background: #e8f0ec; }
+  #verdict.bad { background: #fbe3df; }
+  button { font: inherit; padding: 0.6rem 1.2rem; border-radius: 0.4rem;
+           border: 1px solid #cfc7bb; background: #fff; cursor: pointer; }
+</style>
+
+<h1>Voice handover — check</h1>
+<p class="lead">
+  One line at a time, always. When a screen replaces the line before it, the old
+  line must stop and <strong>stay</strong> stopped — it must not hand itself to
+  the device engine and say itself again over the top of the new one, and it must
+  not report that it finished when it was cut off.
+</p>
+<p class="lead">
+  Run this <strong>on the demo phone</strong>. It depends on real audio timing —
+  how long <code>play()</code> takes to actually start — which is exactly what a
+  desktop browser gets wrong. Turn the volume up: you should hear single lines
+  with clean gaps, never two voices at once.
+</p>
+
+<p><button id="run">Run checks</button>
+   <span class="lead">(needs a tap first — browsers refuse audio before one)</span></p>
+
+<div id="out"></div>
+<div id="verdict">waiting for a tap…</div>
+
+<script type="module">
+import { speak, stopSpeaking, loadVoiceClips, clipDuration } from '../js/core/voice.js';
+
+/* ---- instrumentation, installed before any line is spoken --------------
+   voice.js reaches for `Audio` and `speechSynthesis` at call time, so
+   replacing them here is enough to see everything it does. ------------- */
+
+const liveLines = [];               // what the device engine was asked to say
+const realSpeak = window.speechSynthesis
+  ? window.speechSynthesis.speak.bind(window.speechSynthesis) : null;
+if (window.speechSynthesis) {
+  window.speechSynthesis.speak = (utterance) => {
+    liveLines.push(String(utterance.text));
+    if (realSpeak) realSpeak(utterance);
+  };
+}
+
+const madeAudio = [];               // every clip element voice.js created
+const RealAudio = window.Audio;
+window.Audio = function PatchedAudio(src) {
+  const audio = new RealAudio(src);
+  madeAudio.push(audio);
+  return audio;
+};
+
+// The symptom, measured directly: two recordings audible at the same moment.
+let maxConcurrent = 0;
+setInterval(() => {
+  const playing = madeAudio.filter((a) => !a.paused && !a.ended).length;
+  if (playing > maxConcurrent) maxConcurrent = playing;
+}, 40);
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+function reset() { liveLines.length = 0; maxConcurrent = 0; }
+
+/* ---- the checks ---------------------------------------------------- */
+
+const results = [];
+function check(name, passed, detail) {
+  results.push({ name, passed, detail });
+}
+
+async function run() {
+  const out = document.getElementById('out');
+  const verdict = document.getElementById('verdict');
+  verdict.className = '';
+  verdict.textContent = 'running…';
+
+  const count = await loadVoiceClips('en');
+  if (!count) {
+    verdict.className = 'bad';
+    verdict.textContent =
+      'No recordings found for English. Serve over http:// from the project root, ' +
+      'and check assets/audio/en/index.json exists.';
+    return;
+  }
+
+  const index = await (await fetch('../assets/audio/en/index.json')).json();
+  const lines = Object.keys(index);
+  // Two long lines to interrupt, and the shortest one to let finish.
+  const byLength = lines.slice().sort((a, b) => (index[b].ms || 0) - (index[a].ms || 0));
+  const A = byLength[0];
+  const B = byLength[1];
+  const SHORT = byLength[byLength.length - 1];
+
+  // 1. The bug this page exists for. Interrupt a recording mid-flight, in the
+  //    window where play() has not resolved yet, and the old line must go quiet.
+  reset();
+  speak(A);
+  await wait(80);          // past the 60ms handover, before play() resolves
+  speak(B);
+  await wait(900);
+  check('an interrupted recording does not say itself again',
+    liveLines.indexOf(A) === -1,
+    liveLines.length ? 'device engine was asked to say: ' + liveLines.join(' | ')
+                     : 'device engine was never asked to speak');
+  check('never two recordings at once', maxConcurrent <= 1,
+    'peak simultaneous recordings: ' + maxConcurrent);
+  stopSpeaking();
+  await wait(300);
+
+  // 2. Stopping is stopping: the Home icon, and the microphone opening.
+  reset();
+  speak(A);
+  await wait(80);
+  stopSpeaking();
+  await wait(700);
+  check('stopSpeaking() leaves silence', liveLines.length === 0,
+    liveLines.length ? 'still spoke: ' + liveLines.join(' | ') : 'silent');
+  check('nothing still playing after stopSpeaking()',
+    madeAudio.every((a) => a.paused || a.ended), 'all clip elements idle');
+
+  // 3. A cut-off line must not report that it finished — that is what let a
+  //    stale screen advance over a sentence the patient never heard.
+  reset();
+  let endedAfterCancel = false;
+  speak(A, () => { endedAfterCancel = true; });
+  await wait(80);
+  stopSpeaking();
+  await wait(900);
+  check('a cancelled line never reports that it finished', !endedAfterCancel,
+    endedAfterCancel ? 'onEnd fired for a line that was stopped' : 'onEnd correctly withheld');
+
+  // 4. The other half: a line left alone still reports back, or screens stall.
+  reset();
+  let endedNormally = false;
+  speak(SHORT, () => { endedNormally = true; });
+  await wait((clipDuration(SHORT) || 1500) + 1200);
+  check('a line that runs to the end does report it', endedNormally,
+    'clip length ' + (clipDuration(SHORT) || 0) + 'ms');
+  stopSpeaking();
+  await wait(300);
+
+  // 5. A line with no recording still has to be spoken by the device engine.
+  reset();
+  const unrecorded = 'Zzz test line with no recording ' + Date.now();
+  speak(unrecorded);
+  await wait(500);
+  check('a line with no recording falls through to the device engine',
+    !window.speechSynthesis || liveLines.indexOf(unrecorded) !== -1,
+    window.speechSynthesis ? 'live engine used' : 'no speech engine on this device');
+  stopSpeaking();
+
+  const rows = results.map((r) => `
+    <tr class="${r.passed ? '' : 'fail'}">
+      <td class="${r.passed ? 'ok' : 'no'}">${r.passed ? 'pass' : 'FAIL'}</td>
+      <td>${r.name}</td>
+      <td class="lead">${r.detail}</td>
+    </tr>`).join('');
+  out.innerHTML = `<table><tr><th></th><th>check</th><th>what happened</th></tr>${rows}</table>`;
+
+  const failed = results.filter((r) => !r.passed).length;
+  verdict.className = failed ? 'bad' : '';
+  verdict.textContent = failed
+    ? failed + ' of ' + results.length + ' checks failed — voice still overlaps.'
+    : 'All ' + results.length + ' checks passed. One line at a time, and a cut-off ' +
+      'line stays cut off.';
+}
+
+document.getElementById('run').addEventListener('click', () => {
+  results.length = 0;
+  run().catch((err) => {
+    const verdict = document.getElementById('verdict');
+    verdict.className = 'bad';
+    verdict.textContent = 'Threw: ' + (err && err.message ? err.message : err);
+  });
+});
+</script>

@@ -25,6 +25,10 @@ const RETRY_MS = 1600;  // gentle pause before the patient may try again
 const PRAISE_MS = 4600;
 const LEVEL_UP_MS = 3000; // the adaptive engine moved up: say so before the next round
 const AFTER_SPEECH_MS = 700; // a beat to let the screen settle
+// The gap between silencing the voice and opening the microphone. Short enough
+// to feel instant on a deliberate tap, long enough that the recogniser does not
+// take the tail of the app's own question as the patient's answer.
+const MIC_OPEN_MS = 180;
 
 const SEQUENCE = ['exercise-1', 'exercise-2', 'exercise-3', 'exercise-4', 'exercise-5'];
 
@@ -137,6 +141,12 @@ export function renderExercises(container, params, navigate, content) {
 
   function paint() {
     clearTimers();
+    // Nothing from the screen being replaced may still be audible or listening
+    // once the next one is up. Leaving this to the incoming screen's own
+    // speak() meant any stage that does not speak immediately — or at all —
+    // let the previous line run on underneath it.
+    stopSpeaking();
+    stopListening();
     container.innerHTML = '';
     const stage = stages[stageIndex];
     if (stage === 'exercise-1') paintReminiscence();
@@ -217,6 +227,7 @@ export function renderExercises(container, params, navigate, content) {
       label,
     ]);
     let listening = false;
+    let stoppedByPatient = false;
 
     const reset = () => {
       listening = false;
@@ -228,11 +239,14 @@ export function renderExercises(container, params, navigate, content) {
     button.addEventListener('click', () => {
       if (isResolved()) return;
       if (listening) {
+        // Switching the microphone off is a choice, not a failed attempt.
+        stoppedByPatient = true;
         stopListening();
         reset();
         return;
       }
       listening = true;
+      stoppedByPatient = false;
       button.classList.add('is-listening');
       label.textContent = strings.listening;
       button.setAttribute('aria-label', strings.stop);
@@ -241,30 +255,37 @@ export function renderExercises(container, params, navigate, content) {
       stopSpeaking();
 
       let matched = false;
-      listenOnce({
-        lang: content.app.speechLang && content.app.speechLang[0],
-        onResult: (heard) => {
-          if (isResolved()) return;
-          const id = matchSpoken(heard, options);
-          if (id) {
-            matched = true;
-            onMatch(id);
-          }
-        },
-        onDone: () => {
-          if (!alive()) return;
-          reset();
-          // 'not heard' is only worth saying when the patient actually spoke
-          // and nothing came of it, and never once the round has moved on.
-          if (!matched && !isResolved() && !listenSupported()) return;
-          if (!matched && !isResolved()) {
+      // Opened on a timer rather than in this tick: stopSpeaking() has just
+      // silenced the question, and the microphone should not be live while the
+      // speaker is still settling.
+      later(() => {
+        if (!listening || isResolved()) return;
+        listenOnce({
+          lang: content.app.speechLang && content.app.speechLang[0],
+          onResult: (heard) => {
+            if (isResolved()) return;
+            const id = matchSpoken(heard, options);
+            if (id) {
+              matched = true;
+              onMatch(id);
+            }
+          },
+          onDone: () => {
+            if (!alive()) return;
+            reset();
+            // 'not heard' is only worth saying when the patient actually spoke
+            // and nothing came of it: never once the round has moved on, never
+            // when they closed the microphone themselves, and never when
+            // speech has just retired on this device.
+            if (matched || isResolved() || stoppedByPatient) return;
+            if (!listenSupported()) return;
             const line = c.feedback.notHeard;
             feedback.textContent = line.text;
             feedback.className = 'feedback is-gentle';
             speak(line.speech);
-          }
-        },
-      });
+          },
+        });
+      }, MIC_OPEN_MS);
     });
 
     return el('div', { class: 'mic-row' }, [

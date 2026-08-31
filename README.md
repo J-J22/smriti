@@ -23,6 +23,7 @@ Then open <http://localhost:8000/>.
 | `/` | the app |
 | `/tools/demo.html` | seed demo data; render every screen and report anything that throws |
 | `/tools/store-test.html` | persistence self-test, including across a page reload |
+| `/tools/voice-test.html` | voice handover check — run it on the demo phone |
 
 Run `tools/demo.html` → **Render every screen** after any change. It is the
 only automated check that the whole app executes.
@@ -69,6 +70,15 @@ tools/      demo seeding and smoke tests — not part of the app or its cache
 Rules shared by all of them: the prompt is spoken on entry, a wrong answer
 never skips the round, there are no timers, no scores shown to the patient and
 no fail states.
+
+**One line at a time.** A line belongs to the screen that started it, and
+leaving that screen ends it — the router stops speech and the microphone on
+every route change, and the exercises session does the same between rounds.
+A line that was cut off must stay cut off: it never falls back to the device
+engine to say itself again, and it never reports that it finished, because a
+screen that advances on a sentence the patient never heard is the same bug
+wearing a different hat. `tools/voice-test.html` checks all of this against
+real audio timing, which is why it has to run on the phone.
 
 **Adaptive difficulty** — `js/core/adaptive.js`. Three correct in a row moves
 up, two wrong eases back, and at the easiest level it repeats rather than
