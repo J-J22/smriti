@@ -1,7 +1,7 @@
 import { loadContent } from './core/content.js';
 import { initStore, getSettings, isFirstRun, importData } from './core/store.js';
 import { buildDemoData } from './core/demo-data.js';
-import { setVoiceLanguage, loadVoiceClips } from './core/voice.js';
+import { setVoiceLanguage, loadVoiceClips, voiceLog, audibleCount } from './core/voice.js';
 import { startReminderWatch } from './screens/patient/reminder-card.js';
 import { register, init, navigate } from './core/router.js';
 import { renderEntry } from './screens/entry.js';
@@ -58,6 +58,27 @@ async function bootstrap() {
 }
 
 bootstrap();
+
+// Voice diagnostics. Only ever on with ?voicelog=1 in the URL, so it cannot
+// appear during a demo. Reads the ring buffer voice.js keeps and shows it on
+// screen, because the phone this has to be diagnosed on has no dev tools.
+// Two or more audible at once is the overlap, caught in the act.
+if (location.search.indexOf('voicelog') !== -1) {
+  const panel = document.createElement('pre');
+  panel.style.cssText = 'position:fixed;left:0;right:0;bottom:0;max-height:42vh;' +
+    'overflow:hidden;margin:0;padding:6px 8px;z-index:9999;pointer-events:none;' +
+    'font:11px/1.35 ui-monospace,monospace;white-space:pre-wrap;' +
+    'background:rgba(20,18,16,.88);color:#e8e2d8';
+  document.body.appendChild(panel);
+  setInterval(() => {
+    const audible = audibleCount();
+    const lines = voiceLog().slice(-14)
+      .map((e) => String(e.t).padStart(6) + '  ' + e.event.padEnd(10) + ' ' + e.detail);
+    panel.textContent = (audible > 1 ? '### OVERLAP: ' + audible + ' CLIPS AUDIBLE ###\n' : '')
+      + lines.join('\n');
+    panel.style.background = audible > 1 ? 'rgba(120,20,15,.92)' : 'rgba(20,18,16,.88)';
+  }, 250);
+}
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

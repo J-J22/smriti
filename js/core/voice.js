@@ -35,6 +35,33 @@ let clips = null;      // exact line -> { f: file name, ms: duration }
 let clipDir = null;
 let playing = null;    // the audio element in flight, if any
 
+// Every clip element that might still be making a sound. `playing` alone was
+// not enough: pause() on an element whose play() promise has not resolved is a
+// documented Chromium race and does not always take effect, and the moment we
+// dropped the reference nothing could stop that element again — it played on
+// over every line that followed, which is the overlap that survived two fixes.
+// Nothing leaves this set until it has been proved silent.
+const live = new Set();
+
+// A ring buffer of what the voice actually did, for diagnosing overlap on a
+// phone with no developer tools. Off the hot path and capped; nothing reads it
+// unless the app is opened with ?voicelog=1.
+const LOG_LIMIT = 240;
+const log = [];
+function note(event, detail) {
+  log.push({ t: Math.round(performance.now()), event: event, detail: detail || '' });
+  if (log.length > LOG_LIMIT) log.shift();
+}
+export function voiceLog() {
+  return log.slice();
+}
+// How many clips could be making a sound right now. Anything above 1 is the bug.
+export function audibleCount() {
+  let n = 0;
+  for (const audio of live) if (!audio.paused && !audio.ended && !audio.muted) n += 1;
+  return n;
+}
+
 // Bumped by every speak() and every stopSpeaking(). A line captures the value
 // current when it starts and checks it before acting on any callback that
 // arrives later. This is what keeps a cancelled line quiet.
@@ -159,6 +186,7 @@ export function speak(text, onEnd) {
   const line = String(text).trim();
   const entry = clips ? clips[line] : null;
   const file = entry ? entry.f : null;
+  note('speak', (file ? 'clip ' : 'live ') + line.slice(0, 40));
 
   // Chrome drops an utterance queued in the same tick as cancel(), so hand it
   // over on the next one. Recordings go through the same beat, which keeps the
@@ -210,6 +238,8 @@ function playClip(file, line, onEnd, gen) {
   const settle = () => {
     if (settled) return;
     settled = true;
+    note('clip-end', 'audible now: ' + audibleCount());
+    live.delete(audio);
     if (playing === audio) playing = null;
     // Stopped or replaced rather than finished: the caller must not be told
     // this line played to the end, or it will advance on a sentence the
@@ -225,6 +255,7 @@ function playClip(file, line, onEnd, gen) {
   const giveUp = () => {
     if (settled) return;
     settled = true;
+    live.delete(audio);
     if (playing === audio) playing = null;
     if (gen !== generation) return;
     speakLive(line, onEnd, gen);
@@ -233,11 +264,22 @@ function playClip(file, line, onEnd, gen) {
   audio.addEventListener('ended', settle);
   audio.addEventListener('error', giveUp);
   playing = audio;
+  live.add(audio);
 
   try {
     const started = audio.play();
     // Autoplay can be refused before the first tap of a session.
-    if (started && typeof started.catch === 'function') started.catch(giveUp);
+    if (started && typeof started.then === 'function') {
+      started.then(() => {
+        // play() has only now taken effect. If this line was stopped while that
+        // was in flight, the pause() it was sent arrived too early to count and
+        // this element is about to be heard over whatever replaced it.
+        if (gen !== generation) {
+          note('LATE-PLAY', 'play() resolved after this line was stopped');
+          hardStop(audio);
+        }
+      }, giveUp);
+    }
   } catch (err) {
     giveUp();
   }
@@ -285,7 +327,25 @@ function speakLive(text, onEnd, gen) {
   utter();
 }
 
+// Silences one clip for certain. pause() is a request the element may still be
+// too busy starting to honour; muted is a property, applied the instant it is
+// set, whatever the element is doing. Set it first, so that even if playback
+// wins the race it wins it silently.
+function hardStop(audio) {
+  if (!audio) return;
+  if (!audio.paused && !audio.ended) note('hard-stop', 'was still audible');
+  try {
+    audio.muted = true;
+    audio.pause();
+    audio.currentTime = 0;
+  } catch (err) {
+    /* ignore — muted has already done the work that matters */
+  }
+  live.delete(audio);
+}
+
 export function stopSpeaking() {
+  note('stop', 'audible: ' + audibleCount());
   // Retire every callback still outstanding before anything is torn down, so
   // the abort this causes cannot be mistaken for a line ending or failing.
   generation += 1;
@@ -293,15 +353,10 @@ export function stopSpeaking() {
     clearTimeout(pending);
     pending = null;
   }
-  if (playing) {
-    try {
-      playing.pause();
-      playing.currentTime = 0;
-    } catch (err) {
-      /* ignore */
-    }
-    playing = null;
-  }
+  // Every element, not just the current one. A clip that lost the play/pause
+  // race is still in here, and this is the only thing that can reach it.
+  for (const audio of Array.from(live)) hardStop(audio);
+  playing = null;
   if (!supported()) return;
   try {
     window.speechSynthesis.cancel();
