@@ -34,15 +34,50 @@ export function renderPatientHome(container, params, navigate, content) {
 
   // A UX gate, not authentication: dim, low contrast, and a deliberate hold,
   // so a confused patient cannot stumble into the caregiver side.
-  const corner = el('div', {
-    class: 'caregiver-corner',
-    onpointerdown: () => {
-      pressTimer = setTimeout(() => navigate('caregiver-dashboard'), LONG_PRESS_MS);
-    },
-    onpointerup: () => clearTimeout(pressTimer),
-    onpointercancel: () => clearTimeout(pressTimer),
-    onpointerleave: () => clearTimeout(pressTimer),
+  //
+  // Holding this on a phone used to fail almost every time. Three things were
+  // cancelling the press before it could finish, and all three needed fixing:
+  // Android reads a hold on a plain div as the start of a scroll and fires
+  // pointercancel (the CSS now says touch-action: none), it raises the
+  // text-selection callout (refused below), and a finger that drifts a
+  // millimetre in two seconds used to leave the 44px target and cancel through
+  // pointerleave (the pointer is captured instead, and pointerleave is gone).
+  const corner = el('div', { class: 'caregiver-corner' });
+
+  function endPress() {
+    clearTimeout(pressTimer);
+    pressTimer = null;
+    corner.classList.remove('is-pressing');
+  }
+
+  corner.addEventListener('pointerdown', (event) => {
+    try {
+      corner.setPointerCapture(event.pointerId);
+    } catch (err) {
+      /* capture is an improvement, not a requirement */
+    }
+    // The fill is the only feedback that the hold is registering. It is still
+    // unlabelled and still takes the full two seconds.
+    corner.classList.add('is-pressing');
+    pressTimer = setTimeout(() => {
+      endPress();
+      navigate('caregiver-dashboard');
+    }, LONG_PRESS_MS);
   });
+  corner.addEventListener('pointerup', endPress);
+  corner.addEventListener('pointercancel', endPress);
+  corner.addEventListener('contextmenu', (event) => event.preventDefault());
+
+  // Demo-only: a plain, labelled way across, for presenting on a device where a
+  // two-second hold is awkward to do one-handed in front of an audience. It
+  // exists only when the app is opened with ?caregiver=1, so a patient can
+  // never meet it and the shipped behaviour is unchanged.
+  const demoDoor = location.search.indexOf('caregiver=1') !== -1
+    ? el('button', {
+        class: 'caregiver-demo-door',
+        onclick: () => navigate('caregiver-dashboard'),
+      }, content.entry.caregiverButton)
+    : null;
 
   const next = getNextReminder(now);
   const strip = next
@@ -63,6 +98,7 @@ export function renderPatientHome(container, params, navigate, content) {
       card('nav-memories.svg', c.memories, c.memoriesSub, () => navigate('memories')),
     ]),
     corner,
+    demoDoor,
   ]));
 
   showDueReminder(container, content, navigate);
