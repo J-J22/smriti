@@ -11,6 +11,23 @@
 
 const RATE = 0.9; // a little slower than default, easier to follow
 
+// How long a line takes when the live engine says it. Lines assembled at
+// runtime from a name, a time or an object have no recording, so there is no
+// measured length to use — and a screen that guesses too low advances over the
+// end of its own sentence, which is what puts two voices on top of each other.
+// Measured against the shipped clips: the neural voice at RATE averages a shade
+// over 400ms a word, and device engines are slower rather than faster.
+const MS_PER_WORD = 430;
+const MIN_SPOKEN_MS = 1100;
+
+// speechSynthesis.cancel() is asynchronous on Android Chrome — it returns at
+// once and the engine keeps talking for a moment. Starting the next utterance
+// into that gap is an overlap the app cannot hear and cannot undo, so wait for
+// the engine to actually fall silent. Bounded: an engine that reports itself
+// busy forever must not mute the app.
+const CANCEL_POLL_MS = 40;
+const CANCEL_WAIT_MAX_MS = 600;
+
 // Resolved against this module's own URL so pages in subdirectories work too.
 const AUDIO_BASE = new URL('../../assets/audio/', import.meta.url);
 
@@ -122,6 +139,19 @@ export function clipDuration(text) {
   return entry && entry.ms ? entry.ms : 0;
 }
 
+// How long this line will take to say, in milliseconds — the measured length of
+// its recording, or an estimate for a line that has none. Screens size their
+// advance timers off this, so the safety net can never fire before the voice
+// could plausibly have finished.
+export function estimateDuration(text) {
+  const line = String(text || '').trim();
+  if (!line) return 0;
+  const recorded = clipDuration(line);
+  if (recorded) return recorded;
+  const words = line.split(/\s+/).filter(Boolean).length;
+  return Math.max(MIN_SPOKEN_MS, words * MS_PER_WORD);
+}
+
 export function speak(text, onEnd) {
   if (!text) return;
   stopSpeaking();
@@ -133,12 +163,37 @@ export function speak(text, onEnd) {
   // Chrome drops an utterance queued in the same tick as cancel(), so hand it
   // over on the next one. Recordings go through the same beat, which keeps the
   // pacing identical whichever source ends up speaking.
-  pending = setTimeout(() => {
+  //
+  // Then wait for the engine to actually fall silent. stopSpeaking() has just
+  // called cancel(), but cancel() is asynchronous on Android Chrome: it returns
+  // at once while the engine keeps talking. Both sources have to respect that,
+  // not just the live one — a recorded clip started over a live line that is
+  // still finishing is the same two voices at once. Pausing an <audio> element
+  // is synchronous, so this only ever waits on speechSynthesis.
+  let waited = 0;
+  const dispatch = () => {
     pending = null;
     if (gen !== generation) return;
+    if (stillSpeaking() && waited < CANCEL_WAIT_MAX_MS) {
+      waited += CANCEL_POLL_MS;
+      pending = setTimeout(dispatch, CANCEL_POLL_MS);
+      return;
+    }
     if (file && playClip(file, line, onEnd, gen)) return;
     speakLive(line, onEnd, gen);
-  }, 60);
+  };
+  pending = setTimeout(dispatch, 60);
+}
+
+// Is the device engine still producing sound? Bounded use only: an engine that
+// reports itself busy forever must never mute the app.
+function stillSpeaking() {
+  if (!supported()) return false;
+  try {
+    return Boolean(window.speechSynthesis.speaking || window.speechSynthesis.pending);
+  } catch (err) {
+    return false;
+  }
 }
 
 // Plays a pre-rendered line. Returns false if the element could not even be
@@ -195,33 +250,39 @@ function speakLive(text, onEnd, gen) {
     if (onEnd && current()) onEnd();
     return;
   }
-  try {
-    const utterance = new SpeechSynthesisUtterance(String(text));
-    utterance.rate = RATE;
-    utterance.lang = preferred[0];
-    const voice = pickVoice();
-    if (voice) {
-      utterance.voice = voice;
-      utterance.lang = voice.lang;
+
+  const utter = () => {
+    if (!current()) return;
+    try {
+      const utterance = new SpeechSynthesisUtterance(String(text));
+      utterance.rate = RATE;
+      utterance.lang = preferred[0];
+      const voice = pickVoice();
+      if (voice) {
+        utterance.voice = voice;
+        utterance.lang = voice.lang;
+      }
+      if (onEnd) {
+        let settled = false;
+        const settle = () => {
+          if (settled) return;
+          settled = true;
+          // cancel() fires onend on the utterance it kills. That is this line
+          // being stopped, not this line finishing.
+          if (!current()) return;
+          onEnd();
+        };
+        utterance.onend = settle;
+        utterance.onerror = settle;
+      }
+      window.speechSynthesis.speak(utterance);
+    } catch (err) {
+      /* speech is optional — never block the screen on it */
+      if (onEnd && current()) onEnd();
     }
-    if (onEnd) {
-      let settled = false;
-      const settle = () => {
-        if (settled) return;
-        settled = true;
-        // cancel() fires onend on the utterance it kills. That is this line
-        // being stopped, not this line finishing.
-        if (!current()) return;
-        onEnd();
-      };
-      utterance.onend = settle;
-      utterance.onerror = settle;
-    }
-    window.speechSynthesis.speak(utterance);
-  } catch (err) {
-    /* speech is optional — never block the screen on it */
-    if (onEnd && current()) onEnd();
-  }
+  };
+
+  utter();
 }
 
 export function stopSpeaking() {

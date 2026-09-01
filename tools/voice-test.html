@@ -151,7 +151,31 @@ async function run() {
   stopSpeaking();
   await wait(300);
 
-  // 5. A line with no recording still has to be spoken by the device engine.
+  // 5. The seam that survived the first fix. A long unrecorded line goes to the
+  //    device engine; answering mid-sentence starts a RECORDED feedback line on
+  //    top of it, because cancel() returns while the engine is still talking.
+  //    Nothing may start until the engine has actually gone quiet.
+  reset();
+  const longLive = 'Rahim in the morning. Let us put all of these into the right ' +
+    'order together, starting with the very first thing that he does.';
+  speak(longLive);
+  await wait(600);                       // mid-sentence, engine definitely busy
+  const busyBefore = Boolean(window.speechSynthesis &&
+    (window.speechSynthesis.speaking || window.speechSynthesis.pending));
+  speak(A);                              // a recorded clip, as a tap would
+  await wait(120);
+  const clipStartedWhileTalking = Boolean(window.speechSynthesis &&
+    window.speechSynthesis.speaking) &&
+    madeAudio.some((a) => !a.paused && !a.ended);
+  await wait(1200);
+  check('a recording does not start over a live line still finishing',
+    !clipStartedWhileTalking,
+    busyBefore ? 'engine was mid-sentence when the clip was asked for'
+               : 'engine was already silent — inconclusive on this device');
+  stopSpeaking();
+  await wait(300);
+
+  // 6. A line with no recording still has to be spoken by the device engine.
   reset();
   const unrecorded = 'Zzz test line with no recording ' + Date.now();
   speak(unrecorded);

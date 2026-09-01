@@ -4,7 +4,7 @@
 
 import { el } from '../../core/dom.js';
 import { homeIcon } from '../shared.js';
-import { speak, stopSpeaking, clipDuration } from '../../core/voice.js';
+import { speak, stopSpeaking, estimateDuration } from '../../core/voice.js';
 import { listenSupported, listenOnce, stopListening, matchSpoken } from '../../core/listen.js';
 import {
   getMemories,
@@ -294,9 +294,14 @@ export function renderExercises(container, params, navigate, content) {
     ]);
   }
 
+  // The safety net for a device whose speech never reports back. It must never
+  // fire while the line is still being said: advancing mid-sentence is what
+  // starts the next screen talking over the tail of this one. A recorded line
+  // has a measured length; a line assembled at runtime from a name or an object
+  // has none, and used to fall back to a flat constant that was routinely too
+  // short for it — so estimate that case rather than guessing low.
   function ceiling(speech, maxMs) {
-    const recorded = clipDuration(speech);
-    return recorded ? Math.max(maxMs, recorded + AFTER_SPEECH_MS + 400) : maxMs;
+    return Math.max(maxMs, estimateDuration(speech) + AFTER_SPEECH_MS + 400);
   }
 
   /* ---------- intro ---------- */
