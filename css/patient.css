@@ -159,6 +159,30 @@
   border: 2px solid var(--line);
   z-index: 5;
   animation: none;
+  /* The icon is now held as well as tapped. Without these Android reads the
+     hold as the start of a scroll and fires pointercancel, and raises the
+     selection callout — either one ends the press before its two seconds. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Holding Home crosses to the caregiver side. This ring is what tells a patient
+   who did not mean to that something is happening, while there is still time to
+   lift their finger — on the patient's most-used control, that matters more
+   than it does on the corner. */
+.home-icon.is-holding {
+  animation: home-hold 2s linear forwards;
+}
+
+@keyframes home-hold {
+  from { box-shadow: var(--shadow-sm), inset 0 0 0 0 var(--accent); }
+  to   { box-shadow: var(--shadow-sm), inset 0 0 0 30px var(--accent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-icon.is-holding { animation: none; border-color: var(--accent); }
 }
 
 /* Deliberately dim and low contrast: a UX gate, not a control. */

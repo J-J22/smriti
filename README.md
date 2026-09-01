@@ -111,9 +111,16 @@ Accounts, authentication, encryption, cloud sync, real ML, cognitive-condition
 inference, and multi-patient health-worker workflows. These are roadmap, and
 should be presented that way rather than implied to exist.
 
-The Patient/Caregiver split is a **UX gate, not authentication**: the corner
-long-press exists so a confused patient cannot wander into the caregiver
-screens. It is not a security boundary, and all data is local to one device.
+The Patient/Caregiver split is a **UX gate, not authentication**: the two-second
+hold exists so a confused patient cannot wander into the caregiver screens. It
+is not a security boundary, and all data is local to one device.
+
+There are two holds that cross over — the dim corner on Patient Home, and the
+Home icon on any patient screen. Both fill as they are held, which is what gives
+someone who did not mean it time to let go. The Home icon carries the greater
+risk of the two, being the control the patient is taught to use, and a tap on it
+still simply goes Home. `?caregiver=1` adds a plain labelled button to Patient
+Home for presenting; it is absent without the flag.
 
 ## Before demonstrating
 

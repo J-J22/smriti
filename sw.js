@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smriti-shell-v15';
+const CACHE_NAME = 'smriti-shell-v16';
 
 const APP_SHELL = [
   './',
