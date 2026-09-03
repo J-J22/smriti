@@ -204,28 +204,44 @@ alternatives.
 
 ---
 
-### 6. Only English audio is precached
+### 6. Both language packs are precached, after this was got wrong once
 
-**Decision.** The install precaches the shell plus the English clips —
-**261 KB + 3.26 MB = 3.51 MB**. Assamese clips are cached opportunistically the
-first time each one plays.
+**Decision.** The install precaches the shell plus **every** language's clips —
+about 7 MB. Nothing about audio is left to be fetched later.
 
-**Naive alternative.** Precache both languages and double the install to ~6.8 MB
-on a rural connection, for a language most devices will never select.
+**Naive alternative.** Precache only the language in use and cache the other
+opportunistically on first play. This is what the app originally did, on the
+reasoning that a monolingual English household should not pay 3.3 MB for audio
+it will never hear.
+
+**Why that was wrong.** It confused *storage* with *download timing*. The bytes
+occupy the same space either way once cached; lazy loading only moves when they
+arrive — and it moves it to the worst possible moment. A device that first
+switches to Assamese while offline has no clips to fetch, falls back to the live
+engine, and finds no Assamese voice installed, because Android almost never
+carries one. The saving was notional. The failure was silence, on the exact
+regional language the project exists to serve.
 
 **Evidence.**
 ```js
-// Only English is precached up front. The Assamese set is the same size again,
-// and a device that never switches language should not pay for it on a rural
-// connection — the fetch handler caches those clips the first time they play,
-// and until then that language simply speaks live.
+// Every language is precached up front, not just the one in use. Lazily caching
+// the other pack sounded thrifty and was wrong: a device that first switches
+// language while offline has no clips to fetch, falls back to the live engine,
+// and finds no Assamese voice installed, because Android almost never carries
+// one. Silence on the demo floor, or in a village, is a worse price than the
+// megabytes.
 ```
-— `sw.js:86-89`, with the write-back at `sw.js:143-146`
+— `sw.js:82-99`, with the opportunistic write-back still in place at
+`sw.js:143-146` for anything the index missed.
 
-**Result.** Half the install size, and switching language is a one-off cost
-rather than a permanent dependency on being online. The honest cost: a device
-that switches to Assamese while offline speaks that language live until it has
-been online once.
+**Result.** Either language works in airplane mode from first load. The install
+roughly doubles, paid once on whatever connection the app arrived over.
+
+**Roadmap that makes the tradeoff vanish.** The clips are 48 kbps mp3, about
+double what speech needs. Re-encoding to Opus at 24 kbps measures ~60% smaller
+on these files, which puts *both* packs under what English alone costs today.
+The index maps each line to its filename, so nothing outside `build-voice.py`
+changes.
 
 ---
 
@@ -421,14 +437,14 @@ exactly, so the mirror has not drifted.
 rule this project set itself forbids three specific things — an LLM, a cloud
 dependency, and a downloaded model file — and the code violates none of them: it
 starts from four hard-coded numbers, trains only from this patient's own rounds
-on this device, and never touches the network. Where the documentation is wrong
-is `README.md:75-76`, which still says "there is no ML"; that line predates the
-learner and should read "no cloud ML, no LLM, no pretrained model." The
-*user-facing* copy has been correct throughout — the caregiver screen calls it
-"On-device learning" and explains exactly what it does.
+on this device, and never touches the network. The README used to say "there is
+no ML", which predated the learner and was wrong; it now describes both layers
+and states the honest version — no cloud ML, no LLM, no pretrained model, no
+downloaded weights. The *user-facing* copy has been correct throughout: the
+caregiver screen calls it "On-device learning" and explains exactly what it does.
 
-**PROOF.** `js/core/model.js:1-17`; `content/en.json:704-710`; the stale line at
-`README.md:73-76`.
+**PROOF.** `js/core/model.js:1-17`; `content/en.json:704-710`;
+`README.md:84-95`.
 
 **TRAP.** Do not say "well, it's only logistic regression, that's not really ML."
 It is, the room knows it is, and hedging turns a defensible design into an
@@ -508,7 +524,7 @@ no CDN. The exposure is one phone's worth of data to whoever holds that phone �
 not a database of patients. For a deployed product the answer is a native wrapper
 with the OS keystore and device encryption, and that is roadmap, not demo.
 
-**PROOF.** `js/core/store.js:1-5`; `README.md:98-106`;
+**PROOF.** `js/core/store.js:1-5`; `README.md:114-115`, `README.md:125-127`;
 `js/screens/caregiver/memories-settings.js:250-272`.
 
 **TRAP.** Do not call the long-press corner a security feature. It is a UX gate
@@ -558,14 +574,14 @@ app. Answer with the voice, the adaptation you can see, and the day.
 
 ### 8. "What is broken in it right now?"
 
-**A.** Five things, and I would fix them in this order. Reminders cannot fire
+**A.** Four things, and I would fix them in this order. Reminders cannot fire
 while the app is closed — that needs an OS-level alarm a web page cannot register
-without a server. The caregiver side has no automated coverage at all. The
-voice-status readout overstates: it reports a device as having a voice whenever
-recordings exist, but eight templated lines still need a live engine, so a phone
-with no engine gets a green dot and a silent "Tap the gamosa". Route params live
+without a server. The caregiver side has no automated coverage at all. Route params live
 outside the URL, so no screen is restorable by reload or hardware-back. And claim
-discipline is enforced by review rather than by a check.
+discipline is enforced by review rather than by a check. A fifth was on this list
+until this week: the voice-status readout called a device healthy whenever
+recordings existed, when the ten templated lines built from a name or a time
+still need a live engine — that now reports as its own state, with an amber dot.
 
 **PROOF.** `js/screens/patient/reminder-card.js:6-8`; `tools/demo.html:136-149`;
 `js/core/voice.js:106-114`; `js/core/router.js:5, 12`.
@@ -587,7 +603,7 @@ crosses the diagnostic line the project refuses. The reason to believe we could
 build them is what we did build in the same space — a complete, exportable
 single-device record, which is exactly the primitive a sync layer would sit on.
 
-**PROOF.** `README.md:98-106`; `js/screens/caregiver/memories-settings.js:247-272`.
+**PROOF.** `README.md:114-115`, `README.md:125-127`; `js/screens/caregiver/memories-settings.js:247-272`.
 
 **TRAP.** Do not say "we ran out of time." It is almost certainly partly true and
 it is the weakest available answer. The design reason is stronger and it is also
@@ -693,7 +709,7 @@ constraint the entire app is built on. That is a different product with a
 different threat model and a different regulatory posture. Building a fake
 version of it here would have been the dishonest choice.
 
-**PROOF.** `js/screens/caregiver/memories-settings.js:247-272`; `README.md:98-102`.
+**PROOF.** `js/screens/caregiver/memories-settings.js:247-272`; `README.md:114-115`.
 
 **TRAP.** Do not say "we'd just add a backend." It concedes the architecture is
 incidental, when in fact offline-first is the whole thesis.
@@ -769,7 +785,7 @@ the Assamese pack itself is machine-authored and has not been reviewed by a
 native speaker.
 
 **PROOF.** `tools/build-voice.py:41-48`; `content/as.json:8-13`;
-`js/core/voice.js:34-38`; `README.md:111-112`.
+`js/core/voice.js:34-38`; `README.md:110-112`.
 
 **TRAP.** Do not present the Assamese pack as production-ready. If there is a
 Assamese speaker on the panel, that claim ends badly in one sentence.
@@ -795,7 +811,32 @@ the source, and a golden trace that pins them to nine decimals."
 
 ---
 
-# HONEST WEAKNESSES — the five I would fix first
+### 21. "It is offline-first, but I still need the internet to get it. So?"
+
+**A.** Once, to install it — exactly like every app on the phone in your pocket.
+Installing anything from the Play Store is a network operation, and nobody
+concludes from that that those apps do not work offline. Offline-first has never
+meant the app materialises from nothing; it means it never needs a network to
+*function*, only to be *obtained*. After that first load: no sync, no cloud, no
+API calls, no telemetry, no CDN. Airplane mode from then on, indefinitely.
+
+And packaged as an APK it does not need the internet even for that. An APK is a
+file: it moves by USB cable, SD card, Bluetooth, or a direct share from a health
+worker's phone. A worker can walk into a village with no connectivity at all and
+hand the app to a household. The app is not downloaded — it is passed across.
+
+**PROOF.** `sw.js:112-125` for the install-time precache; `README.md:141-143`
+for the airplane-mode check; the absence of any `fetch` to a non-local origin
+anywhere in `js/`.
+
+**TRAP.** Do not answer "no, it never needs the internet." It does, once, and a
+judge who has read the README knows it says "after first load." Volunteering the
+limit and then showing it shrinks to a Bluetooth transfer is a far stronger
+answer than being caught overstating.
+
+---
+
+# HONEST WEAKNESSES — the four I would fix first
 
 Ranked. Not softened.
 
@@ -810,27 +851,20 @@ Ranked. Not softened.
    about their mutations. This is where a live demo breaks. —
    `tools/demo.html:136-149`
 
-3. **The voice-status readout overstates what the device can say.**
-   It reports a voice as available whenever recordings exist, but eight templated
-   lines still need a live engine — so a phone with no TTS gets a green dot and a
-   silent "Tap the gamosa." — `js/core/voice.js:106-114`
-
-4. **Route params live outside the URL.**
+3. **Route params live outside the URL.**
    No screen is addressable or restorable; reload and Android hardware-back
    replay whatever params were set last. Invisible on the patient rails today,
    but it is a latent bug in a demo where anyone might press back. —
    `js/core/router.js:5, 12`
 
-5. **Claim discipline is enforced by review, not by a check.**
+4. **Claim discipline is enforced by review, not by a check.**
    The entire user-visible surface is two JSON files; a twenty-line lint over
    them for the forbidden vocabulary would make the project's most important
    guarantee structural instead of cultural. It does not exist. —
    `content/en.json`, `content/as.json`
 
 Runners-up worth knowing before someone else finds them: the localStorage mirror
-swallows quota failures silently (`js/core/store.js:93-99`); the manifest's
-maskable icon is not in the precache (`manifest.json:12` vs `sw.js:38-43`);
-`clearAll()` leaves a freshly wiped device reporting "Last active: Just now"
+swallows quota failures silently (`js/core/store.js:93-99`); `clearAll()` leaves a freshly wiped device reporting "Last active: Just now"
 (`js/core/store.js:484-486`); speech input is wired into Exercise 1 only
 (`js/screens/patient/exercises.js:403`); and the photo counter's contrast fails
 WCAG AA (`css/patient.css:406`).

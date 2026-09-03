@@ -49,7 +49,8 @@ airplane-mode operation, which the app is required to support.
 index.html  manifest.json  sw.js
 content/    en.json, as.json — every user-visible string
 css/        base.css (design system), patient.css, caregiver.css
-js/core/    store, router, dom, voice, content, format, adaptive, analytics, chart
+js/core/    store, router, dom, voice, listen, content, format,
+            adaptive, model, analytics, chart, demo-data
 js/screens/ entry, patient/*, caregiver/*
 assets/     images (activity artwork), icons
 tools/      demo seeding and smoke tests — not part of the app or its cache
@@ -80,10 +81,18 @@ screen that advances on a sentence the patient never heard is the same bug
 wearing a different hat. `tools/voice-test.html` checks all of this against
 real audio timing, which is why it has to run on the phone.
 
-**Adaptive difficulty** — `js/core/adaptive.js`. Three correct in a row moves
-up, two wrong eases back, and at the easiest level it repeats rather than
-dropping further. It responds to activity performance only. There is no ML and
-no cloud; it is a rules engine, and the caregiver screen describes it as one.
+**Adaptive difficulty** — two layers. `js/core/adaptive.js` is the rules engine:
+three correct in a row moves up, two wrong eases back, and at the easiest level
+it repeats rather than dropping further. `js/core/model.js` is a learner sitting
+on top of it — online logistic regression, trained by SGD on this device from
+this one patient's rounds, steering toward a 75% success rate. It only watches
+until it has enough rounds, and it may only ever pick a level adjacent to the
+one the rules arrived at, so it can nudge but never leap.
+
+Calling that machine learning is correct, and the honest description is **no
+cloud ML, no LLM, no pretrained model, no downloaded weights** — ~100 lines of
+arithmetic a clinician can audit. It predicts success in an activity and nothing
+else: it responds to activity performance only and infers no cognitive state.
 
 **Reminders** for medicine, hydration, activities and appointments, with a
 full-screen card the patient acknowledges. The watcher polls while the app is
@@ -107,9 +116,11 @@ offline, no-account answer to moving a patient's information between devices.
 
 ## Deliberately not built
 
-Accounts, authentication, encryption, cloud sync, real ML, cognitive-condition
-inference, and multi-patient health-worker workflows. These are roadmap, and
-should be presented that way rather than implied to exist.
+Accounts, authentication, encryption, cloud sync, server-side or downloaded ML,
+cognitive-condition inference, and multi-patient health-worker workflows. These
+are roadmap, and should be presented that way rather than implied to exist.
+(The on-device learner above is not an exception to this: it ships no model file
+and makes no network call.)
 
 The Patient/Caregiver split is a **UX gate, not authentication**: the two-second
 hold exists so a confused patient cannot wander into the caregiver screens. It

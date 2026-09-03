@@ -14,8 +14,8 @@ longer exists.
 
 | README / CLAUDE.md says | The code does | Where |
 |---|---|---|
-| "There is no ML and no cloud; it is a rules engine" (`README.md:75-76`); "NO LLM, NO cloud, NO ML model" (`CLAUDE.md`) | A logistic-regression classifier trained by SGD on-device sits alongside the rules engine and chooses the level | `js/core/model.js:1-150`, `js/core/store.js:399-447` |
-| Module list omits `model.js`, `listen.js`, `demo-data.js` (`README.md:51`) | All three ship and are precached | `sw.js:19-21` |
+| ~~"There is no ML and no cloud; it is a rules engine"~~ — **fixed**; the README now describes both layers (`README.md:84-95`). `CLAUDE.md` still reads "NO LLM, NO cloud, NO ML model", which the code satisfies literally: there is no model *file* | A logistic-regression classifier trained by SGD on-device sits alongside the rules engine and chooses the level | `js/core/model.js:1-150`, `js/core/store.js:399-447` |
+| ~~Module list omits `model.js`, `listen.js`, `demo-data.js`~~ — **fixed** (`README.md:52-53`) | All three ship and are precached | `sw.js:19-21` |
 | Speech input is not mentioned anywhere | Optional tap-to-talk speech recognition exists, and is the one feature that sends data off the device | `js/core/listen.js:1-204` |
 | Voice is described only as Web Speech API | 191 English and 189 Assamese lines are pre-rendered as MP3s and played as recordings; live synthesis is the fallback | `js/core/voice.js:125-190`, `tools/build-voice.py` |
 | Docker not mentioned | Single-stage nginx image, port 8000 | `Dockerfile`, `nginx.conf`, `docker-compose.yml` |
@@ -397,7 +397,7 @@ hold is long enough that it cannot happen by accident, and short enough that a
 caregiver does not have to be taught it.
 
 **Known limits** — This is **not** a security boundary and is documented as one
-(`README.md:104-106`). Anyone holding the phone for two seconds is in. There is
+(`README.md:125-127`). Anyone holding the phone for two seconds is in. There is
 no lock, no PIN and no encryption; see section 5.
 
 A second limit, of the routing itself: route params live in a module variable,
@@ -1034,7 +1034,7 @@ walking both trees).
 **Known limits** — Steps 4 and 5 touch a Python file and the service worker, so
 "zero code changes" is true of the *app*, not of the repo. The Assamese pack is
 machine-authored and has not been reviewed by a native speaker
-(`README.md:111-112`). Numerals and dates come from
+(`README.md:110-112`). Numerals and dates come from
 `toLocaleDateString()` (`js/core/format.js:42`), which follows the device locale
 rather than the pack.
 
@@ -1158,7 +1158,7 @@ Each of these is roadmap. None is stubbed, half-built or implied to exist.
 
 | Not built | One-line reason |
 |---|---|
-| Accounts, login, passwords | Adds a barrier in front of the exact user least able to clear it, and would be authentication theatre on a single shared device. The role toggle is a UX gate, stated as one (`README.md:104-106`). |
+| Accounts, login, passwords | Adds a barrier in front of the exact user least able to clear it, and would be authentication theatre on a single shared device. The role toggle is a UX gate, stated as one (`README.md:125-127`). |
 | Encryption at rest | Needs a key, and a key needs either a password (see above) or a hardware store a web page cannot reach. Encrypting with a key stored beside the data would be a claim, not a protection. |
 | Cloud sync | Directly contradicts the offline-first constraint and would create a patient-data processor with an obligation the prototype cannot meet. Backup/restore to a file is the honest substitute (`js/screens/caregiver/memories-settings.js:247-249`). |
 | Server-side or downloaded ML | A model file is a network dependency; a cloud call is a network dependency. Both break airplane-mode operation, which is a hard requirement. |
@@ -1257,7 +1257,7 @@ run on the demo phone.
   either, changing the language, toggling difficulty, export and restore are all
   exercised only by hand.
 - **The service worker.** Nothing tests install, activation, cache eviction, or
-  airplane-mode behaviour. That is a manual checklist item (`README.md:113-115`).
+  airplane-mode behaviour. That is a manual checklist item (`README.md:141-143`).
 - **The four uncovered exercises' wrong-answer paths.** `tools/demo.html` asserts
   the reveal-and-advance behaviour for Exercise 1 only; the retry loops in 2–5
   are driven but not asserted on.
@@ -1291,13 +1291,13 @@ call and neither is an LLM.
 The classifier is real, and calling it machine learning is correct. The project's
 standing rule forbids three specific things — an LLM, a cloud dependency, and a
 downloaded model file — and the code violates none of them: it starts from a
-four-number prior, trains only on this device, and needs no network. Where the
-documentation is wrong is `README.md:75-76`, which still says "there is no ML";
-that line predates the learner and should read "no cloud ML, no LLM, no
-pretrained model." The user-facing copy has been correct throughout — the
-caregiver screen calls it "On-device learning" and explains what it does
-(`content/en.json:704-710`).
-**Proof:** `js/core/model.js:1-17` for the design note, `README.md:73-76` for the
+four-number prior, trains only on this device, and needs no network. The README
+used to say "there is no ML", which predated the learner and was wrong; it now
+describes both layers and states the honest version — no cloud ML, no LLM, no
+pretrained model, no downloaded weights. The user-facing copy has been correct
+throughout — the caregiver screen calls it "On-device learning" and explains
+what it does (`content/en.json:704-710`).
+**Proof:** `js/core/model.js:1-17` for the design note, `README.md:84-95` for the
 stale line.
 
 **Q3. Why logistic regression rather than just a bigger rules table?**
@@ -1415,7 +1415,7 @@ device's worth rather than a database of patients, and the backup is a file the
 caregiver moves by hand rather than an account they can lose. For a deployed
 product the answer is a native wrapper with OS-level keystore and device
 encryption, and that is on the roadmap, not in the demo.
-**Proof:** `js/screens/caregiver/memories-settings.js:250-272`; `README.md:98-106`.
+**Proof:** `js/screens/caregiver/memories-settings.js:250-272`; `README.md:114-115`, `README.md:125-127`.
 
 **Q13. Why no login, and what stops the wrong person opening the caregiver side?**
 
@@ -1426,7 +1426,7 @@ screen of their own performance data — that is the threat it is designed for. 
 is not designed for an adversary, because on a single-device, no-account,
 no-server app there is no adversary model that a password would actually
 address: anyone holding the phone already has the data.
-**Proof:** `js/screens/patient/home.js:35-45`; `README.md:104-106`.
+**Proof:** `js/screens/patient/home.js:35-45`; `README.md:125-127`.
 
 **Q14. What happens on a 1 GB Android phone with no TTS voice installed?**
 
@@ -1436,13 +1436,14 @@ feedback, the praise, Exercise 2's and Exercise 5's prompts and every fixed line
 still speak. Eight lines are assembled at runtime from a name, a time or an
 object — the reminder card, Today's next-reminder sentence, "Tap the gamosa",
 "morning — let us put these in order", "Which one is Ama?" — and those need a
-live engine. With no engine, those are silent and shown as text only. That is a
-real gap and I would fix the voice-status readout first, because it currently
-reports the device as having a voice whenever recordings exist, which slightly
-overstates the case.
-**Proof:** `js/core/voice.js:125-141` for the two-source path;
-`js/core/voice.js:106-114` for the overstatement; `tools/build-voice.py:68-72`
-for why templated lines are skipped.
+live engine. With no engine, those are silent and shown as text only, and the
+caregiver screen now says exactly that rather than showing a clean bill of
+health: recordings-without-an-engine is its own reported state, with an amber
+dot instead of green.
+**Proof:** `js/core/voice.js:125-141` for the two-source path; `voiceStatus()`
+and its `live` flag in `js/core/voice.js`; `renderVoiceStatus()` in
+`js/screens/caregiver/memories-settings.js`; `tools/build-voice.py:68-72` for
+why templated lines are skipped.
 
 **Q15. What if the phone's speech engine never calls you back? Does the app
 freeze?**
@@ -1564,7 +1565,7 @@ different product with a different threat model and a different regulatory
 posture, and building a fake version of it here would have been the dishonest
 choice. What exists today is the honest primitive it would be built on: a
 complete, exportable, single-device record.
-**Proof:** `js/screens/caregiver/memories-settings.js:247-272`; `README.md:98-102`.
+**Proof:** `js/screens/caregiver/memories-settings.js:247-272`; `README.md:114-115`.
 
 **Q25. Your reminders — will they wake the patient if the app is closed?**
 
@@ -1607,7 +1608,7 @@ approximately, not natively, correct — and the Assamese pack itself is
 machine-authored and has not been reviewed by a native speaker.
 **Proof:** `tools/build-voice.py:41-48`; `content/as.json:8-13`;
 `js/core/voice.js:34-38`; `js/screens/caregiver/memories-settings.js:166-198`;
-`README.md:111-112`.
+`README.md:110-112`.
 
 **Q28. What is the weakest part of this codebase, and what would you fix first?**
 
@@ -1620,14 +1621,10 @@ In order:
    photo, restore a backup — all hand-tested. A judge who breaks something will
    break it there. `tools/demo.html:136-149` renders those screens but asserts
    nothing about their mutations.
-3. **The voice-status readout overstates.** It reports a device as having a voice
-   whenever recordings exist, but eight templated lines still need a live engine —
-   so a phone with no engine gets a green dot and a silent "Tap the gamosa."
-   `js/core/voice.js:106-114`.
-4. **Route params live outside the URL.** No screen is addressable or restorable;
+3. **Route params live outside the URL.** No screen is addressable or restorable;
    reload and hardware-back replay stale params. Invisible on the patient rails,
    but it is a latent bug. `js/core/router.js:5, 12`.
-5. **Claim discipline is enforced by review, not by a check.** A twenty-line lint
+4. **Claim discipline is enforced by review, not by a check.** A twenty-line lint
    over `content/*.json` for the forbidden vocabulary would make it structural.
    It does not exist.
 
