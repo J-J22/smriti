@@ -85,3 +85,25 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   });
 }
+
+// Ask the browser to keep this origin's storage.
+//
+// Without this, both the precached shell and IndexedDB are best-effort: Android
+// may reclaim the whole origin under storage pressure, which on the ~1 GB
+// devices this is built for is a real event, not a theoretical one. Eviction
+// would take the patient's photos, reminders and session history with it, and
+// the first anyone would know is a blank app.
+//
+// It is a request, not a guarantee — Chrome generally grants it to an installed
+// PWA and may refuse otherwise. Nothing reads the answer and nothing changes if
+// it is no, so the app neither waits on it nor reports it; the whole call is
+// wrapped because an old Android browser may carry a partial StorageManager.
+try {
+  if (navigator.storage && navigator.storage.persist && navigator.storage.persisted) {
+    navigator.storage.persisted()
+      .then((already) => (already ? true : navigator.storage.persist()))
+      .catch(() => false);
+  }
+} catch (err) {
+  /* storage persistence is an optimisation; never let it break boot */
+}

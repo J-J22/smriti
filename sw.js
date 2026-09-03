@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smriti-shell-v16';
+const CACHE_NAME = 'smriti-shell-v17';
 
 const APP_SHELL = [
   './',
@@ -41,6 +41,7 @@ const APP_SHELL = [
   './assets/icons/nav-memories.svg',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
+  './assets/icons/icon-maskable-512.png',
   './assets/images/obj-bamboo-house.svg',
   './assets/images/obj-basket.svg',
   './assets/images/obj-bicycle.svg',
@@ -83,11 +84,17 @@ const APP_SHELL = [
 // Read at install time rather than hard-coded here, so re-running
 // tools/build-voice.py never leaves this file out of date.
 //
-// Only English is precached up front. The Assamese set is the same size again,
-// and a device that never switches language should not pay for it on a rural
-// connection — the fetch handler caches those clips the first time they play,
-// and until then that language simply speaks live.
-const AUDIO_INDEXES = ['./assets/audio/en/index.json'];
+// Every language is precached up front, not just the one in use. Lazily caching
+// the other pack sounded thrifty and was wrong: a device that first switches
+// language while offline has no clips to fetch, falls back to the live engine,
+// and finds no Assamese voice installed, because Android almost never carries
+// one. Silence on the demo floor, or in a village, is a worse price than the
+// megabytes. Both packs together are ~7 MB, paid once on whatever connection
+// the app was installed over.
+const AUDIO_INDEXES = [
+  './assets/audio/en/index.json',
+  './assets/audio/as/index.json',
+];
 
 async function precacheAudio(cache) {
   for (const indexPath of AUDIO_INDEXES) {
