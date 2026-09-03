@@ -1,7 +1,8 @@
 # Packaging Smriti as an Android APK
 
-Runbook. Written before the first build, so treat step timings as estimates and
-the WebView section as a list of things to check, not things known to be broken.
+Runbook. Written before the first build, then corrected against it. The build
+described here has been made, installed and launched on a Galaxy A23 (SM-A235F,
+Android 14, API 34, WebView 151). Anything still unverified is marked as such.
 
 **The rule this document exists under:** the PWA remains the demo path until the
 APK has passed the same device checklist. Building the APK does not retire the
@@ -32,7 +33,7 @@ an oversight.
 ## 2. Prerequisites
 
 ```bash
-sudo pacman -S nodejs npm jdk17-openjdk rsync unzip
+sudo pacman -S nodejs npm jdk21-openjdk rsync unzip android-tools android-udev
 ```
 
 Android SDK command-line tools: download the Linux zip from
@@ -46,10 +47,15 @@ unzip ~/Downloads/commandlinetools-linux-*.zip -d /tmp/cmdline
 mv /tmp/cmdline/cmdline-tools ~/Android/Sdk/cmdline-tools/latest
 ```
 
+**JDK 21, not 17.** Capacitor 8 pins `JavaVersion.VERSION_21`
+(`node_modules/@capacitor/android/capacitor/build.gradle:66`); building on 17
+fails with `invalid source release: 21`. Arch installs JDKs side by side, so
+keeping 17 for other work is fine.
+
 Environment — add to `~/.bashrc`, then open a new shell:
 
 ```bash
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
 export ANDROID_HOME="$HOME/Android/Sdk"
 export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools"
 ```
@@ -149,7 +155,9 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 
 The web behaviour is already verified; only WebView differences are unknown.
 
-- [ ] App launches full-screen, portrait, correct icon
+- [x] App launches full-screen, portrait — verified on the A23
+- [x] Entry and Patient Home render, no JavaScript errors — verified
+- [ ] Correct icon on the launcher
 - [ ] **Airplane mode from the very first launch** — the whole point of packaging
 - [ ] English audio on every patient screen
 - [ ] **Assamese audio offline with no prior online use** — impossible in the PWA,
@@ -177,16 +185,18 @@ never required to advance, so its absence is not a defect.
 every fixed line is a bundled recording. Only the ten templated lines need an
 engine, and the caregiver readout now reports that state honestly.
 
-**The service worker is redundant.** Assets are already local. It should be
-harmless, but if it misbehaves, guard the registration in `js/app.js`:
+**The service worker is worse than redundant — fixed, keep it fixed.**
+Capacitor serves from `https://localhost`, a secure context, so the worker
+registers and precaches all 380 clips into CacheStorage: a second copy of files
+already in the APK. Measured on the A23 at **7.9 MB against an 11 MB package**,
+plus 380 file reads per cold start.
 
-```js
-if (!window.Capacitor && 'serviceWorker' in navigator) { ... }
-```
+`js/app.js` now skips registration when `window.Capacitor` is defined and clears
+anything an earlier build left. App data fell from 12.6 MB to 628 KB, launch
+audio requests from 380 to 2. `window.Capacitor` is undefined in a browser, so
+the PWA is unaffected.
 
-`window.Capacitor` is undefined in a browser, so this is a no-op for the PWA.
-It is left unapplied deliberately: do not touch working code for a build that
-has not been made yet.
+If you ever see app data climb back toward 12 MB, that guard has been lost.
 
 **Audio autoplay** may be blocked without a user gesture. The entry-screen tap
 probably unlocks it; if not, the relevant knob is Capacitor's Android WebView
@@ -210,10 +220,10 @@ installing one does not need it.
 
 | Step | Estimate |
 |---|---|
-| Toolchain and SDK | 1–3 h, mostly download |
-| Scaffold and stage | 45 min |
-| First successful build | 30 min |
-| Install and walk the checklist | 30 min |
-| WebView fixes | **1–4 h, the real variable** |
+| Toolchain and SDK | ~10 min on a fast connection (173 MB in 18 s here); 1–3 h on a slow one |
+| Scaffold and stage | 5 min |
+| First successful build | ~2 min once the JDK is right; Gradle self-downloads on run one |
+| Install and launch | 2 min |
+| WebView fixes | 1 found and fixed so far; photo picker and backup still unverified |
 
 APK size: roughly 12–15 MB; the 6.5 MB of audio dominates.
