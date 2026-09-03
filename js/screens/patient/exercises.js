@@ -273,12 +273,18 @@ export function renderExercises(container, params, navigate, content) {
           onDone: () => {
             if (!alive()) return;
             reset();
-            // 'not heard' is only worth saying when the patient actually spoke
-            // and nothing came of it: never once the round has moved on, never
-            // when they closed the microphone themselves, and never when
-            // speech has just retired on this device.
             if (matched || isResolved() || stoppedByPatient) return;
-            if (!listenSupported()) return;
+            // Speech has just failed in a way that will not recover — no
+            // network for the recogniser, or permission refused. Take the
+            // button away: leaving it is the dead control this module exists
+            // to avoid, and a patient who taps it again gets nothing twice.
+            if (!listenSupported()) {
+              if (button.parentNode) button.parentNode.removeChild(button);
+            }
+            // Then say something, retired or not. The patient has just spoken
+            // out loud and is waiting; silence reads as being ignored, which is
+            // worse than being told plainly that it was not heard. The line
+            // blames nobody and the round is untouched — tapping still works.
             const line = c.feedback.notHeard;
             feedback.textContent = line.text;
             feedback.className = 'feedback is-gentle';

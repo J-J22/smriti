@@ -6,7 +6,7 @@ import {
   exportData,
   importData,
   getMemories,
-  addMemory,
+  addMemory, MAX_MEMORIES, memoriesFull,
   deleteMemory,
   getSettings,
   setSettings,
@@ -77,6 +77,14 @@ export function renderMemoriesSettings(container, params, navigate, content) {
 }
 
 function renderPhotoForm(c, repaint) {
+  // At the cap the form is replaced rather than disabled. A caregiver staring
+  // at a greyed-out button has to guess why; a sentence that names the limit
+  // and the way out does not need guessing.
+  if (memoriesFull()) {
+    return el('p', { class: 'empty-state' },
+      c.photosFull.replace('{max}', String(MAX_MEMORIES)));
+  }
+
   const fileInput = el('input', { type: 'file', accept: 'image/*', id: 'photo-file' });
   const nameInput = el('input', {
     type: 'text', id: 'photo-name', placeholder: c.namePlaceholder,
@@ -104,7 +112,13 @@ function renderPhotoForm(c, repaint) {
     const name = nameInput.value.trim();
     if (!pendingImage) { error.textContent = c.photoRequired; return; }
     if (!name) { error.textContent = c.nameRequired; nameInput.focus(); return; }
-    addMemory({ name: name, image: pendingImage });
+    // addMemory returns null at the cap. Racing here is unlikely on one device,
+    // but a save that silently does nothing is exactly the failure the cap was
+    // added to prevent, so it is reported rather than assumed impossible.
+    if (!addMemory({ name: name, image: pendingImage })) {
+      error.textContent = c.photoNotSaved.replace('{max}', String(MAX_MEMORIES));
+      return;
+    }
     repaint();
   }
 
@@ -127,7 +141,11 @@ function renderPhotoList(c, repaint) {
   const memories = getMemories();
   if (!memories.length) return el('p', { class: 'empty-state' }, c.noPhotos);
 
-  return el('ul', { class: 'photo-list' }, memories.map((memory) =>
+  const count = el('p', { class: 'section-intro' },
+    c.photoCount.replace('{n}', String(memories.length))
+                .replace('{max}', String(MAX_MEMORIES)));
+
+  return el('div', {}, [count, el('ul', { class: 'photo-list' }, memories.map((memory) =>
     el('li', { class: 'photo-row' }, [
       el('img', { src: memory.image, alt: '' }),
       el('span', { class: 'photo-name' }, memory.name),
@@ -139,7 +157,7 @@ function renderPhotoList(c, repaint) {
           repaint();
         },
       }, c.deletePhoto),
-    ])));
+    ])))]);
 }
 
 function renderLanguageSetting(content, c) {

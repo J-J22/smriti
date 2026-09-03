@@ -298,11 +298,26 @@ export function getReminderLog() {
 
 /* ---------- memories (photos) ---------- */
 
+// Photos are the only unbounded thing a caregiver can add, and each one is a
+// data URL held in IndexedDB with a localStorage mirror behind it. That mirror
+// fails silently when it runs out of room, so an uncapped list does not error —
+// it quietly stops saving, which is the worst way for this to go wrong. The cap
+// is also a kindness to the patient: My Memories is meant to be walked end to
+// end, and a hundred photos is a corridor, not a family.
+export const MAX_MEMORIES = 20;
+
 export function getMemories() {
   return clone(requireCache().memories);
 }
 
+export function memoriesFull() {
+  return requireCache().memories.length >= MAX_MEMORIES;
+}
+
+// Returns null when the list is full. The caller must say so; refusing in
+// silence is the failure this cap exists to prevent.
 export function addMemory({ name, image }) {
+  if (memoriesFull()) return null;
   const memory = {
     id: newId('mem'),
     name: String(name || '').trim(),
