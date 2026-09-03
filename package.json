@@ -1,0 +1,27 @@
+{
+  "name": "build",
+  "version": "1.0.0",
+  "description": "Offline-first cognitive-engagement and memory-assistance PWA for elderly dementia patients in the North-Eastern Region.",
+  "main": "sw.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/J-J22/smriti.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/J-J22/smriti/issues"
+  },
+  "homepage": "https://github.com/J-J22/smriti#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.5.1",
+    "@capacitor/cli": "^8.5.1",
+    "@capacitor/core": "^8.5.1"
+  }
+}

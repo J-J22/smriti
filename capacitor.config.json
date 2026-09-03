@@ -1,0 +1,11 @@
+{
+  "appId": "in.smriti.app",
+  "appName": "Smriti",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

@@ -80,7 +80,25 @@ if (location.search.indexOf('voicelog') !== -1) {
   }, 250);
 }
 
-if ('serviceWorker' in navigator) {
+// The service worker exists to make a web page work offline. Inside the native
+// package it has nothing to do — every asset already ships in the APK — and
+// registering it anyway costs a full second copy of them: 7.9 MB of CacheStorage
+// measured on a Galaxy A23, against an 11 MB package. So the native build skips
+// it, and clears anything an earlier build left behind.
+//
+// `window.Capacitor` is undefined in a browser, so the web app is untouched.
+if (window.Capacitor) {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations()
+      .then((registrations) => registrations.forEach((r) => r.unregister()))
+      .catch(() => {});
+  }
+  if (window.caches && caches.keys) {
+    caches.keys()
+      .then((names) => Promise.all(names.map((name) => caches.delete(name))))
+      .catch(() => {});
+  }
+} else if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   });

@@ -5,3 +5,11 @@ CLAUDE (Copy).md
 # near-identical exports in its history forever.
 docs/*.pptx
 docs/Smriti*.pdf
+
+# Android packaging. All generated: `npm install` restores node_modules,
+# tools/stage-web.sh rebuilds www/, and `npx cap add android` recreates
+# android/. See docs/APK.md. The web app remains the source of truth.
+node_modules/
+www/
+android/
+package-lock.json
