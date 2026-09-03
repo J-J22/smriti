@@ -1,1 +1,7 @@
 CLAUDE (Copy).md
+
+# Presentation decks. They live wherever they are actually edited; the repo
+# keeps the written docs (DEFENSE, TECHNICAL) and does not need 4 MB of
+# near-identical exports in its history forever.
+docs/*.pptx
+docs/Smriti*.pdf
