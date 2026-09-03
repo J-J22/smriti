@@ -746,6 +746,7 @@
       "voiceFallback": "This device has no {language} voice — using {name}, which reads the same script.",
       "voiceNone": "No voice engine found on this device. Every prompt is still shown as text.",
       "voiceRecorded": "Speaking with the {n} lines recorded into the app — the same voice on every device, with no engine needed.",
+      "voiceRecordedNoEngine": "Speaking with the {n} lines recorded into the app. A few lines that include a name or a time need a voice engine, and this device has none — those are shown as text.",
       "dataHeading": "Backup",
       "dataIntro": "Everything stays on this device. A backup file lets you keep a copy, or move this person's information to another phone — no internet needed.",
       "exportButton": "Save a backup file",

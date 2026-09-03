@@ -149,8 +149,15 @@ export function voiceStatus() {
     : { available: false, exact: false, lang: null, name: null };
   // Recorded lines carry the patient screens, so the device counts as having a
   // voice even where no engine is installed — the live one only fills the gaps.
+  // But `available` must not be read as "this device can say everything": lines
+  // holding a {name} or a {time} are assembled at runtime and were never
+  // rendered to a file, so they always need the live engine. `live` is reported
+  // separately so the caregiver screen can say which of the two it has, rather
+  // than showing a device with no engine a clean bill of health and then going
+  // quiet on "Tap the gamosa."
   return {
     available: live.available || recorded > 0,
+    live: live.available,
     exact: live.exact,
     lang: live.lang,
     name: live.name,

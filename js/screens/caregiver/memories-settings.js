@@ -175,9 +175,15 @@ function renderVoiceStatus(content, c) {
   let text;
   // Recorded lines carry every patient screen, so say that first: it is what
   // the patient will actually hear, whatever engine the device does or does
-  // not have installed.
-  if (status.recorded) text = c.voiceRecorded.replace('{n}', String(status.recorded));
-  else if (!status.available) text = c.voiceNone;
+  // not have installed. But recordings never cover the lines built at runtime
+  // from a name or a time, so recordings WITHOUT an engine is its own state,
+  // and saying so is the whole point of this row — a caregiver who is told
+  // everything is fine has no way to explain why "Tap the gamosa" is silent.
+  if (status.recorded && status.live) {
+    text = c.voiceRecorded.replace('{n}', String(status.recorded));
+  } else if (status.recorded) {
+    text = c.voiceRecordedNoEngine.replace('{n}', String(status.recorded));
+  } else if (!status.available) text = c.voiceNone;
   else if (status.exact) text = c.voiceExact.replace('{name}', status.name);
   else {
     text = c.voiceFallback
@@ -191,7 +197,9 @@ function renderVoiceStatus(content, c) {
       el('span', { class: 'setting-note' }, text),
     ]),
     el('span', {
-      class: status.available ? 'status-dot is-ok' : 'status-dot',
+      // Green means this device can say every line. Recordings alone leave the
+      // templated ones silent, which is a warning, not a pass.
+      class: status.live ? 'status-dot is-ok' : 'status-dot',
       'aria-hidden': 'true',
     }),
   ]);
