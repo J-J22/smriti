@@ -7,26 +7,159 @@ dementia patients in the North-Eastern Region.
 medical device, and not treatment.** Nothing in it measures or infers a
 cognitive condition; it reports activity performance only.
 
-## Running it
+## Set it up on your own device
 
-Must be served over `http://` — `file://` breaks fetch, the manifest and the
-service worker.
+Everything the app needs is in this repository: all the artwork, both content
+packs and all 380 recorded voice clips. There is nothing to install, no build
+step and no API key. Clone it, serve it over HTTP, open it.
 
+**It must be served over `http://`.** Opening `index.html` from the file system
+does not work — `file://` breaks `fetch`, the manifest and the service worker,
+so you get a blank screen. This is the single most common way to conclude the
+app is broken when it is not.
+
+### 1. Get it and serve it
+
+```bash
+git clone https://github.com/J-J22/smriti.git
+cd smriti
 ```
-python3 -m http.server 8000
+
+Then start any static server on the repository root. Pick whichever you have:
+
+```bash
+python3 -m http.server 8000                 # Python 3, no install
+npx --yes serve -l 8000 .                   # Node
+docker compose up --build                   # nginx, also on 8000
 ```
 
-Then open <http://localhost:8000/>.
+Open <http://localhost:8000/>. You should land on the Entry screen with two
+buttons, Patient and Caregiver. On first run the app seeds two weeks of sample
+data so no screen opens empty; a banner in Caregiver → Memories & Settings says
+so and clears it in one tap.
 
-| Page | Purpose |
+The Docker option builds the same nginx configuration used for deployment,
+which sets the cache headers the service worker needs. The other two are fine
+for development and are what most people should use.
+
+### 2. Test it in the browser
+
+Everything works on a laptop except the microphone quirks and real touch. Walk
+this path:
+
+1. **Patient → Today.** It should speak the next reminder aloud within a second.
+2. **Patient → Let's Exercise.** Nine rounds across five activities, spoken
+   prompts, auto-advancing. Deliberately tap a **wrong** answer: the round must
+   say "Not quite, try again" and stay put. It must never skip.
+3. **My Memories.** Each photo is named aloud; Previous wraps to the last photo.
+4. **Hold the Home icon for two seconds.** A ring fills and the caregiver
+   dashboard opens. A short tap just goes Home.
+5. **Caregiver → Engagement.** A 14-day chart and one card per activity, each
+   with a dashed line showing what the on-device learner expected against what
+   actually happened.
+6. **Caregiver → Memories & Settings.** Switch the language to অসমীয়া and back;
+   the whole app including the voice changes. Check the Voice row reports what
+   your machine actually found.
+
+If a two-second one-handed hold is awkward while presenting, open the app as
+<http://localhost:8000/?caregiver=1> and a plain labelled caregiver button
+appears on Patient Home. It is absent without the flag, so a patient can never
+meet it.
+
+### 3. Test it offline
+
+This is the claim worth verifying yourself, and it takes a minute:
+
+1. Load the app once and let it sit for about thirty seconds. The service worker
+   precaches the shell and both audio packs, roughly 7 MB.
+2. Open DevTools → Application → Service Workers and confirm one is active.
+3. Turn on **Offline** in DevTools, or stop the server, and reload.
+4. Everything should still work, including the voice, in both languages.
+
+### 4. Test it on a real phone
+
+The phone is where this app actually lives, and some behaviour only exists
+there: touch targets, the hold gesture, the device speech engine, and installing
+to the home screen. Serve on your machine and reach it over the same Wi-Fi:
+
+```bash
+python3 -m http.server 8000 --bind 0.0.0.0
+ip -4 addr | grep inet          # find your LAN address, e.g. 192.168.1.6
+```
+
+On the phone open `http://192.168.1.6:8000/`. Then use the browser menu to
+**Add to Home Screen**; it launches full-screen with no address bar. Turn on
+airplane mode and open it again — it should work exactly the same.
+
+One thing to know about a plain-HTTP LAN address: the browser treats it as an
+insecure context, so speech *input* (the optional microphone in the first
+activity) cannot run there. The button appears, the first tap fails, and the app
+then removes the button and says "I didn't catch that, you can tap instead."
+That is the designed degradation, not a fault. Everything else works, including
+all spoken output, which is a separate mechanism.
+
+### 5. The self-test pages
+
+| Page | What it proves |
 |---|---|
-| `/` | the app |
-| `/tools/demo.html` | seed demo data; render every screen and report anything that throws |
-| `/tools/store-test.html` | persistence self-test, including across a page reload |
-| `/tools/voice-test.html` | voice handover check — run it on the demo phone |
+| `/tools/demo.html` | Renders every screen and reports anything that throws. Also seeds and clears demo data. |
+| `/tools/store-test.html` | Persistence works, including across a page reload |
+| `/tools/model-test.html` | The adaptive learner behaves as specified |
+| `/tools/listen-test.html` | The speech matcher resolves 18 cases, 8 of which must match nothing |
+| `/tools/voice-test.html` | The handover between recordings and the device engine, against real audio timing. Run this one on the phone. |
 
-Run `tools/demo.html` → **Render every screen** after any change. It is the
-only automated check that the whole app executes.
+Run `tools/demo.html` → **Render every screen** after any change. It is the only
+automated check that the whole app executes. `tools/` is development-only and is
+deliberately excluded from any packaged build, because it contains a
+wipe-everything button.
+
+There is also `tools/model-harness.py`, which validates the learner against
+synthetic patients. It reads the constants straight out of the JavaScript, so it
+cannot drift from the shipped code:
+
+```bash
+python3 tools/model-harness.py
+```
+
+### 6. Building the Android package (optional)
+
+Only needed if you want the APK. It is not required to test the app, and the
+web version is the reference. It needs Node, JDK 21 and the Android SDK, and the
+first run downloads several gigabytes.
+
+```bash
+npm install                          # Capacitor and esbuild
+npx cap add android                  # first time only; android/ is generated
+tools/stage-web.sh && npx cap sync android
+cd android && ./gradlew assembleDebug
+```
+
+The result is `android/app/build/outputs/apk/debug/app-debug.apk`, about 11 MB.
+`android/`, `www/` and `node_modules/` are all generated and therefore not in
+this repository; the three commands above recreate them. Full instructions,
+including why Capacitor rather than a Trusted Web Activity and how the build
+targets a 2017 browser engine, are in **[docs/APK.md](docs/APK.md)**.
+
+### If something looks wrong
+
+| Symptom | Cause |
+|---|---|
+| Blank screen | Opened over `file://`. Serve over HTTP. |
+| Changes do not appear | The service worker is serving the old shell. Hard-reload, or bump `CACHE_NAME` in `sw.js`. |
+| No voice at all | Your machine has no speech engine and the recordings failed to load. Check the Voice row in Caregiver → Settings; it reports honestly. |
+| Some lines silent, most fine | Expected on a device with no speech engine. Five lines are assembled at runtime from a name or a time and have no recording. |
+| No microphone button | Correct in an Android WebView, after speech has failed once, or when the caregiver has turned speech answers off. It is optional by design and never needed to advance. |
+| Reminder never fires | It only fires while the app is open. An alarm with the app closed needs the operating system, which a web page cannot register. |
+
+## Documentation
+
+| File | For |
+|---|---|
+| [docs/GUIDE.html](docs/GUIDE.html) | The full field guide: every feature, the code that implements it, the problems hit and how they were solved. Open it in a browser. |
+| [docs/TECHNICAL.md](docs/TECHNICAL.md) | Feature-by-feature reference with file and line citations |
+| [docs/DEFENSE.md](docs/DEFENSE.md) | The hard questions and honest answers, for presenting |
+| [docs/APK.md](docs/APK.md) | Packaging as an Android APK, and the old-device work |
+| [CLAUDE.md](CLAUDE.md) | The standing rules the project is built under |
 
 ## Stack
 

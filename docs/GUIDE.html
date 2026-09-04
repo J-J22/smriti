@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smriti Field Guide</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #FDF7EF; --bg-sunk: #F4EADC; --surface: #FFFFFF;
+    --ink: #2A2320; --ink-soft: #6B5F57; --ink-faint: #9A8D83; --line: #E6D9C8;
+    --accent: #1F5F6B; --accent-deep: #164751; --accent-soft: #E6F0F1; --accent-contrast: #FFFFFF;
+    --warm: #C2603A; --warm-soft: #FBEAE1; --good: #2F7D4F; --good-soft: #E7F4EB; --gold: #E0A03C;
+    --code-bg: #F4EADC; --shadow: 0 1px 2px rgba(42,35,32,0.06), 0 6px 18px rgba(42,35,32,0.06);
+    --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --body: "IBM Plex Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1B1715; --bg-sunk: #241F1C; --surface: #2A2420;
+      --ink: #F1E9DF; --ink-soft: #BCAFA3; --ink-faint: #8C7F74; --line: #3D342E;
+      --accent: #7FB7C2; --accent-deep: #A9D2DA; --accent-soft: #1E3B42; --accent-contrast: #12252A;
+      --warm: #E28A66; --warm-soft: #3B2A22; --good: #6FBF8A; --good-soft: #1F3527; --gold: #E8B565;
+      --code-bg: #241F1C; --shadow: none; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1B1715; --bg-sunk: #241F1C; --surface: #2A2420;
+    --ink: #F1E9DF; --ink-soft: #BCAFA3; --ink-faint: #8C7F74; --line: #3D342E;
+    --accent: #7FB7C2; --accent-deep: #A9D2DA; --accent-soft: #1E3B42; --accent-contrast: #12252A;
+    --warm: #E28A66; --warm-soft: #3B2A22; --good: #6FBF8A; --good-soft: #1F3527; --gold: #E8B565;
+    --code-bg: #241F1C; --shadow: none; color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, button:focus-visible { outline: 3px solid var(--warm); outline-offset: 2px; }
+
+  .gamosa { height: 10px; background:
+      repeating-linear-gradient(90deg, var(--warm) 0 14px, transparent 14px 20px),
+      linear-gradient(var(--bg-sunk), var(--bg-sunk)); }
+  .gamosa.thin { height: 4px; }
+
+  .frame { display: grid; grid-template-columns: 1fr; max-width: 1180px; margin: 0 auto; padding: 0 1.25rem; }
+  @media (min-width: 1100px) { .frame { grid-template-columns: 250px minmax(0, 1fr); gap: 3rem; } }
+
+  nav.rail { display: none; }
+  @media (min-width: 1100px) {
+    nav.rail { display: block; position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; padding: 2rem 0 2rem; font-size: 0.86rem; }
+    nav.rail ol { list-style: none; margin: 0; padding: 0; }
+    nav.rail li { margin: 0; }
+    nav.rail a { display: block; padding: 0.3rem 0.6rem; color: var(--ink-soft); text-decoration: none; border-left: 2px solid var(--line); }
+    nav.rail a:hover { color: var(--ink); border-left-color: var(--accent); }
+    nav.rail .n { display: inline-block; width: 1.6em; color: var(--ink-faint); font-family: var(--mono); font-size: 0.78rem; }
+  }
+  nav.rail .rail-title { font-family: var(--display); font-weight: 600; font-size: 1.1rem; margin: 0 0.6rem 0.75rem; color: var(--ink); }
+
+  main { max-width: 72ch; padding: 0 0 5rem; }
+
+  .cover { padding: 3.5rem 0 2.5rem; border-bottom: 1px solid var(--line); margin-bottom: 2.5rem; }
+  .cover .eyebrow { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--warm); margin: 0 0 1rem; }
+  .cover h1 { font-family: var(--display); font-weight: 600; font-size: clamp(2.6rem, 6vw, 4.4rem); line-height: 1.02; margin: 0 0 0.6rem; letter-spacing: -0.01em; text-wrap: balance; }
+  .cover h1 .mark { display: inline-block; width: 0.95em; height: 0.95em; border-radius: 50%; background: var(--accent); color: var(--accent-contrast); font-size: 0.72em; line-height: 1.32; text-align: center; vertical-align: 0.12em; margin-right: 0.18em; font-weight: 600; }
+  .cover .sub { font-family: var(--display); font-size: 1.35rem; font-weight: 400; color: var(--ink-soft); margin: 0 0 1.75rem; max-width: 34ch; text-wrap: balance; }
+  .cover .meta { font-family: var(--mono); font-size: 0.8rem; color: var(--ink-faint); display: flex; flex-wrap: wrap; gap: 0.4rem 1.5rem; }
+
+  .strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); margin: 2rem 0; }
+  .strip div { background: var(--surface); padding: 0.9rem 1rem; }
+  .strip b { display: block; font-family: var(--display); font-weight: 600; font-size: 1.6rem; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--accent); }
+  .strip span { font-size: 0.82rem; color: var(--ink-soft); }
+
+  h2 { font-family: var(--display); font-weight: 600; font-size: 2rem; line-height: 1.12; margin: 3.5rem 0 0.35rem; letter-spacing: -0.005em; text-wrap: balance; }
+  h2 .chap { display: block; font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--warm); margin-bottom: 0.5rem; }
+  h2 + p.lede { font-family: var(--display); font-size: 1.15rem; color: var(--ink-soft); margin: 0.6rem 0 1.5rem; }
+  h3 { font-family: var(--body); font-weight: 600; font-size: 1.12rem; margin: 2rem 0 0.5rem; }
+  h4 { font-family: var(--body); font-weight: 600; font-size: 0.95rem; margin: 1.4rem 0 0.3rem; color: var(--ink); }
+  p { margin: 0 0 1rem; }
+  ul, ol { padding-left: 1.3rem; margin: 0 0 1rem; }
+  li { margin-bottom: 0.35rem; }
+  strong { font-weight: 600; }
+  code { font-family: var(--mono); font-size: 0.86em; background: var(--code-bg); padding: 0.08em 0.35em; border-radius: 4px; }
+  pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 0.9rem 1rem; overflow-x: auto; font-family: var(--mono); font-size: 0.82rem; line-height: 1.5; margin: 0 0 1.2rem; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  .tbl { overflow-x: auto; margin: 0 0 1.4rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+  th, td { text-align: left; vertical-align: top; padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--line); }
+  th { font-weight: 600; font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); border-bottom: 2px solid var(--line); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td code { white-space: nowrap; }
+
+  .callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 0.85rem 1.1rem; margin: 1.2rem 0 1.4rem; border-radius: 0 8px 8px 0; }
+  .callout.warm { border-left-color: var(--warm); background: var(--warm-soft); }
+  .callout.good { border-left-color: var(--good); background: var(--good-soft); }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .k { font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); display: block; margin-bottom: 0.25rem; }
+
+  .ps { display: grid; grid-template-columns: 1fr; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin: 0 0 1.2rem; background: var(--surface); }
+  @media (min-width: 720px) { .ps { grid-template-columns: 1fr 1fr; } }
+  .ps > div { padding: 0.9rem 1.1rem; }
+  .ps > div + div { border-top: 1px solid var(--line); }
+  @media (min-width: 720px) { .ps > div + div { border-top: 0; border-left: 1px solid var(--line); } }
+  .ps .k { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 0.3rem; }
+  .ps .problem .k { color: var(--warm); }
+  .ps .solution .k { color: var(--good); }
+  .ps p { margin: 0; font-size: 0.93rem; }
+  .ps .where { display: block; margin-top: 0.5rem; font-family: var(--mono); font-size: 0.76rem; color: var(--ink-faint); }
+
+  .worlds { display: grid; grid-template-columns: 1fr; gap: 1rem; margin: 1.2rem 0 1.6rem; }
+  @media (min-width: 720px) { .worlds { grid-template-columns: 1fr 1fr; } }
+  .world { border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1.1rem; background: var(--surface); }
+  .world h4 { margin: 0 0 0.5rem; font-family: var(--display); font-size: 1.15rem; font-weight: 600; }
+  .world.patient h4 { color: var(--accent); } .world.caregiver h4 { color: var(--warm); }
+  .world ul { margin: 0; padding-left: 1.1rem; font-size: 0.9rem; }
+  .world .rule { font-size: 0.82rem; color: var(--ink-soft); margin: 0.6rem 0 0; }
+
+  .flow { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin: 0.6rem 0 1.2rem; font-size: 0.88rem; }
+  .flow span { background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 999px; padding: 0.25rem 0.75rem; white-space: nowrap; }
+  .flow i { color: var(--ink-faint); font-style: normal; }
+
+  .qa { margin: 0 0 1.1rem; padding: 0 0 1.1rem; border-bottom: 1px solid var(--line); }
+  .qa .q { font-weight: 600; margin: 0 0 0.35rem; }
+  .qa .a { margin: 0 0 0.35rem; }
+  .qa .trap { margin: 0; font-size: 0.88rem; color: var(--ink-soft); }
+  .qa .trap b { color: var(--warm); font-weight: 600; }
+
+  .timeline { list-style: none; padding: 0; margin: 0 0 1.4rem; border-left: 2px solid var(--line); }
+  .timeline li { position: relative; padding: 0 0 0.9rem 1.2rem; margin: 0; }
+  .timeline li::before { content: ""; position: absolute; left: -6px; top: 0.5em; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .timeline .d { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-faint); display: block; }
+
+  dl.gloss { margin: 0 0 1.4rem; }
+  dl.gloss dt { font-weight: 600; margin-top: 0.6rem; }
+  dl.gloss dd { margin: 0.1rem 0 0 0; color: var(--ink-soft); font-size: 0.93rem; }
+
+  .small { font-size: 0.85rem; color: var(--ink-soft); }
+  .foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--line); font-size: 0.82rem; color: var(--ink-faint); font-family: var(--mono); }
+
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+
+  @page { size: A4; margin: 18mm 16mm 20mm; }
+  @media print {
+    body { background: #fff; color: #1a1512; font-size: 10.5pt; line-height: 1.45; }
+    :root { --bg: #fff; --surface: #fff; --bg-sunk: #f6f1ea; --code-bg: #f4efe8; --shadow: none; }
+    nav.rail { display: none; }
+    .frame { display: block; padding: 0; max-width: none; }
+    main { max-width: none; padding: 0; }
+    .cover { padding-top: 6rem; min-height: 60vh; }
+    h2 { break-before: page; page-break-before: always; margin-top: 0; }
+    h2.first { break-before: auto; page-break-before: auto; }
+    h3, h4 { break-after: avoid; page-break-after: avoid; }
+    .ps, .callout, .world, table, pre, .qa { break-inside: avoid; page-break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+    .strip { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="gamosa"></div>
+<div class="frame">
+<nav class="rail" aria-label="Contents">
+  <div class="rail-title">Smriti Field Guide</div>
+  <ol>
+    <li><a href="#c1"><span class="n">1</span>In one page</a></li>
+    <li><a href="#c2"><span class="n">2</span>The problem and the constraints</a></li>
+    <li><a href="#c3"><span class="n">3</span>How the app is built</a></li>
+    <li><a href="#c4"><span class="n">4</span>The patient's side</a></li>
+    <li><a href="#c5"><span class="n">5</span>The five exercises</a></li>
+    <li><a href="#c6"><span class="n">6</span>Voice</a></li>
+    <li><a href="#c7"><span class="n">7</span>Adaptation</a></li>
+    <li><a href="#c8"><span class="n">8</span>Data, offline and backup</a></li>
+    <li><a href="#c9"><span class="n">9</span>The caregiver's side</a></li>
+    <li><a href="#c10"><span class="n">10</span>Language and culture</a></li>
+    <li><a href="#c11"><span class="n">11</span>From web page to tablet</a></li>
+    <li><a href="#c12"><span class="n">12</span>Problems we hit, and what we did</a></li>
+    <li><a href="#c13"><span class="n">13</span>What is genuinely new here</a></li>
+    <li><a href="#c14"><span class="n">14</span>What we do not claim</a></li>
+    <li><a href="#c15"><span class="n">15</span>Facing the judges</a></li>
+    <li><a href="#c16"><span class="n">16</span>Appendix</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<header class="cover">
+  <p class="eyebrow">Smart India Hackathon 2026 · Field guide</p>
+  <h1><span class="mark">स</span>Smriti</h1>
+  <p class="sub">An offline, voice-led daily companion for elderly people living with dementia in North-East India. How it works, which code does it, and why.</p>
+  <div class="meta">
+    <span>Guide date 4 September 2026</span>
+    <span>Describes commit 5a54909</span>
+    <span>Demo 5 September 2026</span>
+  </div>
+</header>
+
+<h2 id="c1" class="first"><span class="chap">Chapter 1</span>Smriti in one page</h2>
+<p class="lede">If a judge reads nothing else, this page should hold.</p>
+
+<p><strong>Smriti</strong> (Sanskrit for <em>memory</em>) is an installable web app and an Android package for a person with dementia and the family member who cares for them. It speaks every prompt aloud, runs five short practice activities that adapt to how the person is doing, shows named family photographs, and raises spoken reminders for medicine, water, activity and appointments. Everything happens on one device, with no account, no server and no internet after the first load.</p>
+
+<p>It is an <strong>engagement and support tool</strong>. It is not a diagnostic device, not a medical device and not a treatment. Nothing in it measures, detects or infers a cognitive condition. Every number it reports describes activity performance inside the app.</p>
+
+<div class="strip" aria-label="Key figures">
+  <div><b>0</b><span>runtime dependencies, frameworks, or CDN requests</span></div>
+  <div><b>5</b><span>practice activities, 9 rounds a session</span></div>
+  <div><b>380</b><span>pre-recorded neural-voice lines, English and Assamese</span></div>
+  <div><b>2</b><span>languages, structurally identical content packs</span></div>
+  <div><b>3,976</b><span>lines of JavaScript in 26 plain ES modules</span></div>
+  <div><b>11 MB</b><span>Android package, runs on Chrome 58 and 918 MB of RAM</span></div>
+  <div><b>38</b><span>commits over seven working days</span></div>
+  <div><b>~100</b><span>lines of arithmetic in the on-device learner</span></div>
+</div>
+
+<h3>The five things to remember</h3>
+<ol>
+  <li><strong>Two worlds, one door.</strong> The patient side is a linear, voice-led rail with one task per screen and one Home icon. The caregiver side is a normal menu-driven interface. They meet only at the Entry screen, and a two-second hold is the only way to cross from patient to caregiver.</li>
+  <li><strong>Voice leads.</strong> Every fixed patient line is a recording made once with a neural voice and shipped inside the app, so it sounds the same on every phone. The device's own speech engine is only a fallback, and a device with no engine at all still works.</li>
+  <li><strong>Adaptation you can see.</strong> A 54-line rules engine moves the level up after three correct in a row and down after two wrong. A small on-device learner sits on top and may nudge that by one step. The caregiver screen plots what the learner expected against what actually happened.</li>
+  <li><strong>Offline is the design, not a feature.</strong> Service worker plus IndexedDB in the web version. In the Android package the assets ship inside the file, so the app is on the device from first launch and can be passed phone to phone by cable, SD card or Bluetooth.</li>
+  <li><strong>Honest claims, everywhere.</strong> The words "score", "cognitive health", "detects" and "diagnoses" do not appear in any user-facing string. The disclaimer prints on every caregiver leaf screen. The activities are called exercises or activities, never games.</li>
+</ol>
+
+<h3>What it looks like in use</h3>
+<p>A person opens the app and taps the large <strong>Patient</strong> button. Home greets them by the time of day and shows three cards: Today, Let's Exercise, My Memories. If a reminder is due, a full-screen card is already there, speaking "It is time for medicine", with one large Done button. Tapping Let's Exercise starts a session that runs itself: an intro, then nine rounds across five activities, each prompt spoken aloud, then a praise screen, then back Home. There is no Next button, no timer, no score and no way to fail. A wrong tap is met with "Not quite, try again" and the round waits.</p>
+<p>The caregiver holds the Home icon for two seconds. A ring fills, and the dashboard opens: alerts that need attention, a reminders manager, a 14-day practice chart with per-activity trends and the current level, and a settings page for photos, language, starting level and a backup file.</p>
+
+<h2 id="c2"><span class="chap">Chapter 2</span>The problem, and the constraints we chose</h2>
+<p class="lede">Every unusual decision in the codebase traces back to one of five constraints. The constraints came from the people, not from the technology.</p>
+
+<h3>Who it is for</h3>
+<p>The brief names elderly people with dementia in the North-Eastern Region and the family members who look after them. In practice that means a household with one shared Android phone or a cheap tablet, patchy or absent data, a first language that is not English, and a person who may not be able to read comfortably, may tap the same thing repeatedly, and must never be made to feel they have failed.</p>
+<p>The demo device is not a flagship. It is a Lenovo TB-7304I: Android 7, 918 MB of RAM, a system browser engine from 2017 that has never been updated and never will be. We chose to treat that device as the target rather than the exception, because it is exactly the device the brief describes.</p>
+
+<h3>The five constraints</h3>
+<div class="tbl"><table>
+<thead><tr><th>Constraint</th><th>What it rules out</th><th>What it forced</th></tr></thead>
+<tbody>
+<tr><td><strong>Fully offline after one load</strong></td><td>Any runtime CDN, any API call, any cloud model, any hosted font</td><td>A hand-written precache list, both audio packs cached up front, hand-drawn SVG charts instead of a library</td></tr>
+<tr><td><strong>No build step, no framework</strong></td><td>React, bundlers, TypeScript, a transpile stage between source and browser</td><td>26 plain ES modules, a 32-line DOM helper as the whole view layer, a 46-line hash router</td></tr>
+<tr><td><strong>No login, no accounts</strong></td><td>Authentication, cloud sync, multi-patient dashboards</td><td>A role toggle at entry, a two-second hold as a UX gate, a backup file as the only way data moves</td></tr>
+<tr><td><strong>Low-end Android</strong></td><td>Awaiting a database inside a render, large images, heavy animation</td><td>Synchronous reads from a cache hydrated once at boot, photos downscaled to 640 px, persistent-storage request</td></tr>
+<tr><td><strong>Voice-led, never voice-dependent</strong></td><td>Any flow that waits on speech to advance</td><td>Every spoken line pairs a callback with a fallback timer; speech input is optional and only in one exercise</td></tr>
+</tbody></table></div>
+
+<h3>Why a web app at all</h3>
+<p>A PWA is the only thing that runs on a 2017 phone, a 2024 phone and a laptop from one codebase with no store listing. It installs to the home screen, launches full-screen, and works in airplane mode after one visit. Where a family cannot reach a URL even once, the same source is packaged as an APK that can be handed across by cable. Chapter 11 covers how, and what it cost.</p>
+
+<div class="callout warm">
+  <span class="k">The rule that shaped the copy</span>
+  <p>Never "cognitive score", "brain score", "improves cognition", "detects", "diagnoses", "measures cognition", "clinically proven". Always "engagement", "activity performance", "session history", "practice activities". This is enforced by review over the two content files, and it is stated as a comment at the top of the two modules most likely to break it: <code>js/core/adaptive.js</code> and <code>js/core/analytics.js</code>.</p>
+</div>
+
+<h2 id="c3"><span class="chap">Chapter 3</span>How the app is built</h2>
+<p class="lede">How a tap becomes a screen, and which file owns what.</p>
+
+<h3>The shell</h3>
+<p>The entire HTML of the app is 17 lines: a viewport with zoom disabled, three stylesheets in cascade order (base, patient, caregiver), one <code>&lt;div id="app"&gt;</code>, and one module script. There is no other markup. Every screen is built from JavaScript through two element factories in <code>js/core/dom.js</code>, which create real DOM nodes and always pass text through <code>createTextNode</code>. A caregiver-typed name can never become markup, so the cross-site-scripting surface is closed by construction.</p>
+
+<h3>Boot: four awaits, then nothing waits again</h3>
+<div class="flow">
+  <span>initStore()</span><i>→</i><span>seed demo data on first run</span><i>→</i><span>loadContent(language)</span><i>→</i><span>loadVoiceClips(language)</span><i>→</i><span>register 10 routes</span><i>→</i><span>open Entry</span><i>→</i><span>start reminder watcher</span>
+</div>
+<p><code>bootstrap()</code> in <code>js/app.js:22-58</code> is the only place the app awaits anything. The store hydrates first because it holds the language the content pack is chosen by. After that, every screen reads synchronously from an in-memory cache and renders in one frame. On a 1 GB phone, a render that awaits a database shows a blank frame, and a blank frame reads as a stutter or a crash.</p>
+
+<h3>Routing and teardown</h3>
+<p>The router in <code>js/core/router.js</code> is hash-based. On every route change it empties the container and, before that, calls <code>stopSpeaking()</code> and <code>stopListening()</code>. That placement is deliberate: a screen that does not speak on entry (Patient Home, every caregiver screen) would otherwise have nothing to cancel the line still running underneath it. Route parameters live in a module variable rather than the URL, which keeps the hash clean at the cost of losing them on reload.</p>
+
+<h3>Two worlds</h3>
+<div class="worlds">
+  <div class="world patient">
+    <h4>Patient side, on rails</h4>
+    <ul>
+      <li>Entry → Patient Home → Today / Exercises / My Memories</li>
+      <li>One task per screen, 64 px minimum touch target on every button</li>
+      <li>One Home icon, same corner on every screen</li>
+      <li>No menus, no back button, no timers, no scores, no fail states</li>
+      <li>App speaks on screen entry; nothing waits for it</li>
+    </ul>
+    <p class="rule">Files: <code>js/screens/entry.js</code>, <code>js/screens/patient/*</code></p>
+  </div>
+  <div class="world caregiver">
+    <h4>Caregiver side, normal UI</h4>
+    <ul>
+      <li>Dashboard → Overview / Reminders / Engagement / Memories &amp; Settings</li>
+      <li>Explicit Back on every screen, data density is fine</li>
+      <li>Reached by a two-second hold on the Home icon or the dim corner</li>
+      <li>Silent throughout; the caregiver reads</li>
+      <li>Disclaimer on every leaf screen</li>
+    </ul>
+    <p class="rule">Files: <code>js/screens/caregiver/*</code>, shared alerts in <code>alerts.js</code></p>
+  </div>
+</div>
+<p>There is no shared shell between the two trees. Each screen is a function that receives the content pack and the navigate function, builds its DOM, and returns. The content pack is curried in once by a closure in <code>app.js</code>, and that single closure is the whole internationalisation mechanism.</p>
+
+<h3>Module map</h3>
+<div class="tbl"><table>
+<thead><tr><th>File</th><th class="num">Lines</th><th>Owns</th></tr></thead>
+<tbody>
+<tr><td><code>js/app.js</code></td><td class="num">127</td><td>Boot order, route registration, service-worker policy, persistent-storage request</td></tr>
+<tr><td><code>js/core/router.js</code></td><td class="num">46</td><td>Hash routing; stops voice and microphone on every change</td></tr>
+<tr><td><code>js/core/dom.js</code></td><td class="num">32</td><td>The view layer: <code>el()</code> and <code>svgEl()</code></td></tr>
+<tr><td><code>js/core/content.js</code></td><td class="num">27</td><td>Loads <code>content/&lt;code&gt;.json</code>, falls back to English</td></tr>
+<tr><td><code>js/core/store.js</code></td><td class="num">547</td><td>IndexedDB with localStorage mirror; the only module that writes to disk; the round-recording pipeline</td></tr>
+<tr><td><code>js/core/adaptive.js</code></td><td class="num">54</td><td>The rules engine: 3 right → up, 2 wrong → down</td></tr>
+<tr><td><code>js/core/model.js</code></td><td class="num">150</td><td>On-device logistic-regression learner, bounded to one step</td></tr>
+<tr><td><code>js/core/voice.js</code></td><td class="num">381</td><td>Recorded clips first, live synthesis second, never two at once</td></tr>
+<tr><td><code>js/core/listen.js</code></td><td class="num">204</td><td>Optional speech input with a matcher that refuses to guess</td></tr>
+<tr><td><code>js/core/analytics.js</code></td><td class="num">152</td><td>Pure functions: trends, streaks, alerts</td></tr>
+<tr><td><code>js/core/chart.js</code></td><td class="num">105</td><td>Hand-built SVG bar chart and sparkline</td></tr>
+<tr><td><code>js/core/format.js</code></td><td class="num">50</td><td>Times and relative dates, translatable</td></tr>
+<tr><td><code>js/core/demo-data.js</code></td><td class="num">179</td><td>First-run sample data: a fortnight of history</td></tr>
+<tr><td><code>js/screens/shared.js</code></td><td class="num">71</td><td>The Home icon with its two-second hold; the Back button</td></tr>
+<tr><td><code>js/screens/patient/exercises.js</code></td><td class="num">783</td><td>The session driver and all five activities</td></tr>
+<tr><td><code>js/screens/patient/*.js</code> (4 more)</td><td class="num">284</td><td>Home, Today, Memories, the reminder card and its watcher</td></tr>
+<tr><td><code>js/screens/caregiver/*.js</code> (6)</td><td class="num">765</td><td>Dashboard, Overview, Reminders, Engagement, Memories &amp; Settings, alerts</td></tr>
+<tr><td><code>sw.js</code></td><td class="num">158</td><td>Precache of the shell and both audio packs; cache-first fetch</td></tr>
+<tr><td><code>content/en.json</code>, <code>as.json</code></td><td class="num">795 each</td><td>Every user-visible string, image path and exercise definition</td></tr>
+<tr><td><code>css/base.css</code>, <code>patient.css</code>, <code>caregiver.css</code></td><td class="num">1,484</td><td>Design tokens, the patient scale, the caregiver density</td></tr>
+</tbody></table></div>
+
+<p>Three structural facts answer most "how does it work" questions on their own. <code>adaptive.js</code>, <code>model.js</code> and <code>analytics.js</code> are pure: no I/O, no DOM, no store. <code>model.js</code> imports <code>adaptive.js</code> and never the reverse, so the rules are the floor and the learner sits on top. Only <code>store.js</code> writes to disk.</p>
+
+<h2 id="c4"><span class="chap">Chapter 4</span>The patient's side, screen by screen</h2>
+<p class="lede">Every patient screen obeys the same rules: one task, huge type, the app speaks first, the Home icon is always in the same corner.</p>
+
+<h3>Entry</h3>
+<p>The mark, the name, the tagline "A calm daily companion", and two buttons: Patient and Caregiver. This is a role toggle, not a sign-in, and it is the only place the two worlds meet. It does not speak and has no Home icon, because it is the root. <code>js/screens/entry.js</code>.</p>
+
+<h3>Patient Home</h3>
+<p>A greeting chosen by the hour (morning before noon, afternoon before five, evening after), a one-line strip such as "Next: Medicine at 8:00 AM", and three cards: Today, Let's Exercise, My Memories. Home does not speak on entry. The only sound it can make is the reminder card it may raise. <code>js/screens/patient/home.js</code>.</p>
+<p>Two crossings to the caregiver side live here. A 44 px circle at 5 percent opacity sits bottom-right; holding it for two seconds darkens and shrinks it, then opens the dashboard. A plain labelled button appears bottom-left only when the URL carries <code>?caregiver=1</code>, for presenting on stage where a one-handed hold is awkward; a patient can never meet that condition.</p>
+
+<h3>The Home icon and the hold</h3>
+<p><code>js/screens/shared.js</code> exports the Home icon used on every patient screen. A tap tears the current screen down and goes Home. A hold of 2,000 ms crosses to the caregiver dashboard, with a ring that fills as it is held, so someone who did not mean it has time to let go. A completed hold swallows the trailing click so it cannot also fire as a tap.</p>
+<p>Making that hold work on a real phone took three fixes, each named in a comment. Android reads a hold as the start of a scroll and fires <code>pointercancel</code>, so the icon sets <code>touch-action: none</code>. The long-press text-selection callout cancels the pointer stream, so selection and the context menu are disabled. A finger that drifts a millimetre in two seconds leaves the target and would end the press through <code>pointerleave</code>, so the pointer is captured on press and <code>pointerleave</code> is not listened for at all.</p>
+
+<div class="callout">
+  <span class="k">A UX gate, not authentication</span>
+  <p>The hold exists so a confused patient cannot wander into the caregiver screens. It is not a security boundary. Anyone who holds the phone for two seconds is in, and all data is local to that one device. The code says this in its own comment at <code>home.js:35</code>.</p>
+</div>
+
+<h3>Today</h3>
+<p>One card. If a reminder is due it says "It is time for this now." with the type large; otherwise it shows the next one with its time. This screen leads with voice: one sentence assembled at render, such as "Good morning. Your next reminder is medicine at 8:00 AM." Because that sentence contains a time, it has no recording and is spoken by the device engine, which matters in Chapter 6. Viewing Today also stamps "last active", which the caregiver Overview reports. <code>js/screens/patient/today.js</code>.</p>
+
+<h3>My Memories</h3>
+<p>One photograph at a time, the person's name underneath at 2.3 rem, a faint "3 of 7" counter, and two large buttons, Previous and Next. The index wraps in both directions with a double modulo so "previous" from the first photo lands on the last rather than crashing. Every photo is named aloud on arrival, the way a person would say it. Photos come from the caregiver's settings page and are capped at twenty; the code's own reason is that My Memories is meant to be walked end to end, and a hundred photos "is a corridor, not a family". <code>js/screens/patient/memories.js</code>.</p>
+
+<h3>The reminder card and its watcher</h3>
+<p>Reminders originally only surfaced when Home was drawn, so one could come due while the patient sat looking at the screen and nothing would happen. <code>js/screens/patient/reminder-card.js</code> now polls every 30 seconds from boot. When something is due it raises a full-screen card with a swaying bell, "It is time for", the type at 2.5 rem, and one Done button. The card speaks on construction. Done marks the reminder complete, logs it, and returns Home.</p>
+<p>Two guards matter. The card will not interrupt an exercise in progress; it surfaces the moment the patient returns Home. And it never stacks a second card over one still waiting to be acknowledged. The stated limit: it cannot fire while the app is closed. That needs an operating-system alarm, which a web page cannot register. Documented, not pretended.</p>
+
+<h3>The design system behind all of this</h3>
+<p>Root font size is 18 px, not the browser's 16. Patient body text is 1.6 rem, about 29 px; the entry heading is 3.4 rem. Every button has a 64 px minimum in both directions, above Android's 48 px guideline. Colours are warm on purpose: cream ground, dark brown ink, a teal accent, and a terracotta used sparingly "for life". The comment in <code>css/base.css:10</code> gives the reason: a cool grey app feels clinical. Every screen animates in over 280 ms with children staggered by 40 ms, and a reduced-motion preference zeroes all of it while keeping the hold feedback as a static colour change, so the hold still shows it is registering.</p>
+
+<h2 id="c5"><span class="chap">Chapter 5</span>The five exercises</h2>
+<p class="lede">One file drives the session. The content pack decides what each level means. A wrong answer never skips a round.</p>
+
+<h3>The session</h3>
+<p><code>js/screens/patient/exercises.js</code> runs a fixed sequence: intro, exercise 1 to 5, praise. There is no Next button anywhere and no back navigation; the only exit is the Home icon. Each session captures a token, and every timer checks it before firing, so a timer from an abandoned session can never land on a screen that no longer exists. Leaving bumps the token, clears timers, stops speech and stops the microphone.</p>
+<p>The intro says "Let us do a few activities together. Take your time. There is no hurry." The praise screen shows a star, says "Well done. Thank you for spending this time today", records the session, and returns Home on its own. Progress dots on each exercise show progress within that exercise only; they are reassurance, not information.</p>
+
+<div class="tbl"><table>
+<thead><tr><th>Exercise</th><th>Domain from the brief</th><th>What the patient does</th><th>Difficulty lever by level</th><th class="num">Rounds</th></tr></thead>
+<tbody>
+<tr><td><strong>Remembering</strong></td><td>Memory (reminiscence)</td><td>Looks at a scene (tea garden, river, Bihu) and answers "Which one carries people across?" from picture options. Family photos become "Which one is Ama?" rounds.</td><td>2 / 3 / 4 options</td><td class="num">2</td></tr>
+<tr><td><strong>Matching</strong></td><td>Object recognition</td><td>Finds the two identical pictures in a face-up grid. No flipping, no memory trick.</td><td>2 / 3 / 4 pairs</td><td class="num">2</td></tr>
+<tr><td><strong>Find It</strong></td><td>Attention and concentration</td><td>"Tap the gamosa" among unlabelled pictures. The target is always on screen.</td><td>3 / 4 / 5 options</td><td class="num">2</td></tr>
+<tr><td><strong>Daily Routine</strong></td><td>Daily routine recall</td><td>Puts shuffled steps of a routine (morning, evening, making tea, meal time) in order by tapping them in sequence.</td><td>3 / 4 / 5 steps</td><td class="num">1</td></tr>
+<tr><td><strong>What Comes Next</strong></td><td>Pattern recognition</td><td>Sees a row of pictures ending in "?" and picks what continues the pattern.</td><td>ABAB / AABAAB / ABCABC, plus 2 / 3 / 4 options</td><td class="num">2</td></tr>
+</tbody></table></div>
+
+<h3>How a round is generated</h3>
+<p>Levels are read from the store at the start of every round, so a change takes effect immediately. The helper <code>byLevel()</code> reads a per-level array from the content pack and clamps the index; the pack, not the code, decides what "harder" means. Remembering builds its pool from twelve authored scenes plus, if two or more named photos exist, one round per photo with the other photos as distractors; those rounds hide the labels because printing the names would give the answer away. Daily Routine slices the first N steps of an authored routine, which works because steps are written in order. What Comes Next extracts the distinct slots from a template, maps them onto random objects, and draws wrong options first from the other slots in the pattern, which are the plausible ones.</p>
+
+<h3>Wrong answers: two policies, one rule</h3>
+<p>The rule from the brief is that a wrong answer must not skip or advance. Two policies satisfy it.</p>
+<ul>
+  <li><strong>Reveal and move on</strong> (Remembering only). The first tap resolves the round. The correct option lights up, the tapped one is marked as passed over, every button is disabled, and "Good try, this one!" is held for 3.8 seconds so the reveal can be seen.</li>
+  <li><strong>Nudge and retry</strong> (the other four). The round is not resolved. The wrong tile flashes, "Not quite, try again" plays for 1.6 seconds, the prompt is spoken again, and the round waits. Daily Routine says something more specific: "That one comes later, try another", and nothing already placed moves. There is no attempt limit and no fail state.</li>
+</ul>
+<p>In both cases a busy flag means repeated taps do nothing at all. A round found on the second attempt still completes, but is recorded as not correct, because the adaptive engine keys on first-try success.</p>
+
+<h3>Timings, and why they are ceilings</h3>
+<p>Screens advance when the narration finishes. The constants below are the upper bound for a device with no voice engine, not the wait. A recorded line with a known length can exceed the constant, so the safety net widens to the clip's measured duration plus a beat; advancing mid-sentence is exactly what starts the next screen talking over the tail of this one.</p>
+<div class="tbl"><table>
+<thead><tr><th>Constant</th><th class="num">ms</th><th>Used for</th></tr></thead>
+<tbody>
+<tr><td><code>INTRO_MS</code></td><td class="num">5,200</td><td>Intro ceiling</td></tr>
+<tr><td><code>CORRECT_MS</code></td><td class="num">2,400</td><td>After a correct answer</td></tr>
+<tr><td><code>REVEAL_MS</code></td><td class="num">3,800</td><td>Showing the correct answer in Remembering</td></tr>
+<tr><td><code>RETRY_MS</code></td><td class="num">1,600</td><td>The gentle pause before trying again</td></tr>
+<tr><td><code>LEVEL_UP_MS</code></td><td class="num">3,000</td><td>The level-up line</td></tr>
+<tr><td><code>PRAISE_MS</code></td><td class="num">4,600</td><td>Praise before auto-return</td></tr>
+<tr><td><code>MIC_OPEN_MS</code></td><td class="num">180</td><td>Gap between silencing the question and opening the microphone, so the recogniser does not hear the app's own words</td></tr>
+</tbody></table></div>
+
+<h3>Recording a result</h3>
+<p>Every activity ends its round through one funnel, <code>resolveRound()</code>. It records the round in the store with correct, prompt id and attempt count, speaks the feedback, and, if the store reports the level has moved up, speaks "You're doing well, let's try a little harder" before advancing. Easing down is never announced. The comment at <code>exercises.js:179</code> explains: naming it would turn an invisible adjustment into a fail state.</p>
+
+<h3>Speech input, and why it is only in one place</h3>
+<p>Remembering alone offers a microphone button, and only when the browser has speech recognition and the caregiver has left it on. Tap to talk; the app first silences its own voice, because talking over the patient while asking them to talk is not a conversation. A recognised answer goes through the same <code>choose()</code> path a tap takes, so the learner cannot tell them apart. A transcript that matches nothing is not a wrong answer and is never recorded as one; the patient hears "I didn't catch that, you can tap instead" and the round is untouched. If recognition fails for good (no network, permission refused) the button removes itself and the app still says so, because silence reads as being ignored.</p>
+
+<h2 id="c6"><span class="chap">Chapter 6</span>Voice</h2>
+<p class="lede">The device's own speech engine on a cheap Android sounds like a robot reading a form, differs on every phone, and may not exist at all. So the app mostly does not use it.</p>
+
+<h3>Recordings first</h3>
+<p>Every fixed patient-facing line in both content packs is rendered once by <code>tools/build-voice.py</code> with a neural voice (Neerja for English, Tanishaa for Bengali-script Assamese) at a slightly slower rate, saved as a small MP3 named by a hash of the text, and measured with ffprobe so its real duration is known. The result is 191 English and 189 Assamese clips, about 7 MB together, indexed in <code>assets/audio/&lt;lang&gt;/index.json</code>.</p>
+<p>At runtime <code>js/core/voice.js</code> looks each line up by its exact text. If a clip exists, it plays. If not, or if playback fails, the line falls through to <code>speechSynthesis</code>. If that is missing too, the completion callback fires immediately so the screen still advances. Speech is a one-way aid; nothing in the app ever waits on it.</p>
+
+<h3>The lines that cannot be recorded</h3>
+<p>Five lines in the pack are templates: "Your next reminder is {type} at {time}", "Which one is {name}?", "Tap the {object}", "{name}, let us put these in order", and "It is time for {type}". Photo names are runtime text too. These always need a live engine. The caregiver settings page therefore has a distinct state for "recordings present, no engine", shown with an amber dot, instead of a green tick that would leave a caregiver unable to explain why "Tap the gamosa" is silent. On the Lenovo tablet's WebView there is no <code>speechSynthesis</code> object at all, so those lines show as text there and every fixed line still plays.</p>
+
+<h3>Never two voices at once</h3>
+<p>The hardest bug in the project was audio overlap: a cut-off line saying itself again over the next one. It was fixed three times, because it had three causes, and the commit history records each.</p>
+<ol>
+  <li><strong>Stale callbacks.</strong> Pausing an audio element mid-<code>play()</code> rejects with an error indistinguishable from a broken file, so the cancelled line was handed to the fallback engine and spoken again. And <code>speechSynthesis.cancel()</code> fires <code>onend</code> on the utterance it killed, so a cancelled line reported completion and advanced a screen over a sentence nobody heard. Fix: a generation counter bumped by every speak and every stop; every late callback checks it before acting.</li>
+  <li><strong>Asynchronous cancel.</strong> On Android Chrome, <code>cancel()</code> returns immediately and the engine keeps talking for a moment. The next line started 60 ms later straight over the tail. Fix: <code>speak()</code> polls every 40 ms until the engine is actually silent, bounded at 600 ms so an engine that reports itself busy forever cannot mute the app.</li>
+  <li><strong>The dropped reference.</strong> Stopping paused the clip and nulled the reference in the same breath. <code>pause()</code> on an element whose <code>play()</code> promise has not resolved is a documented Chromium race and does not always take effect, and once the reference was gone the clip was unreachable, so it played to the end over everything that followed. Fix: every clip element lives in a set until proven silent, stopping walks all of them, and it sets <code>muted</code> before <code>pause()</code>, because muted is a property applied instantly while pause is only a request.</li>
+</ol>
+<p>Because the phone this had to be diagnosed on has no developer tools, <code>?voicelog=1</code> draws an on-screen log that turns red the instant two clips are audible. It cannot appear during a demo without the flag.</p>
+
+<h3>Picking a voice for the fallback</h3>
+<p>Each content pack declares an ordered chain of language tags. English asks for <code>en-IN</code>, then <code>en-GB</code>, <code>en-US</code>, then any English. Assamese asks for <code>as-IN</code>, then <code>as</code>, then <code>bn-IN</code>, then <code>bn</code>. Android almost never carries an Assamese voice, and Assamese is written in the Bengali-Assamese script, so a Bengali voice pronounces it far closer than any Latin-script voice could. Chrome's voice list is empty on first call, so the choice stays unresolved and re-resolves on <code>voiceschanged</code>. The caregiver screen reports which voice the device actually found.</p>
+
+<h2 id="c7"><span class="chap">Chapter 7</span>Adaptation: rules, and a learner on top</h2>
+<p class="lede">The honest word for what is in <code>model.js</code> is machine learning. The honest description is: no cloud, no LLM, no pretrained model, no downloaded weights, about a hundred lines of arithmetic a clinician can audit.</p>
+
+<h3>Layer one: the rules engine</h3>
+<p><code>js/core/adaptive.js</code> is 54 lines of pure functions. Three levels, named Gentle, Steady and Fuller to the caregiver, never numbered to the patient. Three correct in a row moves up one level and resets the streak. Two wrong in a row moves down one. At the gentlest level there is nowhere to go, so it records "repeat", which lets the caregiver screen say "staying at the gentlest level for more practice" instead of nothing. Each answer zeroes the other streak, so this is a strict-run rule, not a running tally. It reacts to performance in an activity and infers nothing about the person.</p>
+
+<h3>Layer two: the on-device learner</h3>
+<p><code>js/core/model.js</code> is online logistic regression trained by stochastic gradient descent, on this device, from this one patient's own rounds. It predicts one thing: the probability that the next round at a given level is answered correctly. It steers toward a 75 percent success rate, which is where practice stays engaging without being either trivial or discouraging.</p>
+<div class="tbl"><table>
+<thead><tr><th>Piece</th><th>Value</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>Features</td><td>bias, level (−1, 0, +1), recent first-try accuracy, recent retries, over the last 8 rounds</td><td>All scaled to roughly −1 to 1 so no one feature dominates the gradient; all knowable before the round is answered</td></tr>
+<tr><td>Prior weights</td><td><code>[1.1, −0.5, 0, 0]</code></td><td>At the middle level a person answers correctly about three quarters of the time (σ(1.1) ≈ 0.75), and higher levels are harder</td></tr>
+<tr><td>Learning rate, decay</td><td>0.12, 0.002</td><td>Decay pulls unused weights toward zero but never the bias, which carries the person's overall rate</td></tr>
+<tr><td>Minimum rounds before steering</td><td>6</td><td>Steering off two or three data points would lurch; until then it watches and says so</td></tr>
+<tr><td>Minimum gain to override the rules</td><td>0.03</td><td>The learner must be clearly better, and ties fall to the easier level</td></tr>
+<tr><td>Candidate levels</td><td>Rules level ± 1 only</td><td>The rules are the guardrail; the learner can nudge but never leap</td></tr>
+</tbody></table></div>
+
+<h3>How the two combine, in order</h3>
+<p><code>recordRound()</code> in <code>js/core/store.js:414-462</code> is the one place they meet. It predicts success at the level the patient just played, trains on the actual answer, advances the rules, and then lets the learner propose the next level within one step of what the rules chose. The prediction is stored on the round so the caregiver screen can show expectation against outcome. Finally the "level changed" flag is recomputed against the level the patient will actually meet next, because the spoken level-up line is keyed off it; if the learner holds the level where the rules wanted to move, nothing changed and nothing is said.</p>
+
+<h3>What we can prove, and what we cannot</h3>
+<p><code>tools/model-harness.py</code> reads every constant straight out of the JavaScript by regular expression, so it cannot validate a model nobody ships. It simulates four synthetic patients over 40 seeds and 400 rounds each.</p>
+<div class="tbl"><table>
+<thead><tr><th>Synthetic patient</th><th class="num">Best reachable</th><th class="num">Learner</th><th class="num">Rules alone</th><th class="num">Level switches</th></tr></thead>
+<tbody>
+<tr><td>Steady, best at level 2</td><td class="num">74.0%</td><td class="num">75.6%</td><td class="num">62.9%</td><td class="num">5.1%</td></tr>
+<tr><td>Strong, best at level 3</td><td class="num">76.0%</td><td class="num">79.9%</td><td class="num">77.7%</td><td class="num">7.6%</td></tr>
+<tr><td>Struggling, best at level 1</td><td class="num">72.0%</td><td class="num">70.7%</td><td class="num">56.2%</td><td class="num">2.1%</td></tr>
+<tr><td>Declining over time</td><td class="num">60.3%</td><td class="num">58.0%</td><td class="num">52.4%</td><td class="num">5.8%</td></tr>
+</tbody></table></div>
+<p>The learner beats the rules alone by 2 to 15 points, stays within 5 points of the best reachable rate in all four cases, and changes level on only 2 to 8 percent of rounds. The one-step guardrail was brute-forced with 1,200 proposals against random histories with zero breaches, and a golden 20-round trace pins the shipped JavaScript to the validated Python to nine decimal places.</p>
+<div class="callout warm">
+  <span class="k">Say this before the room does</span>
+  <p>These numbers validate the control loop against synthetic patients. They prove nothing about real people. There is no clinical evidence, and the guide does not pretend otherwise.</p>
+</div>
+
+<h3>Where the adaptation is shown</h3>
+<p>Nowhere on the patient side except the single spoken line on a level up. On the caregiver Engagement screen, every activity gets a card with its current level as a word, rounds completed, first-try count, a sparkline of accuracy with the learner's expectation dashed over it, a level line, the last ten rounds as marks, and a sentence in words: "Stepped up after 3 correct in a row", or "Watching for now, it starts adjusting after 4 more rounds". Before it has enough rounds it says so rather than implying it is already steering.</p>
+
+<h2 id="c8"><span class="chap">Chapter 8</span>Data, offline and backup</h2>
+<p class="lede">All data stays on the one device. No accounts, no sync, no network. The whole record can leave as a file the caregiver controls.</p>
+
+<h3>The store</h3>
+<p><code>js/core/store.js</code> keeps five collections in one IndexedDB object store, mirrored to localStorage as a fallback for old or locked-down Android browsers where IndexedDB is missing. IndexedDB is the real store because photos stored as data URLs run to megabytes, past the localStorage cap. Reads are synchronous against a cache hydrated once at boot. Writes update the cache immediately, write the mirror synchronously, and queue the IndexedDB write behind a single promise so writes never interleave. Every getter returns a deep clone so no screen can mutate the cache by accident.</p>
+<div class="tbl"><table>
+<thead><tr><th>Collection</th><th>Holds</th><th>Cap</th></tr></thead>
+<tbody>
+<tr><td><code>reminders</code></td><td>type, time as HH:MM, note, created, last done</td><td>none; log of completions capped at 200</td></tr>
+<tr><td><code>memories</code></td><td>name and a downscaled JPEG data URL</td><td>20 photos, enforced in the store, not just the form</td></tr>
+<tr><td><code>engagement</code></td><td>per activity: level, streaks, last change, the learner's four weights, rounds; plus sessions</td><td>60 rounds per activity, 30 sessions</td></tr>
+<tr><td><code>settings</code></td><td>language, starting level, sample-data flag, speech input on/off</td><td></td></tr>
+<tr><td><code>activity</code></td><td>last active time, reminder log</td><td></td></tr>
+</tbody></table></div>
+<p>The photo cap has a reason beyond taste. The localStorage mirror fails silently when it runs out of room, so an uncapped list would not error; it would quietly stop saving, which the comment calls the worst way for this to go wrong. When the cap is reached the caregiver form is replaced by a sentence naming the limit and the way out, not a greyed-out button.</p>
+
+<h3>Offline in the web version</h3>
+<p><code>sw.js</code> precaches a hand-maintained list of 78 shell files and, at install time, reads both audio indexes and fetches every clip one at a time, each with its own catch, because <code>addAll()</code> throws away the whole batch if one file is missing and silence is worse than a gap. Fetch is cache-first with a network fallback. Bumping <code>CACHE_NAME</code> (now <code>smriti-shell-v18</code>) is the only way a device picks up a new build.</p>
+<p>Both language packs are cached up front. The app once cached only English to save 3.3 MB for monolingual households. That confused storage with download timing: a device that first switched to Assamese while offline had nothing to fetch, fell back to the live engine, and found no Assamese voice installed. Silence, on the exact regional language the project exists to serve. The saving was notional; the failure was real. About 7 MB, paid once, is the right trade.</p>
+<p>At boot the app also asks for persistent storage. Without it, Android may reclaim the whole origin under storage pressure, which on a 1 GB phone is a real event, and the first anyone would know is a blank app.</p>
+
+<h3>Backup and restore</h3>
+<p>On the Memories &amp; Settings screen, Save a backup writes the five collections to <code>smriti-backup-YYYY-MM-DD.json</code> inside an envelope that names the app and a version. Restore parses defensively, refuses anything that is not a Smriti backup, confirms that it replaces everything on the device, and reloads. This is the honest version of "sync for remote areas": a file moved by hand, with no server and no account, and the primitive any future sync would sit on.</p>
+
+<h3>First run</h3>
+<p>A cold install shows an empty state on every screen, which makes a working app look like a shell. On first run <code>js/core/demo-data.js</code> seeds five named placeholder portraits, four reminders and a fortnight of history through the normal store, so the app reads it as if a caregiver had typed it. The seeded rounds are pushed through the real predict-learn-propose pipeline, so the Engagement screen opens on a learner that has genuinely learned from that history. A banner on the settings page says the data is sample data and clears it in one tap, and a deliberate wipe leaves a marker so samples do not return.</p>
+
+<h2 id="c9"><span class="chap">Chapter 9</span>The caregiver's side</h2>
+<p class="lede">Normal navigation, real data density, and a disclaimer on every leaf screen.</p>
+
+<h3>Dashboard</h3>
+<p>Four menu items and a Switch to Patient button. The Overview item carries a badge counting alerts that need action. Positive notes are context, not a to-do, so only warnings count. <code>js/screens/caregiver/dashboard.js</code>.</p>
+
+<h3>Overview</h3>
+<p>Needs attention first, then last active in the words a person would use ("12 minutes ago", "Yesterday at 3:20 PM"), reminders today and how many were marked done, the next reminder, practice sessions today, photos saved. Alerts come from pure functions in <code>js/core/analytics.js</code> and are descriptive only: "No practice for 4 days", "2 reminders today are past their time and not marked done", "Find It has been harder lately, fewer first-try answers", "Matching moved up a level". Each states something that happened, never what it might mean about the person.</p>
+
+<h3>Reminders manager</h3>
+<p>A list with the time large, the type, the note, and a "Done today" chip. Add opens a form with a type select (Medicine, Hydration, Activity, Appointment, translated from the pack while the stored key stays English), a native time input that gets the operating system's picker for free, and an optional note. The only validation is that a time was chosen; the error is written to a polite live region and the field is focused. Delete is confirm-guarded and only exists when editing. <code>js/screens/caregiver/reminders.js</code>.</p>
+
+<h3>Engagement</h3>
+<p>The framing line comes first: "Activity performance only. This shows how the practice activities went, nothing more." Then practice sessions, days in a row, last session; a 14-day bar chart of sessions per day where a day with no practice is drawn as a 2 px baseline so the gap is visible rather than absent; and one card per activity, always all five, as described at the end of Chapter 7. An info box explains both layers in plain words, with the 75 percent target interpolated live from the code constant so the copy cannot drift from the code. Charts are hand-built inline SVG in <code>js/core/chart.js</code>; a charting library would be a runtime dependency, which breaks the offline requirement outright.</p>
+
+<h3>Memories &amp; Settings</h3>
+<ul>
+  <li><strong>Photos.</strong> Pick a file, see a preview, type a name, save. Photos are downscaled to a 640 px long edge at JPEG quality 0.75 before storage, because a phone-camera JPEG is several megabytes each. Named people feed both My Memories and the Remembering activity.</li>
+  <li><strong>Language.</strong> A select built from the pack's own language list. Changing it saves and reloads, the simplest correct way to re-fetch a pack and re-pick a voice.</li>
+  <li><strong>Voice.</strong> One of five honest sentences with a coloured dot: recordings plus an engine (green), recordings without an engine (amber, and it names which lines will be silent), no engine at all, the exact requested voice, or a fallback voice by name.</li>
+  <li><strong>Starting level.</strong> Gentle, Steady, Fuller. This resets every activity's level and streaks while keeping the history and the trained learner, the caregiver saying "start here".</li>
+  <li><strong>Speech answers.</strong> On or off, default on, with a caution that this is the one part of Smriti that leaves the device, because the browser's recogniser is cloud-backed. Off is one tap.</li>
+  <li><strong>Backup.</strong> Save and restore, Chapter 8.</li>
+  <li><strong>Sample data banner.</strong> Shown only while sample data is present, with a one-tap clear.</li>
+</ul>
+<p>The note at the bottom reads: "This is not a diagnostic tool. Consult a professional for concerns. All information stays on this device."</p>
+
+<h2 id="c10"><span class="chap">Chapter 10</span>Language and culture</h2>
+<p class="lede">Language is data, not code. A third language is a file plus one entry.</p>
+
+<h3>Content packs</h3>
+<p>Every user-visible string, image path and exercise definition lives in <code>content/en.json</code> and <code>content/as.json</code>. The two files have identical key sets, checked by diff: not one key present in one and missing from the other. Six top-level sections: app (name, language list, speech-tag chain), entry, patient, caregiver, common. On-screen text and spoken text are separate fields everywhere, so speech can be punctuated for an engine while the screen reads naturally. Correct-answer feedback is an array of three variants chosen at random so praise does not become rote.</p>
+<p>Adding a language means dropping in <code>content/&lt;code&gt;.json</code>, listing the code under the language map, and, optionally, running the voice build for recordings. The app changes nothing. The repo does: the service worker's precache list and the voice build script gain an entry. That distinction is worth stating exactly, because "zero code changes" is true of the app and not of the repo.</p>
+
+<h3>The Assamese pack</h3>
+<p>Assamese is first-class, not an afterthought. The pack declares its own speech chain ending in Bengali for the reasons in Chapter 6, its recordings were made with a Bengali-script neural voice for the same reason, and its numerals were normalised to Latin because substitutions arrive from code as Latin digits and a sentence with both looked wrong. Object ids, image paths, level tables and pattern templates are untranslated on purpose, so switching language keeps the artwork, the code paths and the adaptive history valid.</p>
+<div class="callout warm">
+  <span class="k">Stated limit</span>
+  <p>The Assamese strings are machine-authored and have not been reviewed by a native speaker. They should not be presented as production-ready until they have.</p>
+</div>
+
+<h3>Regional artwork</h3>
+<p>The object catalogue has twenty items, and the culturally specific half is what makes the content North-East Indian rather than generic: jaapi, gamosa, xorai, dhol, tamul, tea leaf, boat, bamboo house, hornbill, orange, rice, basket. Remembering uses twelve scenes including a tea garden, a river, a paddy field and Bihu. Daily Routine includes making tea. Seventeen of these drawings sat unused for a day before a content pass wired them in and added integrity checks: every image exists, every answer and distractor is in the catalogue, no answer appears among its own distractors, and every pool is large enough for its hardest level.</p>
+
+<h2 id="c11"><span class="chap">Chapter 11</span>From web page to tablet</h2>
+<p class="lede">The PWA is the product. The Android package exists so the app can be handed across without a network, and it had to run on a browser engine from 2017.</p>
+
+<h3>Why Capacitor and not a Trusted Web Activity</h3>
+<p>A TWA is a thin wrapper that loads a hosted URL, verified against a file on that domain. It needs hosting we do not have and fetches the app over the network on first launch. Capacitor copies the web assets into the package, so the app is on the device from first launch with no download, no service worker and no first-play condition on the Assamese audio. That is the entire reason to package it. The honest cost: npm and the Android SDK become build-time dependencies, which is the edge of the "no build step" rule. It was a deliberate call, and the shipped web app still has no build step.</p>
+
+<h3>What the package contains</h3>
+<p><code>tools/stage-web.sh</code> copies the app, and only the app, into <code>www/</code>. It excludes the docs, the Android project, and critically the <code>tools/</code> folder, which holds the demo seeder and its wipe-everything button and must never ship in a build a judge can hold. Inside the package, <code>app.js</code> detects <code>window.Capacitor</code>, skips the service worker and clears any cache an earlier build left. Registering it inside the package had cost a second copy of all 380 clips: 7.9 MB of CacheStorage against an 11 MB package, and 380 file reads per cold start. After the guard, app data fell from 12.6 MB to 628 KB.</p>
+
+<h3>The Chrome 58 problem</h3>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>The Lenovo TB-7304I installed and launched the package and painted a blank cream page. Its system WebView is Chrome 58, its standalone WebView is a disabled stub, and the Play Store never updates it. Module scripts need Chrome 61, so the browser never even requested the JavaScript; served over the LAN, the log showed HTML, CSS and the icon fetched and zero JS. Chrome 58 also has no flex <code>gap</code> and no <code>inset</code>, so even a running app would have collapsed its spacing.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>The staging script bundles the modules with esbuild into one classic deferred script targeting <code>chrome58</code>, for the package only. The two <code>import.meta.url</code> uses are defined relative to the bundle's own location. The staged <code>index.html</code> loses its module tag and the script fails loudly if it did not. In the source, four progressive CSS fallbacks that modern browsers ignore: plain offsets before <code>inset</code>, <code>grid-gap</code> before <code>gap</code>, margin-based flex spacing inside <code>@supports not (gap: 1px)</code>, and a plain focus reset before <code>:focus-visible</code>.<span class="where">tools/stage-web.sh · css/patient.css · css/caregiver.css · css/base.css · docs/APK.md §4a</span></p></div>
+</div>
+<p>Verified on the tablet by driving its WebView over the raw DevTools socket through adb: entry, home, every exercise and the caregiver overview render with correct spacing, a bundled clip plays with no user gesture, and no console errors across a session of taps. The standing rule that came out of it: esbuild lowers syntax, not APIs. Chrome 58 is the floor to check any new browser API against.</p>
+
+<h3>Device checklist</h3>
+<div class="tbl"><table>
+<thead><tr><th>Check</th><th>Galaxy A23 (Android 14)</th><th>Lenovo TB-7304I (Android 7, Chrome 58)</th></tr></thead>
+<tbody>
+<tr><td>Launches full-screen, portrait</td><td>Verified</td><td>Verified</td></tr>
+<tr><td>Entry and Home render, no JS errors</td><td>Verified</td><td>Verified</td></tr>
+<tr><td>Exercises and caregiver screens with correct spacing</td><td>Verified</td><td>Verified</td></tr>
+<tr><td>Bundled audio plays without a gesture</td><td>Verified</td><td>Verified</td></tr>
+<tr><td>Airplane mode from the very first launch</td><td>Not yet</td><td>Not yet</td></tr>
+<tr><td>Templated lines via device engine</td><td>Not yet</td><td>No engine; shown as text</td></tr>
+<tr><td>Photo picker, backup download</td><td>Not yet</td><td>Not yet</td></tr>
+<tr><td>Both hold gestures with a real thumb</td><td>Not yet</td><td>Not yet</td></tr>
+</tbody></table></div>
+
+<h2 id="c12"><span class="chap">Chapter 12</span>Problems we hit, and what we did</h2>
+<p class="lede">The commit history reads as a series of these. Each one below is real, dated, and points at the code.</p>
+
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>Awaiting IndexedDB inside a render gives every patient screen a blank frame, which on a 1 GB phone reads as a stutter or a crash.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>Pay the async cost once at boot. All reads are synchronous against the cache; writes go to memory, then the mirror, then a queued IndexedDB write.<span class="where">js/core/store.js:7-9, 165-177 · 30 Aug</span></p></div>
+</div>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>Advancing on any answer means a patient tapping repeatedly, which is exactly what an uncertain person does, skips the whole session in seconds.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>Remembering locks every option on the first tap and reveals; the other four mark, narrate, clear and reopen the round with a busy flag holding input. Nothing advances until the round is resolved.<span class="where">js/screens/patient/exercises.js · 30 Aug</span></p></div>
+</div>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>A timer from an abandoned session fired four seconds later into a screen that no longer existed, and the microphone could outlive the screen that opened it.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>A session token checked by every timer; leaving bumps it and stops speech and mic. The same discipline was then lifted into the router so it covers screens that never speak.<span class="where">exercises.js:77-111 · router.js:25-31 · 31 Aug</span></p></div>
+</div>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>Fixed-wait screens felt sluggish, and once recordings arrived some lines were longer than their wait: the level-up line ran 6.5 s against a 3.0 s ceiling and was cut off mid-sentence.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>Advance when the narration finishes, with the constant as a ceiling. The audio index records each clip's measured duration and the ceiling clears the clip it is waiting on.<span class="where">voice.js clipDuration · exercises.js ceiling() · 31 Aug</span></p></div>
+</div>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>The device engine sounds like a robot, differs on every phone, and may be missing entirely: a silent demo.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>Pre-render every fixed line once with a neural voice, ship the files, look them up by exact text, fall back to the engine only for templated lines.<span class="where">tools/build-voice.py · js/core/voice.js · 31 Aug</span></p></div>
+</div>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>Two voices at once: a cancelled line said itself again over the next one. Three separate causes over three days.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>A generation counter for stale callbacks; a bounded wait for the engine to actually go quiet; keeping every clip element reachable and muting before pausing. Plus an on-screen voice log because the phone has no dev tools.<span class="where">js/core/voice.js · 31 Aug to 1 Sep</span></p></div>
+</div>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>Taking the best speech-recognition match means a garbled transcript resolves the wrong option, inventing a mistake the patient never made, training the learner on a lie and telling someone with memory loss they were wrong when they were not.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>A match must score at least 0.7 and lead the runner-up by 0.12, or nothing happens and the patient is told plainly it was not heard. Eight of the eighteen matcher test cases must resolve to nothing.<span class="where">js/core/listen.js:111-204 · 31 Aug</span></p></div>
+</div>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>The two-second caregiver hold felt dead on a real phone. Android treated it as a scroll, the selection callout cancelled it, and a drifting finger left the target.</p></div>
+  <div class="solution"><span class="k">Solution</span><p><code>touch-action: none</code>, selection and context menu disabled, pointer capture, no <code>pointerleave</code>, and a fill animation because two seconds of nothing is indistinguishable from a broken control. Then the same hold on the Home icon so it is reachable from any screen.<span class="where">js/screens/patient/home.js · shared.js · 1 Sep</span></p></div>
+</div>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>Reminders only fired when Home was drawn; one could come due while the patient sat looking at the screen.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>A 30-second watcher from boot that raises the card anywhere except inside an exercise, and never stacks two. It still cannot fire with the app closed; that is documented, not hidden.<span class="where">js/screens/patient/reminder-card.js · 31 Aug</span></p></div>
+</div>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>The voice readout showed a green dot whenever recordings existed, on a device with no engine at all, while "Tap the gamosa" and the reminder card went silent.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>Recordings-without-an-engine became its own state with an amber dot that names what will be silent. Green now means the device can say every line.<span class="where">voice.js voiceStatus · memories-settings.js renderVoiceStatus · 3 Sep</span></p></div>
+</div>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>Only English audio was precached to save 3.3 MB. A device that first switched to Assamese offline had nothing to fetch and no Assamese voice to fall back to: silence in the language the project exists for.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>Precache both packs at install, about 7 MB paid once. The tradeoff was got wrong and reversed, and the docs say so.<span class="where">sw.js:83-121 · 3 Sep</span></p></div>
+</div>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>Inside the Android package the service worker registered anyway and duplicated 7.9 MB of clips into CacheStorage, with 380 file reads every cold start.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>Skip registration when <code>window.Capacitor</code> exists and clear what earlier builds left. App data 12.6 MB to 628 KB; launch audio requests 380 to 2.<span class="where">js/app.js:83-105 · 3 Sep</span></p></div>
+</div>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>The photo list was unbounded, and the localStorage mirror fails silently when full, so it would quietly stop saving. And when the microphone retired, the button stayed on screen and did nothing.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>A cap of twenty enforced in the store, with the form replaced by a sentence at the limit. The microphone button removes itself the moment recognition retires, and the app still says something.<span class="where">store.js:307-318 · exercises.js:277-287 · 3 Sep</span></p></div>
+</div>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>The README said "no ML, it is a rules engine" while the code shipped a trained classifier. A technical judge would have caught it in a minute.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>README and both defence documents rewritten to describe both layers with the exact formulation: no cloud, no LLM, no pretrained model, no downloaded weights.<span class="where">README.md · docs/DEFENSE.md · 3 Sep</span></p></div>
+</div>
+<div class="ps">
+  <div class="problem"><span class="k">Problem</span><p>The demo tablet painted a blank page because its 2017 browser engine ignores module scripts.</p></div>
+  <div class="solution"><span class="k">Solution</span><p>Chapter 11. A bundle for the package only, and progressive CSS fallbacks in the source.<span class="where">tools/stage-web.sh · css/* · 4 Sep</span></p></div>
+</div>
+
+<h2 id="c13"><span class="chap">Chapter 13</span>What is genuinely new here</h2>
+<p class="lede">Not "AI-powered". Not "revolutionary". These are the specific things a judge will not find in a flashcard app, stated at the strength the code supports.</p>
+
+<ol>
+  <li><strong>Two adaptation layers with an explicit hierarchy.</strong> A 54-line auditable rules engine as the floor and a hundred-line learner on top, where the learner imports the rules and never the reverse. Rules for the guarantee, a learner for the fit.</li>
+  <li><strong>Machine learning with no model file, no training set and no network.</strong> Four prior weights, trained by gradient descent from this one person's rounds on this one device. It resolves "offline-first" and "adaptive" without choosing between them.</li>
+  <li><strong>Adaptation you can see.</strong> The caregiver screen draws what the learner expected against what happened. Tracking the line is the learner working; drifting from it is the learner being wrong. Both are worth seeing, and showing rather than asserting is the difference.</li>
+  <li><strong>A pre-rendered neural voice as the primary channel.</strong> Identical voice and pacing on every phone, with the device engine only as a fallback. Most apps in this space do it the other way round or not at all.</li>
+  <li><strong>Assamese handled by the same reasoning in both layers.</strong> A Bengali-script neural voice for the recordings and a chain ending in Bengali for the fallback, with the caregiver screen reporting which voice the device actually found.</li>
+  <li><strong>Language as data.</strong> Structurally identical packs, one closure as the whole internationalisation mechanism, a third language as a file plus one line.</li>
+  <li><strong>A whole day, not a drill.</strong> Voice-led with no reading required, reminders that speak, a Today screen, a photo browser that feeds the recall activity. When asked how this differs from a flashcard app, the answer is never the activity list, because five activities is the flashcard app.</li>
+  <li><strong>Acquisition without a network.</strong> The package is a file that moves by cable, SD card, Bluetooth or direct share. The app is not downloaded; it is passed across.</li>
+  <li><strong>Zero dependencies at build or runtime for the web app.</strong> No framework, no charting library, no CDN. A consequence of the offline constraint, not minimalism for its own sake.</li>
+  <li><strong>Verification that cannot drift.</strong> The harness reads constants out of the JavaScript by regex, and a golden trace pins the shipped code to the validated model.</li>
+  <li><strong>It runs on the device the brief is about.</strong> Android 7, 918 MB of RAM, a browser engine that will never be updated. "Update Chrome" was not accepted as an answer.</li>
+</ol>
+
+<h2 id="c14"><span class="chap">Chapter 14</span>What we do not claim, and what is not built</h2>
+<p class="lede">Each of these is roadmap. None is stubbed, half-built, or implied to exist.</p>
+
+<h3>Not claimed</h3>
+<ul>
+  <li>Not diagnostic, not a medical device, not treatment. No detection, measurement or improvement of cognition.</li>
+  <li>No cognitive-condition inference. No score shown to the patient. No clinically meaningful threshold anywhere.</li>
+  <li>No clinical evidence. The harness numbers describe a control loop against synthetic patients.</li>
+  <li>No WCAG compliance claim. Three measured contrast ratios (body 14.5:1, accent on white 7.2:1) and one measured failure (the photo counter at 3.03:1), not an audit.</li>
+  <li>It needs a network once, to be obtained. It never needs one afterwards.</li>
+  <li>The one thing that leaves the device is speech input, because the browser's recogniser is cloud-backed. It is disclosed in the caregiver UI, off in one tap, and never required.</li>
+</ul>
+
+<h3>Deliberately not built</h3>
+<div class="tbl"><table>
+<thead><tr><th>Item</th><th>Why not now</th><th>What the honest next step would be</th></tr></thead>
+<tbody>
+<tr><td>Accounts, login</td><td>One device, one household; a login is a barrier for the person it is meant to help</td><td>Not planned for the patient side at all</td></tr>
+<tr><td>Encryption at rest</td><td>A web page cannot hold a key the user does not type</td><td>A native wrapper using the OS keystore</td></tr>
+<tr><td>Cloud sync, multi-patient</td><td>A different product; the brief is one household</td><td>The backup file is the primitive it would sit on</td></tr>
+<tr><td>Reminders while the app is closed</td><td>Needs an OS alarm a page cannot register</td><td>The #1 named weakness; a thin native alarm in the package</td></tr>
+<tr><td>Server-side or downloaded ML</td><td>Breaks offline and adds nothing the learner cannot do here</td><td>Regenerate the voice with a local model instead of a cloud one</td></tr>
+<tr><td>Cognitive-condition inference</td><td>Out of scope by principle, not by time</td><td>Never, in this product</td></tr>
+</tbody></table></div>
+
+<h3>Honest weaknesses, ranked</h3>
+<ol>
+  <li>Reminders cannot fire with the app closed.</li>
+  <li>No automated coverage of the caregiver mutation paths; the executable checks cover the store, the model, the matcher, the voice handover and a render of every screen, but not what a caregiver types.</li>
+  <li>Route parameters live outside the URL, so a reload loses them.</li>
+  <li>Claim discipline is enforced by review, not by a check. A twenty-line lint over the content files would make it structural.</li>
+  <li>The Assamese pack is unreviewed by a native speaker.</li>
+  <li>On the package, the photo picker and the backup download are unverified; the download is the most likely thing to break in a WebView.</li>
+</ol>
+
+<h2 id="c15"><span class="chap">Chapter 15</span>Facing the judges</h2>
+<p class="lede">The dangerous questions, the honest answers, and the tempting answer that loses the room.</p>
+
+<div class="qa">
+  <p class="q">"Where is the AI?"</p>
+  <p class="a">Two layers. A rules engine that moves the level on streaks, and an on-device learner, online logistic regression trained by gradient descent from this person's own rounds, that may nudge the level by one step toward a 75 percent success rate. About a hundred lines in <code>js/core/model.js</code>. No cloud, no LLM, no model file.</p>
+  <p class="trap"><b>Trap:</b> hedging with "it's only logistic regression". It is machine learning; say so, then say exactly what it does not do.</p>
+</div>
+<div class="qa">
+  <p class="q">"Does it detect early decline?"</p>
+  <p class="a">No, and it is built not to. It predicts success in an activity and nothing else. Every output describes activity performance. The disclaimer is on every caregiver screen.</p>
+  <p class="trap"><b>Trap:</b> "it could help detect...". That sentence turns an engagement tool into an unlicensed diagnostic.</p>
+</div>
+<div class="qa">
+  <p class="q">"How is this different from a flashcard app?"</p>
+  <p class="a">It speaks every prompt so no reading is needed, it adapts per person and shows the adaptation to the caregiver, and it covers the day: spoken reminders, Today, named photos that feed the recall activity. It runs on a 2017 tablet with no network.</p>
+  <p class="trap"><b>Trap:</b> answering with the activity list. Five activities is the flashcard app.</p>
+</div>
+<div class="qa">
+  <p class="q">"What happens with no internet?"</p>
+  <p class="a">Everything works. The web version precaches the shell and both audio packs; the package ships them inside. The only feature that touches a network is optional speech input, and it retires itself cleanly without one.</p>
+  <p class="trap"><b>Trap:</b> "it never needs the internet." It needs one, once, to be obtained; after that, none.</p>
+</div>
+<div class="qa">
+  <p class="q">"Is the caregiver hold secure?"</p>
+  <p class="a">No. It is a UX gate so a confused patient does not wander into the caregiver screens. All data is on the one device with no account to protect.</p>
+  <p class="trap"><b>Trap:</b> calling it a security feature.</p>
+</div>
+<div class="qa">
+  <p class="q">"Where is the evidence it works?"</p>
+  <p class="a">The control loop is validated against synthetic patients in a harness that reads the shipped constants. On real people we have no evidence, and we will not claim any until a study exists.</p>
+  <p class="trap"><b>Trap:</b> quoting the harness percentages as if they were outcomes.</p>
+</div>
+<div class="qa">
+  <p class="q">"Why no framework, no build step?"</p>
+  <p class="a">A runtime CDN request breaks airplane mode, and a build step adds a stage between source and the browser that a low-end device cannot benefit from. The whole view layer is 32 lines. The package does bundle for one old browser engine, and that is the stated edge of the rule.</p>
+  <p class="trap"><b>Trap:</b> "zero code changes" or "no build step" said flatly. Both are true of the app and not of the repo.</p>
+</div>
+<div class="qa">
+  <p class="q">"What is broken?"</p>
+  <p class="a">Reminders with the app closed. No caregiver-path tests. Unreviewed Assamese. Unverified photo picker and backup on the package. We would fix the alarm first.</p>
+  <p class="trap"><b>Trap:</b> "nothing is broken", or "we ran out of time".</p>
+</div>
+
+<h3>Demo script, five minutes</h3>
+<ol>
+  <li>Open on Entry. Tap Patient. Home speaks nothing; point out the three cards and the Home icon.</li>
+  <li>Tap Today. It speaks the next reminder. Tap Home.</li>
+  <li>Tap Let's Exercise. Let the intro play. Answer one Remembering round correctly, then tap a wrong tile in Find It to show "Not quite, try again" and the round waiting. Let one round complete and, if the sample data is loaded, the level-up line will play on the second correct answer in Remembering or Matching.</li>
+  <li>Hold the Home icon for two seconds. Show the ring filling. The dashboard opens.</li>
+  <li>Overview: alerts and last active. Engagement: the chart, one activity card with the dashed expectation line, the "watching for now" sentence on a fresh activity. Settings: the voice row, the language toggle, the sample-data banner.</li>
+  <li>Airplane mode on. Switch to Patient. Everything still speaks.</li>
+</ol>
+<p class="small">Before the demo: run <code>tools/demo.html</code> and render every screen, load demo data, and check Caregiver → Settings for the voice row on the actual device. If a one-handed hold is awkward on stage, open the app with <code>?caregiver=1</code> for a labelled button.</p>
+
+<h2 id="c16"><span class="chap">Chapter 16</span>Appendix</h2>
+
+<h3>Constants worth knowing</h3>
+<div class="tbl"><table>
+<thead><tr><th>Name</th><th>Value</th><th>File</th></tr></thead>
+<tbody>
+<tr><td>Rules: raise after / lower after</td><td>3 correct / 2 wrong</td><td><code>adaptive.js</code></td></tr>
+<tr><td>Levels</td><td>1 to 3, Gentle / Steady / Fuller</td><td><code>adaptive.js</code>, <code>content/*.json</code></td></tr>
+<tr><td>Learner target, rate, decay, window</td><td>0.75, 0.12, 0.002, 8 rounds</td><td><code>model.js</code></td></tr>
+<tr><td>Rounds before steering; minimum gain</td><td>6; 0.03</td><td><code>model.js</code></td></tr>
+<tr><td>Speech rate; ms per word; minimum spoken</td><td>0.9; 430; 1,100</td><td><code>voice.js</code></td></tr>
+<tr><td>Cancel poll and bound</td><td>40 ms, 600 ms</td><td><code>voice.js</code></td></tr>
+<tr><td>Matcher score and margin</td><td>0.7, 0.12</td><td><code>listen.js</code></td></tr>
+<tr><td>Hold duration</td><td>2,000 ms</td><td><code>shared.js</code>, <code>home.js</code></td></tr>
+<tr><td>Reminder poll</td><td>30 s</td><td><code>reminder-card.js</code></td></tr>
+<tr><td>Caps: rounds, sessions, log, photos</td><td>60, 30, 200, 20</td><td><code>store.js</code></td></tr>
+<tr><td>Photo downscale</td><td>640 px long edge, JPEG 0.75</td><td><code>memories-settings.js</code></td></tr>
+<tr><td>Alert thresholds</td><td>3 quiet days; 6 rounds under 40%</td><td><code>analytics.js</code></td></tr>
+<tr><td>Cache name</td><td><code>smriti-shell-v18</code></td><td><code>sw.js</code></td></tr>
+<tr><td>Touch minimum; root font</td><td>64 px; 18 px</td><td><code>base.css</code></td></tr>
+<tr><td>Package id; bundle target</td><td><code>in.smriti.app</code>; <code>chrome58</code></td><td><code>capacitor.config.json</code>, <code>stage-web.sh</code></td></tr>
+</tbody></table></div>
+
+<h3>Executable checks</h3>
+<ul>
+  <li><code>tools/demo.html</code>: seeds demo data and renders every screen, reporting anything that throws. The only automated check that the whole app executes.</li>
+  <li><code>tools/store-test.html</code>: persistence self-test including across a reload.</li>
+  <li><code>tools/model-harness.py</code> and <code>tools/model-test.html</code>: the learner against synthetic patients, the guardrail brute-force, and the golden trace.</li>
+  <li><code>tools/listen-test.html</code>: eighteen matcher cases, eight of which must resolve to nothing.</li>
+  <li><code>tools/voice-test.html</code>: the handover between recordings and the engine against real audio timing. Run on the phone.</li>
+</ul>
+
+<h3>Timeline</h3>
+<ul class="timeline">
+  <li><span class="d">29 August</span>The skeleton: patient rail, the first activity, the rules engine, the store, the service worker, the content pack. Voice guaranteed to fire its callback even with no engine.</li>
+  <li><span class="d">30 August</span>Everything made real: IndexedDB with typed collections, Exercise 1 rebuilt as a self-advancing session, Exercises 2 and 3, the reminders manager, Engagement and Overview on live data, photos with downscaling.</li>
+  <li><span class="d">31 August</span>The largest day. Demo seeding and the render-every-screen check, the motion pass, Exercises 4 and 5, the Assamese pack, analytics and alerts with hand-drawn charts, the reminder watcher, backup and restore, the regional artwork pass, the spoken level-up. Then the on-device learner with its harness, the pre-rendered neural voice, speech input, and the first overlap fix.</li>
+  <li><span class="d">1 September</span>The overlap hunt: async cancel, then the dropped reference. The caregiver hold made to work on a real phone, then extended to the Home icon.</li>
+  <li><span class="d">3 September</span>The honesty pass: both audio packs precached, persistent storage, the voice-status amber state, the README and defence documents corrected on "no ML". Then the Android package: runbook, staging script, first build on a Galaxy A23, the service-worker guard, the photo cap, the silent-microphone fix.</li>
+  <li><span class="d">4 September</span>The Chrome 58 tablet: bundle for the package, CSS fallbacks, verified over the DevTools socket.</li>
+</ul>
+
+<h3>Glossary</h3>
+<dl class="gloss">
+  <dt>PWA</dt><dd>Progressive web app. A web page that installs to the home screen and works offline through a service worker.</dd>
+  <dt>Service worker</dt><dd>A script the browser keeps that intercepts requests and serves them from a cache when the network is absent.</dd>
+  <dt>IndexedDB</dt><dd>The browser's on-device database. Large enough for photos, unlike localStorage.</dd>
+  <dt>Capacitor</dt><dd>A tool that wraps web assets in a native Android package with a WebView.</dd>
+  <dt>WebView</dt><dd>The browser engine embedded in an Android app. On the demo tablet it is Chrome 58 and cannot be updated.</dd>
+  <dt>Rules engine</dt><dd>The streak rule in <code>adaptive.js</code>. Three right, up; two wrong, down.</dd>
+  <dt>Learner</dt><dd>The logistic-regression model in <code>model.js</code> that may nudge the rules' level by one step.</dd>
+  <dt>Content pack</dt><dd>A JSON file holding every string and exercise definition for one language.</dd>
+  <dt>Templated line</dt><dd>A spoken line assembled at runtime from a name, an object or a time; it has no recording and needs the device engine.</dd>
+  <dt>Claim discipline</dt><dd>The rule that no user-visible text may describe cognition, only activity performance.</dd>
+  <dt>Gamosa, jaapi, xorai, dhol, tamul</dt><dd>Assamese objects in the catalogue: the woven cloth, the conical hat, the brass offering tray, the drum, the areca nut.</dd>
+</dl>
+
+<p class="foot">Smriti field guide · written against commit 5a54909 on 4 September 2026 · companion documents: docs/TECHNICAL.md, docs/DEFENSE.md, docs/APK.md, README.md</p>
+
+</main>
+</div>
+</body>
+</html>
