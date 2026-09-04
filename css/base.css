@@ -65,6 +65,7 @@ html, body {
 body::before {
   content: "";
   position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
   inset: 0;
   pointer-events: none;
   background:
@@ -101,6 +102,10 @@ button {
 /* Presses should feel physical — this is most of what "responsive" means. */
 button:active { transform: scale(0.97); }
 button:disabled { cursor: default; }
+/* Only keyboard focus draws a ring. Browsers too old for :focus-visible
+   (Chrome < 86) drop that rule and would otherwise paint their default ring on
+   every tap, which on a patient screen reads as clutter. */
+button:focus { outline: none; }
 button:focus-visible { outline: 3px solid var(--warm); outline-offset: 3px; }
 
 .empty-state {

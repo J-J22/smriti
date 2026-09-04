@@ -2,7 +2,10 @@
 
 Runbook. Written before the first build, then corrected against it. The build
 described here has been made, installed and launched on a Galaxy A23 (SM-A235F,
-Android 14, API 34, WebView 151). Anything still unverified is marked as such.
+Android 14, API 34, WebView 151) and on a Lenovo TB-7304I (Android 7.0, API 24,
+918 MB RAM, system WebView Chrome 58, never updated). The Lenovo is the device
+the pitch is about, and it is the one that forced section 4a. Anything still
+unverified is marked as such.
 
 **The rule this document exists under:** the PWA remains the demo path until the
 APK has passed the same device checklist. Building the APK does not retire the
@@ -109,9 +112,62 @@ It excludes `.git`, `docs/`, `node_modules/`, `android/` and — importantly —
 **`tools/`**, which contains the demo seeder and its wipe-everything button.
 That must never ship inside a build a judge can hold.
 
+It then bundles the JavaScript (next section) and rewrites the script tag in
+the staged `index.html`. The script fails loudly if either step did not happen.
+
 Re-run it after **every** change to the app, before `cap sync`. Forgetting is
 the Capacitor equivalent of forgetting to bump `CACHE_NAME`, and it presents the
 same way: your change is missing and nothing says why.
+
+---
+
+## 4a. Why the package gets a bundle, and the PWA does not
+
+The app is written as ES modules: `<script type="module" src="js/app.js">`.
+Module scripts need Chrome 61. The Lenovo TB-7304I ships Chrome 58 as its
+system WebView, its standalone WebView package is a disabled stub, and the Play
+Store never updates it — so it never even *requests* the JavaScript and paints
+a blank cream page. Served over the LAN, the server log showed HTML, CSS and
+icon fetched, and zero JS. That is the entire failure.
+
+Devices like this are the point of the project, so "update Chrome" is not an
+answer. The fix lives in `tools/stage-web.sh` and touches only the staged copy:
+
+- **esbuild** (a dev dependency, installed by `npm install`) bundles the modules
+  into one classic script at `www/js/app.js`, target `chrome58`, so syntax newer
+  than that is lowered. `async`/`await` and arrow functions are left native;
+  Chrome 58 has them.
+- `import.meta.url` does not exist in a classic script. The two modules that use
+  it resolve paths relative to `js/core/`, so the bundle defines it as that URL
+  relative to the script's own location.
+- The staged `index.html` loads `<script src="js/app.js" defer>`; the leftover
+  `www/js/core` and `www/js/screens` directories are removed.
+- `capacitor.config.json` sets `minWebViewVersion: 55` so Capacitor stops
+  logging that the WebView is unsupported (it never actually refused to load —
+  without `errorPath` it only logs).
+
+The PWA source is untouched and still has no build step: served from the repo,
+it is the same module files it always was. The bundle exists only inside the
+package. If you ever add syntax to the app, the bundle absorbs it; if you add an
+*API* (a new `navigator.*`, a new array method), esbuild cannot polyfill it, and
+Chrome 58 is the floor to check against.
+
+**CSS on Chrome 58.** Three fallbacks live in the source, all no-ops on a
+modern browser:
+
+- `inset: 0` is preceded by `top/right/bottom/left: 0` (Chrome 87 for `inset`).
+- The one grid gets `grid-gap` before `gap` (`gap` on grid is Chrome 66).
+- Flex `gap` (Chrome 84) is rebuilt from margins in a `@supports not (gap: 1px)`
+  block at the end of `patient.css` and `caregiver.css`. Add a new flex
+  container with `gap`, add a line there, or Chrome 58 collapses its spacing.
+- `button:focus { outline: none }` sits before the `:focus-visible` rule, because
+  a browser that cannot parse `:focus-visible` would otherwise paint its default
+  ring on every tap.
+
+Verified on the Lenovo: entry, patient home, all exercises, caregiver overview,
+bundled audio playing without a gesture, no console errors over a session of
+taps. `speechSynthesis` is simply absent in this WebView (not just voiceless),
+which the app already handles.
 
 ---
 
@@ -155,11 +211,15 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 
 The web behaviour is already verified; only WebView differences are unknown.
 
-- [x] App launches full-screen, portrait — verified on the A23
-- [x] Entry and Patient Home render, no JavaScript errors — verified
+- [x] App launches full-screen, portrait — verified on the A23 and the Lenovo
+- [x] Entry and Patient Home render, no JavaScript errors — verified on both
+- [x] Exercises and caregiver overview render with correct spacing on Chrome 58
+      — verified on the Lenovo (section 4a)
 - [ ] Correct icon on the launcher
 - [ ] **Airplane mode from the very first launch** — the whole point of packaging
-- [ ] English audio on every patient screen
+- [x] English audio plays inside the WebView with no gesture — verified on the
+      Lenovo by playing a bundled clip from DevTools; not yet checked on every
+      screen by ear
 - [ ] **Assamese audio offline with no prior online use** — impossible in the PWA,
       expected to work here
 - [ ] Templated lines ("Tap the gamosa", "It is time for medicine") — these need
@@ -210,9 +270,18 @@ no browser download manager behind it in a WebView. If it fails, the fix is
 `@capacitor/filesystem` plus the share sheet — which is arguably better UX than
 a silent file drop anyway.
 
-**Debugging the WebView still uses `chrome://inspect`**, with the app running.
-So the USB issue is worth fixing before relying on the APK, even though
-installing one does not need it.
+**Debugging the WebView** uses `chrome://inspect` with the app running, or,
+without a desktop Chrome, the raw DevTools socket over adb:
+
+```bash
+adb shell cat /proc/net/unix | grep -a devtools     # webview_devtools_remote_<pid>
+adb forward tcp:9223 localabstract:webview_devtools_remote_<pid>
+curl -s http://127.0.0.1:9223/json                  # page targets + websocket URLs
+```
+
+Anything you `Runtime.evaluate` over that socket runs in the *device's* engine:
+no `?.`, no `??` on Chrome 58. The tablet also needs the **Allow USB debugging**
+prompt accepted; until then `adb devices` shows it as `unauthorized`.
 
 ---
 
@@ -224,6 +293,6 @@ installing one does not need it.
 | Scaffold and stage | 5 min |
 | First successful build | ~2 min once the JDK is right; Gradle self-downloads on run one |
 | Install and launch | 2 min |
-| WebView fixes | 1 found and fixed so far; photo picker and backup still unverified |
+| WebView fixes | 2 found and fixed (service worker; Chrome 58 bundle + CSS); photo picker and backup still unverified |
 
 APK size: roughly 12–15 MB; the 6.5 MB of audio dominates.

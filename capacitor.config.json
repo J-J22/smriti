@@ -3,7 +3,8 @@
   "appName": "Smriti",
   "webDir": "www",
   "android": {
-    "allowMixedContent": false
+    "allowMixedContent": false,
+    "minWebViewVersion": 55
   },
   "server": {
     "androidScheme": "https"

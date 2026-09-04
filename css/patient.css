@@ -387,6 +387,7 @@
 .tiles {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  grid-gap: 0.9rem;
   gap: 0.9rem;
   width: 100%;
   max-width: 460px;
@@ -505,6 +506,7 @@
 
 .reminder-overlay {
   position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
   inset: 0;
   background: rgba(253, 247, 239, 0.97);
   backdrop-filter: blur(3px);
@@ -750,4 +752,25 @@
 
 @media (prefers-reduced-motion: reduce) {
   .mic-btn.is-listening { animation: none; }
+}
+
+/* Chrome < 66 does not know `gap` at all (flex gap arrived in 84). The
+   never-updated tablets this app is for run Chrome 58, so on those the
+   spacing above collapses to nothing. This block only applies where `gap`
+   is not understood and rebuilds it from margins; modern browsers skip it. */
+@supports not (gap: 1px) {
+  .patient-screen > * + * { margin-top: 1.75rem; }
+  .exercise-screen > * + * { margin-top: 1.15rem; }
+  .card-grid > * + * { margin-top: 1.1rem; }
+  .big-card > * + * { margin-left: 1.25rem; }
+  .home-next > * + * { margin-left: 0.75rem; }
+  .nav-row > * + * { margin-left: 1rem; }
+  .options > * { margin: 0.45rem; }
+  .option-btn > * + * { margin-top: 0.5rem; }
+  .steps > * { margin: 0.45rem; }
+  .step-card > * + * { margin-top: 0.4rem; }
+  .pattern-row > * { margin: 0.3rem; }
+  .reminder-card > * + * { margin-top: 1rem; }
+  .mic-row > * + * { margin-top: 0.35rem; }
+  .mic-btn > * + * { margin-left: 0.6rem; }
 }

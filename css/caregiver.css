@@ -515,3 +515,22 @@
   margin-top: 0.3rem;
   color: var(--accent-ink, #8a5a2b);
 }
+
+/* Margin fallback for browsers that do not understand `gap` (Chrome < 66).
+   See the matching block at the end of patient.css. */
+@supports not (gap: 1px) {
+  .menu > * + * { margin-top: 0.75rem; }
+  .form-buttons > * + * { margin-left: 1rem; }
+  .reminder-open > * + * { margin-left: 1rem; }
+  .reminder-meta > * + * { margin-top: 0.15rem; }
+  .stat-row { margin: -0.5rem -0.5rem 0.25rem; }
+  .stat-row > * { margin: 0.5rem; }
+  .stat > * + * { margin-top: 0.2rem; }
+  .card-list > * + * { margin-top: 1rem; }
+  .level-row > * + * { margin-left: 0.6rem; }
+  .round-marks > * + * { margin-left: 0.35rem; }
+  .photo-row > * + * { margin-left: 1rem; }
+  .setting-text > * + * { margin-top: 0.2rem; }
+  .alert-list > * + * { margin-top: 0.5rem; }
+  .menu-btn > * + * { margin-left: 0.75rem; }
+}
